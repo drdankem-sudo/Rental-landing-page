@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keja — Rental Infrastructure for Kenya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --white: #FFFFFF; --black: #0D0D0D;
+  --green: #0F4C2E; --green-light: #1A6B40; --green-tint: #E8F0EC;
+  --warm: #FFFFFF; --gray: #6B6B6B; --gray-light: #A0A0A0;
+  --serif: 'Instrument Serif', serif; --sans: 'Outfit', sans-serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--sans); background: var(--white); color: var(--black); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+/* ═══════ NAV ═══════ */
+nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1.25rem 3rem; display: flex; align-items: center; justify-content: space-between; transition: all 0.4s; }
+nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.06); padding: 0.9rem 3rem; }
+.nav-logo { font-weight: 700; font-size: 1.5rem; letter-spacing: -0.03em; color: var(--black); text-decoration: none; }
+.nav-logo span { color: var(--green); }
+.nav-links { display: flex; gap: 2.5rem; align-items: center; }
+.nav-links a { font-size: 0.85rem; font-weight: 500; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--black); }
+.nav-cta { background: var(--green) !important; color: var(--white) !important; padding: 0.6rem 1.5rem !important; border-radius: 100px; font-weight: 600 !important; font-size: 0.82rem !important; }
+.nav-cta:hover { background: var(--green-light) !important; }
+
+/* ═══════ HERO — SPLIT LAYOUT ═══════ */
+.hero { min-height: 350vh; position: relative; }
+.hero-sticky {
+  position: sticky; top: 0; height: 100vh; width: 100%;
+  background: var(--white); overflow: hidden;
+  display: grid;
+  grid-template-columns: 38% 62%;
+  align-items: center;
+}
+
+/* ── Left: text ── */
+.hero-text {
+  padding: 0 2rem 0 4rem;
+  z-index: 10;
+}
+.hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem 0.4rem 0.5rem; background: var(--green-tint); border-radius: 100px; font-size: 0.75rem; font-weight: 500; color: var(--green); margin-bottom: 1.2rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
+.hero-badge-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse-dot 2s infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.hero-text h1 { font-family: var(--serif); font-size: clamp(2.6rem, 4.5vw, 4.2rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 400; opacity: 0; animation: fadeUp 0.8s 0.4s forwards; }
+.hero-text h1 em { font-style: italic; color: var(--green); }
+.hero-text > p { font-size: 0.95rem; color: var(--gray); max-width: 380px; margin-top: 1rem; line-height: 1.6; font-weight: 300; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
+.hero-ctas { display: flex; gap: 1rem; margin-top: 1.8rem; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
+.hero-scroll-hint { margin-top: 2.5rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gray-light); font-weight: 500; display: flex; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 0.8s 1.2s forwards; transition: opacity 0.4s; }
+.hero-scroll-hint svg { animation: bounce-down 1.5s infinite; }
+@keyframes bounce-down { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+/* ── Right: building — bleeds off-screen ── */
+.hero-building-area {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+.hero-building-area video {
+  height: 110vh;
+  width: auto;
+  display: block;
+  background: var(--white);
+  mix-blend-mode: multiply;
+  filter: brightness(1.15) contrast(1.1);
+  -webkit-mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%);
+  mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%);
+}
+
+/* ═══════ CALLOUT LABELS ═══════ */
+.callout-labels {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.cl {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cl.show { opacity: 1; }
+
+/* Right-pointing: [dot]---[line]---[label] */
+.cl.right { flex-direction: row; }
+.cl.right .cl-label { transform: translateX(16px); transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+.cl.right.show .cl-label { transform: translateX(0); }
+
+/* Left-pointing: [label]---[line]---[dot] */
+.cl.left { flex-direction: row-reverse; }
+.cl.left .cl-label { transform: translateX(-16px); transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+.cl.left.show .cl-label { transform: translateX(0); }
+
+.cl-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--green); flex-shrink: 0;
+  box-shadow: 0 0 0 4px rgba(15,76,46,0.15), 0 0 0 8px rgba(15,76,46,0.06);
+}
+.cl-line {
+  height: 2.5px;
+  background: var(--green);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* THE LABEL — bold, readable, with subtitle */
+.cl-label {
+  flex-shrink: 0;
+  background: var(--green);
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  box-shadow: 0 4px 20px rgba(15,76,46,0.2);
+}
+.cl-label-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+.cl-label-sub {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 400;
+  line-height: 1.3;
+  margin-top: 0.15rem;
+}
+
+/* ═══════ BUTTONS ═══════ */
+.btn-primary { background: var(--green); color: var(--white); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.25s; text-decoration: none; }
+.btn-primary:hover { background: var(--green-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(15,76,46,0.2); }
+.btn-secondary { background: transparent; color: var(--black); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 500; font-size: 0.9rem; border: 1.5px solid rgba(0,0,0,0.15); cursor: pointer; transition: all 0.25s; text-decoration: none; }
+.btn-secondary:hover { border-color: var(--black); }
+
+/* ═══════ SECTIONS ═══════ */
+.section { padding: 7rem 3rem; max-width: 1200px; margin: 0 auto; }
+.section-full { padding: 7rem 3rem; }
+.section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--green); font-weight: 600; margin-bottom: 1.2rem; }
+.section-title { font-family: var(--serif); font-size: clamp(2rem,4vw,3.2rem); line-height: 1.15; max-width: 650px; letter-spacing: -0.02em; font-weight: 400; }
+.section-title em { font-style: italic; color: var(--green); }
+.section-desc { font-size: 1.05rem; color: var(--gray); line-height: 1.7; max-width: 500px; margin-top: 1rem; font-weight: 300; }
+
+.problem-section { background: var(--warm); }
+.problem-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+.problem-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.problem-card { background: var(--white); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.problem-card.visible { opacity: 1; transform: translateY(0); }
+.problem-card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.8rem; color: rgba(0,0,0,0.5); }
+.problem-card h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem; }
+.problem-card p { font-size: 0.78rem; color: var(--gray); line-height: 1.55; font-weight: 300; }
+.pc-red .problem-card-icon { background: #FEE2E2; }
+.pc-orange .problem-card-icon { background: #FEF3C7; }
+.pc-purple .problem-card-icon { background: #EDE9FE; }
+.pc-gray .problem-card-icon { background: #F3F4F6; }
+
+.how-section { text-align: center; }
+.flow-container { display: flex; align-items: stretch; justify-content: center; margin-top: 4rem; }
+.flow-step { flex: 1; max-width: 320px; padding: 2.5rem 2rem; text-align: center; opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.33,1,0.68,1); }
+.flow-step.visible { opacity: 1; transform: translateY(0); }
+.flow-number { width: 48px; height: 48px; border-radius: 50%; background: var(--green); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 1.2rem; }
+.flow-step h3 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 0.6rem; }
+.flow-step p { font-size: 0.88rem; color: var(--gray); line-height: 1.6; font-weight: 300; }
+.flow-connector { width: 80px; display: flex; align-items: center; }
+.flow-connector::after { content: ''; width: 100%; height: 2px; background: repeating-linear-gradient(90deg, var(--green) 0, var(--green) 6px, transparent 6px, transparent 12px); opacity: 0.3; }
+.flow-ussd { margin-top: 1rem; display: inline-block; padding: 0.4rem 1rem; background: var(--black); color: #4ADE80; font-family: 'Courier New', monospace; font-size: 0.82rem; border-radius: 6px; font-weight: 600; }
+
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: rgba(0,0,0,0.06); border-radius: 16px; overflow: hidden; margin-top: 3.5rem; }
+.feature-card { background: var(--white); padding: 2.5rem 2rem; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.feature-card.visible { opacity: 1; transform: translateY(0); }
+.feature-card:hover { background: var(--green-tint); }
+.feature-icon { margin-bottom: 1.2rem; line-height: 0; }
+.feature-card h4 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem; }
+.feature-card p { font-size: 0.82rem; color: var(--gray); line-height: 1.6; font-weight: 300; }
+
+.trust-section { background: var(--black); color: var(--white); }
+.trust-inner { max-width: 1200px; margin: 0 auto; }
+.trust-section .section-label { color: #4ADE80; }
+.trust-section .section-title { color: var(--white); }
+.trust-section .section-title em { color: #4ADE80; }
+.trust-section .section-desc { color: rgba(255,255,255,0.5); }
+.trust-items { display: grid; grid-template-columns: repeat(4,1fr); gap: 2rem; margin-top: 3.5rem; }
+.trust-item { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.trust-item.visible { opacity: 1; transform: translateY(0); }
+.trust-item-number { font-family: var(--serif); font-size: 2.5rem; color: #4ADE80; line-height: 1; margin-bottom: 0.6rem; }
+.trust-item h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.3rem; }
+.trust-item p { font-size: 0.78rem; color: rgba(255,255,255,0.45); line-height: 1.55; font-weight: 300; }
+
+.stats-strip { border-top: 1px solid rgba(0,0,0,0.06); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.stats-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); }
+.stat-item { padding: 3rem 2rem; text-align: center; border-right: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.stat-item:last-child { border-right: none; }
+.stat-item.visible { opacity: 1; transform: translateY(0); }
+.stat-number { font-family: var(--serif); font-size: 2.8rem; color: var(--green); line-height: 1; }
+.stat-label { font-size: 0.78rem; color: var(--gray); margin-top: 0.5rem; }
+
+.ecosystem-section { background: var(--warm); }
+.eco-inner { max-width: 1200px; margin: 0 auto; }
+.eco-timeline { display: flex; margin-top: 3.5rem; position: relative; }
+.eco-timeline::before { content: ''; position: absolute; top: 28px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--green), var(--green-light), rgba(26,107,64,0.2)); }
+.eco-phase { flex: 1; padding-top: 3.5rem; padding-right: 2rem; position: relative; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.eco-phase.visible { opacity: 1; transform: translateY(0); }
+.eco-phase::before { content: ''; position: absolute; top: 20px; left: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--green); border: 3px solid var(--white); box-shadow: 0 0 0 2px var(--green); }
+.eco-phase-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--green); font-weight: 600; margin-bottom: 0.5rem; }
+.eco-phase h4 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem; }
+.eco-phase p { font-size: 0.82rem; color: var(--gray); line-height: 1.55; font-weight: 300; }
+.eco-services { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+.eco-tag { padding: 0.25rem 0.7rem; background: var(--white); border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--gray); border: 1px solid rgba(0,0,0,0.08); }
+
+.cta-section { text-align: center; padding: 9rem 3rem; position: relative; }
+.cta-section .section-title { margin: 0 auto; max-width: 700px; font-size: clamp(2.2rem,5vw,3.8rem); }
+.cta-section .section-desc { margin: 1.2rem auto 0; text-align: center; max-width: 450px; }
+.cta-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 2.5rem; }
+.cta-bg-text { position: absolute; font-family: var(--serif); font-size: clamp(6rem,15vw,14rem); color: rgba(0,0,0,0.02); pointer-events: none; top: 50%; left: 50%; transform: translate(-50%,-50%); white-space: nowrap; }
+
+footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.footer-left { font-size: 0.78rem; color: var(--gray-light); }
+.footer-links { display: flex; gap: 2rem; }
+.footer-links a { font-size: 0.78rem; color: var(--gray); text-decoration: none; }
+.footer-links a:hover { color: var(--black); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 900px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links a:not(.nav-cta) { display: none; }
+  .section, .section-full { padding: 4rem 1.5rem; }
+  .hero-sticky { grid-template-columns: 1fr; }
+  .hero-text { padding: 6rem 1.5rem 1rem; text-align: center; }
+  .hero-text h1 { text-align: center; }
+  .hero-text > p { text-align: center; margin-left: auto; margin-right: auto; }
+  .hero-ctas { justify-content: center; }
+  .hero-scroll-hint { justify-content: center; }
+  .hero-building-area video { height: 50vh; margin-left: 0; }
+  .cl { display: none; }
+  .problem-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .flow-container { flex-direction: column; align-items: center; }
+  .flow-connector { width: auto; height: 40px; }
+  .flow-connector::after { width: 2px; height: 100%; }
+  .features-grid { grid-template-columns: 1fr; }
+  .trust-items { grid-template-columns: 1fr 1fr; }
+  .stats-inner { grid-template-columns: 1fr 1fr; }
+  .stat-item { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .eco-timeline { flex-direction: column; gap: 2rem; }
+  .eco-timeline::before { width: 2px; height: 100%; top: 0; left: 7px; }
+  .eco-phase { padding-left: 2.5rem; padding-top: 0; }
+  .eco-phase::before { top: 0; }
+}
+@media (max-width: 600px) {
+  .hero-text h1 { font-size: 2rem; }
+  .hero-ctas { flex-direction: column; align-items: center; }
+  .problem-cards { grid-template-columns: 1fr; }
+  .trust-items { grid-template-columns: 1fr; }
+  .stats-inner { grid-template-columns: 1fr; }
+  .cta-buttons { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="#" class="nav-logo">ke<span>ja</span></a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#ecosystem">Ecosystem</a>
+    <a href="#cta" class="nav-cta">Get early access</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-sticky">
+
+    <!-- LEFT: copy -->
+    <div class="hero-text">
+      <div class="hero-badge"><div class="hero-badge-dot"></div>Rental infrastructure for Kenya</div>
+      <h1>We took rental <em>apart.</em><br>So you don't have to.</h1>
+      <p>Keja is the invisible infrastructure through which rent moves, receipts file, and trust builds — from Nairobi to Narok.</p>
+      <div class="hero-ctas">
+        <a href="#cta" class="btn-primary">Join the waitlist</a>
+        <a href="#how" class="btn-secondary">See how it works</a>
+      </div>
+      <div class="hero-scroll-hint" id="scrollHint">
+        Scroll to disassemble
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v8m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <!-- RIGHT: building + labels -->
+    <div class="hero-building-area">
+      <video id="heroVideo" src="keja-building.mp4" muted playsinline preload="auto"></video>
+
+      <div class="callout-labels">
+
+        <!-- LEFT side of building (these point left, dot on building edge) -->
+        <div class="cl left" data-appear="0.20" style="top: 68%; right: 48%;">
+          <div class="cl-dot"></div>
+          <div class="cl-line" style="width: 90px;"></div>
+          <div class="cl-label">
+            <div class="cl-label-title">Instant Rent Collection</div>
+            <div class="cl-label-sub">Exact amount to landlord. No delays.</div>
+          </div>
+        </div>
+
+        <div class="cl left" data-appear="0.40" style="top: 42%; right: 45%;">
+          <div class="cl-dot"></div>
+          <div class="cl-line" style="width: 110px;"></div>
+          <div class="cl-label">
+            <div class="cl-label-title">KRA Tax Compliance</div>
+            <div class="cl-label-sub">Auto-generated rental tax invoices.</div>
+          </div>
+        </div>
+
+        <div class="cl left" data-appear="0.60" style="top: 18%; right: 42%;">
+          <div class="cl-dot"></div>
+          <div class="cl-line" style="width: 140px;"></div>
+          <div class="cl-label">
+            <div class="cl-label-title">Dispute Resolution</div>
+            <div class="cl-label-sub">Every payment gets a verifiable URL.</div>
+          </div>
+        </div>
+
+        <!-- RIGHT side of building (these point right, dot on building edge) -->
+        <div class="cl right" data-appear="0.10" style="top: 82%; left: 55%;">
+          <div class="cl-dot"></div>
+          <div class="cl-line" style="width: 120px;"></div>
+          <div class="cl-label">
+            <div class="cl-label-title">M-Pesa Payment Rails</div>
+            <div class="cl-label-sub">Paybill in, B2C out. Under 3 seconds.</div>
+          </div>
+        </div>
+
+        <div class="cl right" data-appear="0.30" style="top: 55%; left: 58%;">
+          <div class="cl-dot"></div>
+          <div class="cl-line" style="width: 80px;"></div>
+          <div class="cl-label">
+            <div class="cl-label-title">Dual-Party Receipts</div>
+            <div class="cl-label-sub">Both sides get M-Pesa proof. Always.</div>
+          </div>
+        </div>
+
+        <div class="cl right" data-appear="0.50" style="top: 30%; left: 52%;">
+          <div class="cl-dot"></div>
+          <div class="cl-line" style="width: 120px;"></div>
+          <div class="cl-label">
+            <div class="cl-label-title">Tenant Verification</div>
+            <div class="cl-label-sub">ID-linked profiles. Payment as reputation.</div>
+          </div>
+        </div>
+
+        <div class="cl right" data-appear="0.70" style="top: 8%; left: 48%;">
+          <div class="cl-dot"></div>
+          <div class="cl-line" style="width: 160px;"></div>
+          <div class="cl-label">
+            <div class="cl-label-title">Maintenance & Services</div>
+            <div class="cl-label-sub">Fundi marketplace. Cleaning. Utilities.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════ PROBLEM ═══════════════ -->
+<section class="section-full problem-section">
+  <div class="problem-inner">
+    <div>
+      <span class="section-label">The problem</span>
+      <h2 class="section-title">You're managing property with <em>M-Pesa screenshots</em> and prayer</h2>
+      <p class="section-desc">You own the building. But you don't own the data, the receipts, or the proof. Every month is a guessing game — who paid, who's lying, and where the caretaker's cut went.</p>
+    </div>
+    <div class="problem-cards">
+      <div class="problem-card pc-red" data-animate><div class="problem-card-icon">KES</div><h4>You can't prove your income</h4><p>No records means no bank loans, no KRA compliance, no proof your buildings earn what they earn.</p></div>
+      <div class="problem-card pc-orange" data-animate><div class="problem-card-icon">KRA</div><h4>Tax is a nightmare you ignore</h4><p>You know you should file rental income. But the paperwork is impossible. So you don't. And the risk grows.</p></div>
+      <div class="problem-card pc-purple" data-animate><div class="problem-card-icon">?=?</div><h4>Tenants say they paid. Did they?</h4><p>No receipts. No trail. Just WhatsApp arguments and a caretaker whose numbers never quite add up.</p></div>
+      <div class="problem-card pc-gray" data-animate><div class="problem-card-icon">NBO</div><h4>Every tool charges you monthly</h4><p>KES 1,500–4,500/month for software you barely use. Why are you paying to collect your own rent?</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section how-section" id="how">
+  <span class="section-label">How it works</span>
+  <h2 class="section-title" style="text-align:center;margin:0 auto;">You set the rent. <em>Keja does the rest.</em></h2>
+  <p class="section-desc" style="text-align:center;margin:1rem auto 0;">No software to learn. No subscription to pay. Your tenants pay through Keja, you receive the exact rent you set — instantly, with proof.</p>
+  <div class="flow-container">
+    <div class="flow-step" data-animate><div class="flow-number">1</div><h3>Tenant dials or pays</h3><p>USSD or M-Pesa Paybill. The same motion they already use. No app download. Works on any phone.</p><div class="flow-ussd">*384*456#</div></div>
+    <div class="flow-connector"></div>
+    <div class="flow-step" data-animate><div class="flow-number">2</div><h3>Rent arrives in your M-Pesa</h3><p>The exact amount you set. In under 3 seconds. Keja never holds your money — it routes through, never sits.</p><div style="margin-top:1rem;font-size:0.72rem;color:var(--gray-light);font-weight:500;">You pay nothing. Zero. Ever.</div></div>
+    <div class="flow-connector"></div>
+    <div class="flow-step" data-animate><div class="flow-number">3</div><h3>Records build themselves</h3><p>Receipts to both parties. KRA tax invoices auto-filed. Payment history tracked. Your books are done before you check them.</p><div style="margin-top:1rem;"><span style="font-size:0.72rem;padding:0.3rem 0.8rem;background:var(--green-tint);border-radius:100px;color:var(--green);font-weight:600;">✓ Verified on M-Pesa</span></div></div>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div style="text-align:center;">
+    <span class="section-label">What you get — for free</span>
+    <h2 class="section-title" style="margin:0 auto;text-align:center;">Other platforms charge for this. <em>Keja doesn't.</em></h2>
+    <p class="section-desc" style="margin:1rem auto 0;text-align:center;">Every feature competitors sell for KES 1,500–4,500/month is built into the rails. You never see a bill.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="22" width="24" height="4" rx="1" fill="var(--green)" opacity="0.2"/><rect x="6" y="14" width="20" height="8" rx="1" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M12 14v8M20 14v8" stroke="var(--green)" stroke-width="1" opacity="0.4"/><path d="M6 14l10-8 10 8" stroke="var(--green)" stroke-width="1.5" fill="none"/></svg></div><h4>Your rent, in seconds</h4><p>Tenant pays, you receive — in under 3 seconds. The exact amount. Straight to your M-Pesa. No waiting, no clearing.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="3" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="18" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M14 14h4M14 18h4" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="2 2"/><rect x="5" y="11" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.2"/><rect x="24" y="11" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.2"/></svg></div><h4>No more "I already paid"</h4><p>Both you and the tenant get a receipt with an M-Pesa transaction code. Disputes end before they start.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="6" y="10" width="20" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M6 15h20" stroke="var(--green)" stroke-width="1" opacity="0.3"/><rect x="9" y="18" width="6" height="2" rx="0.5" fill="var(--green)" opacity="0.3"/><rect x="9" y="22" width="10" height="1" rx="0.5" fill="var(--green)" opacity="0.2"/><path d="M22 6l3 4h-6l3-4z" fill="var(--green)" opacity="0.15" stroke="var(--green)" stroke-width="1.5"/></svg></div><h4>KRA sorted, automatically</h4><p>Rental income tax invoices filed as rent comes in. Not at year-end. Not by your accountant. By the system.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="8" y="4" width="16" height="24" rx="2" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="11" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="11" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="14.5" y="24" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.15"/></svg></div><h4>Any phone. Any town.</h4><p>Your tenant in Lodwar on a KES 3,000 phone with 2G can pay rent the same way someone in Westlands does. USSD.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="5" y="6" width="22" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="8" y="9" width="7" height="5" rx="0.5" fill="var(--green)" opacity="0.15"/><rect x="8" y="16" width="10" height="1" rx="0.5" fill="var(--green)" opacity="0.2"/><rect x="8" y="19" width="6" height="1" rx="0.5" fill="var(--green)" opacity="0.15"/><circle cx="23" cy="11" r="2" stroke="var(--green)" stroke-width="1.2" fill="none"/><path d="M22 13l2-2" stroke="var(--green)" stroke-width="1.2"/><rect x="12" y="24" width="8" height="3" rx="0.5" fill="var(--green)" opacity="0.1" stroke="var(--green)" stroke-width="1"/></svg></div><h4>Know who's moving in</h4><p>Every tenant builds a Keja profile — ID-verified, payment history tracked. Their reputation follows them. Yours is protected.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="7" y="4" width="18" height="20" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M11 10h10M11 14h7" stroke="var(--green)" stroke-width="1" opacity="0.3"/><path d="M16 20v8M12 24l4 4 4-4" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4>Your data. Always.</h4><p>Export everything — every payment, every tenant, every record. We never lock you in. Leave any time with all your history.</p></div>
+  </div>
+</section>
+
+<section class="section-full trust-section">
+  <div class="trust-inner">
+    <span class="section-label">Trust architecture</span>
+    <h2 class="section-title">Transparency isn't a feature. It's the <em>foundation.</em></h2>
+    <p class="section-desc">Every shilling traceable. Every receipt verifiable. Every record exportable. We built Keja so you never have to take our word for it.</p>
+    <div class="trust-items">
+      <div class="trust-item" data-animate><div class="trust-item-number">0</div><h4>Seconds we hold your money</h4><p>Rent routes through, never sits.</p></div>
+      <div class="trust-item" data-animate><div class="trust-item-number">2</div><h4>Receipts per transaction</h4><p>Both parties get proof.</p></div>
+      <div class="trust-item" data-animate><div class="trust-item-number">100%</div><h4>Data exportable</h4><p>Every record downloadable.</p></div>
+      <div class="trust-item" data-animate><div class="trust-item-number">Live</div><h4>M-Pesa verification</h4><p>Verify us against them.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section-full stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item" data-animate><div class="stat-number">4.7M</div><div class="stat-label">Rental households in Kenya</div></div>
+    <div class="stat-item" data-animate><div class="stat-number">88%</div><div class="stat-label">Rent from individual landlords</div></div>
+    <div class="stat-item" data-animate><div class="stat-number">78%</div><div class="stat-label">Urban rental rate</div></div>
+    <div class="stat-item" data-animate><div class="stat-number">< 3s</div><div class="stat-label">Rent arrives in landlord's M-Pesa</div></div>
+  </div>
+</section>
+
+<section class="section-full ecosystem-section" id="ecosystem">
+  <div class="eco-inner">
+    <span class="section-label">The ecosystem</span>
+    <h2 class="section-title">Rent is the <em>foundation.</em><br>Not the ceiling.</h2>
+    <p class="section-desc">Once the payment rails exist, everything else plugs in.</p>
+    <div class="eco-timeline">
+      <div class="eco-phase" data-animate><div class="eco-phase-label">Foundation</div><h4>Payment Rails</h4><p>Rent collection, receipts, tax compliance.</p><div class="eco-services"><span class="eco-tag">M-Pesa paybill</span><span class="eco-tag">USSD</span><span class="eco-tag">Auto receipts</span></div></div>
+      <div class="eco-phase" data-animate><div class="eco-phase-label">Layer 2</div><h4>Property Operations</h4><p>Maintenance, fundi marketplace, cleaning.</p><div class="eco-services"><span class="eco-tag">Fundi network</span><span class="eco-tag">Cleaning</span><span class="eco-tag">Utilities</span></div></div>
+      <div class="eco-phase" data-animate><div class="eco-phase-label">Layer 3</div><h4>Tenant Ecosystem</h4><p>Vacancy listings, verification, bill splitting.</p><div class="eco-services"><span class="eco-tag">Listings</span><span class="eco-tag">ID verification</span><span class="eco-tag">Bill split</span></div></div>
+      <div class="eco-phase" data-animate><div class="eco-phase-label">Layer 4</div><h4>Financial Services</h4><p>Insurance, rent-to-own, credit scoring.</p><div class="eco-services"><span class="eco-tag">Insurance</span><span class="eco-tag">Credit scoring</span><span class="eco-tag">Rent-to-own</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="cta">
+  <div class="cta-bg-text">keja</div>
+  <span class="section-label">Ready?</span>
+  <h2 class="section-title" style="text-align:center;">The foundation is <em>poured.</em><br>Build with us.</h2>
+  <p class="section-desc" style="text-align:center;">We're onboarding landlords and property managers in Nairobi, Narok, and Maua.</p>
+  <div class="cta-buttons">
+    <a href="#" class="btn-primary" style="padding:1rem 2.5rem;font-size:1rem;">Get early access</a>
+    <a href="#" class="btn-secondary" style="padding:1rem 2.5rem;font-size:1rem;">Talk to us</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-left">© 2026 Keja. Rental infrastructure for Kenya.</div>
+  <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></div>
+</footer>
+
+<script>
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
+
+const video = document.getElementById('heroVideo');
+const scrollHint = document.getElementById('scrollHint');
+const hero = document.querySelector('.hero');
+const callouts = document.querySelectorAll('.cl[data-appear]');
+let vDur = 0, vReady = false;
+
+video.addEventListener('loadedmetadata', () => { vDur = video.duration; vReady = true; video.currentTime = 0; });
+video.load();
+
+function scrub() {
+  if (!vReady || !vDur) return;
+  const rect = hero.getBoundingClientRect();
+  const scrolled = -rect.top;
+  const range = hero.offsetHeight - window.innerHeight;
+  const p = Math.max(0, Math.min(1, scrolled / range));
+
+  video.currentTime = p * vDur;
+  if (scrollHint) scrollHint.style.opacity = p > 0.02 ? '0' : '1';
+  callouts.forEach(c => c.classList.toggle('show', p >= parseFloat(c.dataset.appear)));
+}
+window.addEventListener('scroll', scrub, { passive: true });
+video.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
+
+const aEls = document.querySelectorAll('[data-animate]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { const i = Array.from(e.target.parentElement.querySelectorAll('[data-animate]')).indexOf(e.target); setTimeout(() => e.target.classList.add('visible'), i*120); obs.unobserve(e.target); }});
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+aEls.forEach(el => obs.observe(el));
+
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', function(e) { e.preventDefault(); const t = document.querySelector(this.getAttribute('href')); if (t) t.scrollIntoView({ behavior:'smooth', block:'start' }); });
+});
+</script>
+</body>
+</html>
