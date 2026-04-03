@@ -9,311 +9,302 @@
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
+  --bg: #0A0A0A; --bg-card: rgba(255,255,255,0.04); --bg-card-border: rgba(255,255,255,0.08);
   --white: #FFFFFF; --black: #0D0D0D;
-  --green: #0F4C2E; --green-light: #1A6B40; --green-tint: #E8F0EC;
-  --warm: #FFFFFF; --gray: #6B6B6B; --gray-light: #A0A0A0;
+  --green: #00D26A; --green-deep: #0F4C2E; --green-dark: #00A855;
+  --green-glow: rgba(0,210,106,0.15); --green-glow-strong: rgba(0,210,106,0.3);
+  --green-gradient: linear-gradient(135deg, #00D26A, #00A855);
+  --text-primary: #FFFFFF; --text-secondary: #B0B0B0; --text-muted: rgba(255,255,255,0.45);
+  --glass: rgba(255,255,255,0.06); --glass-border: rgba(255,255,255,0.1);
   --serif: 'Instrument Serif', serif; --sans: 'Outfit', sans-serif;
 }
 html { scroll-behavior: smooth; }
-body { font-family: var(--sans); background: var(--white); color: var(--black); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text-primary); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
 /* ═══════ NAV ═══════ */
 nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1.25rem 3rem; display: flex; align-items: center; justify-content: space-between; transition: all 0.4s; }
-nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.06); padding: 0.9rem 3rem; }
-.nav-logo { font-weight: 700; font-size: 1.5rem; letter-spacing: -0.03em; color: var(--black); text-decoration: none; }
+nav.scrolled { background: rgba(10,10,10,0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--glass-border); padding: 0.9rem 3rem; }
+.nav-logo { font-weight: 700; font-size: 1.5rem; letter-spacing: -0.03em; color: var(--white); text-decoration: none; }
 .nav-logo span { color: var(--green); }
 .nav-links { display: flex; gap: 2.5rem; align-items: center; }
-.nav-links a { font-size: 0.85rem; font-weight: 500; color: var(--gray); text-decoration: none; transition: color 0.2s; }
-.nav-links a:hover { color: var(--black); }
-.nav-cta { background: var(--green) !important; color: var(--white) !important; padding: 0.6rem 1.5rem !important; border-radius: 100px; font-weight: 600 !important; font-size: 0.82rem !important; }
-.nav-cta:hover { background: var(--green-light) !important; }
+.nav-links a { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--white); }
+.nav-cta { background: var(--green) !important; color: var(--black) !important; padding: 0.6rem 1.5rem !important; border-radius: 100px; font-weight: 700 !important; font-size: 0.82rem !important; transition: all 0.25s !important; }
+.nav-cta:hover { background: var(--green-dark) !important; transform: translateY(-1px); box-shadow: 0 4px 20px var(--green-glow); }
 
-/* ═══════ HERO — SPLIT LAYOUT ═══════ */
+/* ═══════ BUTTONS ═══════ */
+.btn-primary { background: var(--green); color: var(--black); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.22,1,0.36,1); text-decoration: none; display: inline-block; }
+.btn-primary:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 8px 32px var(--green-glow-strong); }
+.btn-secondary { background: transparent; color: var(--white); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 500; font-size: 0.9rem; border: 1.5px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.3s cubic-bezier(0.22,1,0.36,1); text-decoration: none; display: inline-block; }
+.btn-secondary:hover { border-color: var(--white); background: rgba(255,255,255,0.05); }
+.btn-lg { padding: 1rem 2.5rem; font-size: 1rem; }
+
+/* ═══════ HERO ═══════ */
 .hero { min-height: 350vh; position: relative; }
 .hero-sticky {
   position: sticky; top: 0; height: 100vh; width: 100%;
-  background: var(--white); overflow: hidden;
-  display: grid;
-  grid-template-columns: 38% 62%;
-  align-items: center;
+  background: var(--bg); overflow: hidden;
+  display: grid; grid-template-columns: 40% 60%; align-items: center;
 }
-
-/* ── Left: text ── */
-.hero-text {
-  padding: 0 2rem 0 4rem;
-  z-index: 10;
-}
-.hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem 0.4rem 0.5rem; background: var(--green-tint); border-radius: 100px; font-size: 0.75rem; font-weight: 500; color: var(--green); margin-bottom: 1.2rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
-.hero-badge-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse-dot 2s infinite; }
+.hero-text { padding: 0 2rem 0 4rem; z-index: 10; }
+.hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem 0.4rem 0.6rem; background: rgba(0,210,106,0.1); border: 1px solid rgba(0,210,106,0.2); border-radius: 100px; font-size: 0.75rem; font-weight: 500; color: var(--green); margin-bottom: 1.4rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
+.hero-badge-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse-dot 2s infinite; box-shadow: 0 0 8px var(--green-glow-strong); }
 @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.hero-text h1 { font-family: var(--serif); font-size: clamp(2.6rem, 4.5vw, 4.2rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 400; opacity: 0; animation: fadeUp 0.8s 0.4s forwards; }
+.hero-text h1 { font-family: var(--serif); font-size: clamp(2.6rem, 4.5vw, 4.4rem); line-height: 1.06; letter-spacing: -0.03em; font-weight: 400; color: var(--white); opacity: 0; animation: fadeUp 0.8s 0.4s forwards; }
 .hero-text h1 em { font-style: italic; color: var(--green); }
-.hero-text > p { font-size: 0.95rem; color: var(--gray); max-width: 380px; margin-top: 1rem; line-height: 1.6; font-weight: 300; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
-.hero-ctas { display: flex; gap: 1rem; margin-top: 1.8rem; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
-.hero-scroll-hint { margin-top: 2.5rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gray-light); font-weight: 500; display: flex; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 0.8s 1.2s forwards; transition: opacity 0.4s; }
+.hero-text > p { font-size: 0.95rem; color: var(--text-secondary); max-width: 400px; margin-top: 1.2rem; line-height: 1.65; font-weight: 300; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
+.hero-ctas { display: flex; gap: 1rem; margin-top: 2rem; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
+.hero-scroll-hint { margin-top: 2.5rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 0.8s 1.2s forwards; transition: opacity 0.4s; }
 .hero-scroll-hint svg { animation: bounce-down 1.5s infinite; }
 @keyframes bounce-down { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
 
-/* ── Right: building — bleeds off-screen ── */
-.hero-building-area {
-  position: relative;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: visible;
-}
+/* Hero building */
+.hero-building-area { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; overflow: visible; }
 .hero-building-area video {
-  height: 110vh;
-  width: auto;
-  display: block;
-  background: var(--white);
-  mix-blend-mode: multiply;
-  filter: brightness(1.15) contrast(1.1);
-  -webkit-mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%);
-  mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%);
+  height: 110vh; width: auto; display: block;
+  filter: brightness(1.1) contrast(1.15) saturate(1.1);
+  -webkit-mask-image: radial-gradient(ellipse 80% 75% at 55% 50%, black 40%, transparent 85%);
+  mask-image: radial-gradient(ellipse 80% 75% at 55% 50%, black 40%, transparent 85%);
+}
+.hero-building-area::after {
+  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 60%; height: 60%; border-radius: 50%;
+  background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
+  pointer-events: none; z-index: -1;
 }
 
-/* ═══════ CALLOUT LABELS ═══════ */
-.callout-labels {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 5;
-}
-.cl {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  opacity: 0;
-  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
+/* ═══════ CALLOUT LABELS (glass) ═══════ */
+.callout-labels { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 5; }
+.cl { position: absolute; display: flex; align-items: center; gap: 0; opacity: 0; transition: all 0.7s cubic-bezier(0.22,1,0.36,1); }
 .cl.show { opacity: 1; }
-
-/* Right-pointing: [dot]---[line]---[label] */
 .cl.right { flex-direction: row; }
-.cl.right .cl-label { transform: translateX(16px); transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+.cl.right .cl-label { transform: translateX(16px); transition: transform 0.7s cubic-bezier(0.22,1,0.36,1); }
 .cl.right.show .cl-label { transform: translateX(0); }
-
-/* Left-pointing: [label]---[line]---[dot] */
 .cl.left { flex-direction: row-reverse; }
-.cl.left .cl-label { transform: translateX(-16px); transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+.cl.left .cl-label { transform: translateX(-16px); transition: transform 0.7s cubic-bezier(0.22,1,0.36,1); }
 .cl.left.show .cl-label { transform: translateX(0); }
+.cl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--green); flex-shrink: 0; box-shadow: 0 0 0 4px rgba(0,210,106,0.15), 0 0 12px rgba(0,210,106,0.3); }
+.cl-line { height: 2px; background: linear-gradient(90deg, var(--green), rgba(0,210,106,0.2)); flex-shrink: 0; }
+.cl-label { flex-shrink: 0; background: rgba(10,10,10,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 12px; padding: 0.65rem 1rem; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+.cl-label-title { font-size: 0.8rem; font-weight: 700; color: var(--white); letter-spacing: 0.01em; line-height: 1.2; }
+.cl-label-sub { font-size: 0.65rem; color: var(--text-muted); font-weight: 400; line-height: 1.3; margin-top: 0.15rem; }
 
-.cl-dot {
-  width: 12px; height: 12px; border-radius: 50%;
-  background: var(--green); flex-shrink: 0;
-  box-shadow: 0 0 0 4px rgba(15,76,46,0.15), 0 0 0 8px rgba(15,76,46,0.06);
-}
-.cl-line {
-  height: 2.5px;
-  background: var(--green);
-  opacity: 0.5;
-  flex-shrink: 0;
-}
-
-/* THE LABEL — bold, readable, with subtitle */
-.cl-label {
-  flex-shrink: 0;
-  background: var(--green);
-  border: none;
-  border-radius: 10px;
-  padding: 0.6rem 1rem;
-  box-shadow: 0 4px 20px rgba(15,76,46,0.2);
-}
-.cl-label-title {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--white);
-  letter-spacing: 0.01em;
-  line-height: 1.2;
-}
-.cl-label-sub {
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.7);
-  font-weight: 400;
-  line-height: 1.3;
-  margin-top: 0.15rem;
-}
-
-/* ═══════ BUTTONS ═══════ */
-.btn-primary { background: var(--green); color: var(--white); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.25s; text-decoration: none; }
-.btn-primary:hover { background: var(--green-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(15,76,46,0.2); }
-.btn-secondary { background: transparent; color: var(--black); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 500; font-size: 0.9rem; border: 1.5px solid rgba(0,0,0,0.15); cursor: pointer; transition: all 0.25s; text-decoration: none; }
-.btn-secondary:hover { border-color: var(--black); }
-.btn-lg { padding: 1rem 2.5rem; font-size: 1rem; }
-
-/* ═══════ SECTIONS ═══════ */
+/* ═══════ SECTIONS BASE ═══════ */
 .section { padding: 7rem 3rem; max-width: 1200px; margin: 0 auto; }
 .section-full { padding: 7rem 3rem; }
 .section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--green); font-weight: 600; margin-bottom: 1.2rem; }
-.section-title { font-family: var(--serif); font-size: clamp(2rem,4vw,3.2rem); line-height: 1.15; max-width: 650px; letter-spacing: -0.02em; font-weight: 400; }
+.section-title { font-family: var(--serif); font-size: clamp(2rem,4vw,3.2rem); line-height: 1.12; max-width: 650px; letter-spacing: -0.02em; font-weight: 400; color: var(--white); }
 .section-title em { font-style: italic; color: var(--green); }
-.section-desc { font-size: 1.05rem; color: var(--gray); line-height: 1.7; max-width: 500px; margin-top: 1rem; font-weight: 300; }
+.section-desc { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.7; max-width: 500px; margin-top: 1rem; font-weight: 300; }
 
-.problem-section { background: var(--warm); }
+/* ═══════ DASHBOARD SECTION ═══════ */
+.dashboard-section { background: var(--bg); overflow: hidden; position: relative; }
+.dashboard-section::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,210,106,0.06) 0%, transparent 70%); pointer-events: none; }
+.dashboard-inner { max-width: 1200px; margin: 0 auto; text-align: center; }
+.dashboard-inner .section-title { margin: 0 auto; text-align: center; max-width: 550px; }
+.dashboard-inner .section-desc { margin: 1rem auto 0; text-align: center; }
+
+.dashboard-showcase { display: flex; justify-content: center; align-items: center; gap: 2rem; margin-top: 4rem; perspective: 1200px; }
+.dash-card {
+  background: var(--bg-card); border: 1px solid var(--bg-card-border);
+  border-radius: 16px; padding: 1.5rem; width: 320px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  opacity: 0; transform: translateY(60px);
+  transition: all 0.8s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s;
+  position: relative; overflow: hidden;
+}
+.dash-card.visible { opacity: 1; transform: translateY(0); }
+.dash-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,210,106,0.3), transparent); }
+.dash-card:hover { border-color: rgba(0,210,106,0.2); box-shadow: 0 8px 40px rgba(0,210,106,0.08); transform: translateY(-4px); }
+.dash-card-side { transform: rotateY(8deg) scale(0.92); }
+.dash-card-side-r { transform: rotateY(-8deg) scale(0.92); }
+.dash-card.visible.dash-card-side { transform: rotateY(8deg) scale(0.92); }
+.dash-card.visible.dash-card-side-r { transform: rotateY(-8deg) scale(0.92); }
+.dash-card.visible.dash-card-side:hover { transform: rotateY(6deg) scale(0.94) translateY(-4px); }
+.dash-card.visible.dash-card-side-r:hover { transform: rotateY(-6deg) scale(0.94) translateY(-4px); }
+
+.dash-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.dash-header-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green-glow-strong); }
+.dash-header-title { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.02em; }
+
+/* Dashboard: Bar Chart */
+.dash-bars { display: flex; align-items: flex-end; gap: 8px; height: 100px; padding: 0 0.5rem; margin-bottom: 1rem; }
+.dash-bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--green-gradient); opacity: 0.85; position: relative; transition: opacity 0.2s; min-width: 0; }
+.dash-bar:hover { opacity: 1; }
+.dash-bar-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; color: var(--text-muted); white-space: nowrap; }
+.dash-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 20px; pointer-events: none; }
+.dash-grid-line { border-bottom: 1px solid rgba(255,255,255,0.04); height: 25%; }
+.dash-stats { display: flex; justify-content: space-between; padding-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 0.5rem; }
+.dash-stat-value { font-size: 0.85rem; font-weight: 700; color: var(--green); }
+.dash-stat-label { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+/* Dashboard: Transaction Feed */
+.dash-tx { display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.dash-tx:last-child { border-bottom: none; }
+.dash-tx-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, rgba(0,210,106,0.2), rgba(0,210,106,0.05)); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: var(--green); flex-shrink: 0; }
+.dash-tx-info { flex: 1; min-width: 0; }
+.dash-tx-name { font-size: 0.75rem; font-weight: 600; color: var(--white); }
+.dash-tx-time { font-size: 0.6rem; color: var(--text-muted); }
+.dash-tx-amount { font-size: 0.8rem; font-weight: 700; color: var(--green); white-space: nowrap; }
+
+/* Dashboard: Progress Ring */
+.dash-ring-container { display: flex; flex-direction: column; align-items: center; padding: 0.5rem 0; }
+.dash-ring { position: relative; width: 120px; height: 120px; }
+.dash-ring svg { transform: rotate(-90deg); }
+.dash-ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
+.dash-ring-fill { fill: none; stroke: url(#greenGrad); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 339.292; stroke-dashoffset: 27.143; transition: stroke-dashoffset 1.5s cubic-bezier(0.22,1,0.36,1); }
+.dash-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+.dash-ring-pct { font-family: var(--serif); font-size: 2rem; color: var(--green); line-height: 1; }
+.dash-ring-label { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; }
+.dash-pills { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.dash-pill { padding: 0.3rem 0.8rem; background: rgba(0,210,106,0.08); border: 1px solid rgba(0,210,106,0.15); border-radius: 100px; font-size: 0.7rem; font-weight: 600; color: var(--green); }
+
+/* Float animation */
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.dash-float-1 { animation: float 6s ease-in-out infinite; }
+.dash-float-2 { animation: float 6s ease-in-out infinite 1s; }
+.dash-float-3 { animation: float 6s ease-in-out infinite 2s; }
+
+/* ═══════ PROBLEM SECTION ═══════ */
+.problem-section { background: var(--bg); }
 .problem-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
 .problem-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.problem-card { background: var(--white); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.problem-card { background: var(--bg-card); border: 1px solid var(--bg-card-border); padding: 1.5rem; border-radius: 14px; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
 .problem-card.visible { opacity: 1; transform: translateY(0); }
-.problem-card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.8rem; color: rgba(0,0,0,0.5); }
-.problem-card h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem; }
-.problem-card p { font-size: 0.78rem; color: var(--gray); line-height: 1.55; font-weight: 300; }
-.pc-red .problem-card-icon { background: #FEE2E2; }
-.pc-orange .problem-card-icon { background: #FEF3C7; }
-.pc-purple .problem-card-icon { background: #EDE9FE; }
-.pc-gray .problem-card-icon { background: #F3F4F6; }
+.problem-card:hover { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); }
+.problem-card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.8rem; }
+.problem-card h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem; color: var(--white); }
+.problem-card p { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.55; font-weight: 300; }
+.pc-red .problem-card-icon { background: rgba(239,68,68,0.15); color: #EF4444; }
+.pc-orange .problem-card-icon { background: rgba(245,158,11,0.15); color: #F59E0B; }
+.pc-purple .problem-card-icon { background: rgba(139,92,246,0.15); color: #8B5CF6; }
+.pc-gray .problem-card-icon { background: rgba(156,163,175,0.15); color: #9CA3AF; }
 
-.how-section { text-align: center; }
+/* ═══════ HOW IT WORKS (light section) ═══════ */
+.how-section { background: #FAFAFA; color: var(--black); text-align: center; }
+.how-section .section-label { color: var(--green-deep); }
+.how-section .section-title { color: var(--black); }
+.how-section .section-title em { color: var(--green-deep); }
+.how-section .section-desc { color: #6B6B6B; }
 .flow-container { display: flex; align-items: stretch; justify-content: center; margin-top: 4rem; }
 .flow-step { flex: 1; max-width: 320px; padding: 2.5rem 2rem; text-align: center; opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.33,1,0.68,1); }
 .flow-step.visible { opacity: 1; transform: translateY(0); }
-.flow-number { width: 48px; height: 48px; border-radius: 50%; background: var(--green); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 1.2rem; }
-.flow-step h3 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 0.6rem; }
-.flow-step p { font-size: 0.88rem; color: var(--gray); line-height: 1.6; font-weight: 300; }
+.flow-number { width: 52px; height: 52px; border-radius: 50%; background: var(--green-deep); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; margin: 0 auto 1.2rem; box-shadow: 0 4px 16px rgba(15,76,46,0.2); }
+.flow-step h3 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 0.6rem; color: var(--black); }
+.flow-step p { font-size: 0.88rem; color: #6B6B6B; line-height: 1.6; font-weight: 300; }
 .flow-connector { width: 80px; display: flex; align-items: center; }
-.flow-connector::after { content: ''; width: 100%; height: 2px; background: repeating-linear-gradient(90deg, var(--green) 0, var(--green) 6px, transparent 6px, transparent 12px); opacity: 0.3; }
-.flow-ussd { margin-top: 1rem; display: inline-block; padding: 0.4rem 1rem; background: var(--black); color: #4ADE80; font-family: 'Courier New', monospace; font-size: 0.82rem; border-radius: 6px; font-weight: 600; }
+.flow-connector::after { content: ''; width: 100%; height: 2px; background: repeating-linear-gradient(90deg, var(--green-deep) 0, var(--green-deep) 6px, transparent 6px, transparent 12px); opacity: 0.3; }
+.flow-ussd { margin-top: 1rem; display: inline-block; padding: 0.4rem 1rem; background: var(--black); color: var(--green); font-family: 'Courier New', monospace; font-size: 0.82rem; border-radius: 6px; font-weight: 600; }
 
-.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: rgba(0,0,0,0.06); border-radius: 16px; overflow: hidden; margin-top: 3.5rem; }
-.feature-card { background: var(--white); padding: 2.5rem 2rem; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+/* ═══════ FEATURES GRID ═══════ */
+.features-section { background: var(--bg); }
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: rgba(255,255,255,0.04); border-radius: 20px; overflow: hidden; margin-top: 3.5rem; border: 1px solid var(--bg-card-border); }
+.feature-card { background: var(--bg); padding: 2.5rem 2rem; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
 .feature-card.visible { opacity: 1; transform: translateY(0); }
-.feature-card:hover { background: var(--green-tint); }
+.feature-card:hover { background: rgba(0,210,106,0.04); }
 .feature-icon { margin-bottom: 1.2rem; line-height: 0; }
-.feature-card h4 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem; }
-.feature-card p { font-size: 0.82rem; color: var(--gray); line-height: 1.6; font-weight: 300; }
+.feature-card h4 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--white); }
+.feature-card p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; font-weight: 300; }
 
-.trust-section { background: var(--black); color: var(--white); }
+/* ═══════ TRUST SECTION ═══════ */
+.trust-section { background: linear-gradient(180deg, var(--bg) 0%, #061A0F 100%); }
 .trust-inner { max-width: 1200px; margin: 0 auto; }
-.trust-section .section-label { color: #4ADE80; }
-.trust-section .section-title { color: var(--white); }
-.trust-section .section-title em { color: #4ADE80; }
-.trust-section .section-desc { color: rgba(255,255,255,0.5); }
 .trust-items { display: grid; grid-template-columns: repeat(4,1fr); gap: 2rem; margin-top: 3.5rem; }
-.trust-item { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.trust-item { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); border-left: 2px solid var(--green); padding-left: 1.5rem; }
 .trust-item.visible { opacity: 1; transform: translateY(0); }
-.trust-item-number { font-family: var(--serif); font-size: 2.5rem; color: #4ADE80; line-height: 1; margin-bottom: 0.6rem; }
-.trust-item h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.3rem; }
-.trust-item p { font-size: 0.78rem; color: rgba(255,255,255,0.45); line-height: 1.55; font-weight: 300; }
+.trust-item-number { font-family: var(--serif); font-size: 3rem; color: var(--green); line-height: 1; margin-bottom: 0.6rem; }
+.trust-item h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.3rem; color: var(--white); }
+.trust-item p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.55; font-weight: 300; }
 
-.stats-strip { border-top: 1px solid rgba(0,0,0,0.06); border-bottom: 1px solid rgba(0,0,0,0.06); }
+/* ═══════ STATS STRIP ═══════ */
+.stats-strip { background: var(--bg); border-top: 1px solid var(--bg-card-border); border-bottom: 1px solid var(--bg-card-border); }
 .stats-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); }
-.stat-item { padding: 3rem 2rem; text-align: center; border-right: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.stat-item { padding: 3.5rem 2rem; text-align: center; border-right: 1px solid var(--bg-card-border); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
 .stat-item:last-child { border-right: none; }
 .stat-item.visible { opacity: 1; transform: translateY(0); }
-.stat-number { font-family: var(--serif); font-size: 2.8rem; color: var(--green); line-height: 1; }
-.stat-label { font-size: 0.78rem; color: var(--gray); margin-top: 0.5rem; }
+.stat-number { font-family: var(--serif); font-size: 3rem; color: var(--green); line-height: 1; }
+.stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.5rem; }
 
-.ecosystem-section { background: var(--warm); }
+/* ═══════ ECOSYSTEM ═══════ */
+.ecosystem-section { background: var(--bg); }
 .eco-inner { max-width: 1200px; margin: 0 auto; }
 .eco-timeline { display: flex; margin-top: 3.5rem; position: relative; }
-.eco-timeline::before { content: ''; position: absolute; top: 28px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--green), var(--green-light), rgba(26,107,64,0.2)); }
+.eco-timeline::before { content: ''; position: absolute; top: 28px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--green), var(--green-dark), rgba(0,210,106,0.15)); }
 .eco-phase { flex: 1; padding-top: 3.5rem; padding-right: 2rem; position: relative; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
 .eco-phase.visible { opacity: 1; transform: translateY(0); }
-.eco-phase::before { content: ''; position: absolute; top: 20px; left: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--green); border: 3px solid var(--white); box-shadow: 0 0 0 2px var(--green); }
+.eco-phase::before { content: ''; position: absolute; top: 20px; left: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--green); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--green), 0 0 12px var(--green-glow); }
 .eco-phase-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--green); font-weight: 600; margin-bottom: 0.5rem; }
-.eco-phase h4 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem; }
-.eco-phase p { font-size: 0.82rem; color: var(--gray); line-height: 1.55; font-weight: 300; }
+.eco-phase h4 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--white); }
+.eco-phase p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; font-weight: 300; }
 .eco-services { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
-.eco-tag { padding: 0.25rem 0.7rem; background: var(--white); border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--gray); border: 1px solid rgba(0,0,0,0.08); }
+.eco-tag { padding: 0.25rem 0.7rem; background: var(--bg-card); border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--text-secondary); border: 1px solid var(--bg-card-border); }
 
-.cta-section { text-align: center; padding: 9rem 3rem; position: relative; }
+/* ═══════ CTA ═══════ */
+.cta-section { text-align: center; padding: 9rem 3rem; position: relative; background: linear-gradient(180deg, var(--bg) 0%, #061A0F 50%, var(--bg) 100%); overflow: hidden; }
 .cta-section .section-title { margin: 0 auto; max-width: 700px; font-size: clamp(2.2rem,5vw,3.8rem); }
 .cta-section .section-desc { margin: 1.2rem auto 0; text-align: center; max-width: 450px; }
 .cta-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 2.5rem; }
-.cta-bg-text { position: absolute; font-family: var(--serif); font-size: clamp(6rem,15vw,14rem); color: rgba(0,0,0,0.02); pointer-events: none; top: 50%; left: 50%; transform: translate(-50%,-50%); white-space: nowrap; }
+.cta-bg-text { position: absolute; font-family: var(--serif); font-size: clamp(6rem,15vw,14rem); color: rgba(0,210,106,0.03); pointer-events: none; top: 50%; left: 50%; transform: translate(-50%,-50%); white-space: nowrap; }
 
-footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-.footer-left { font-size: 0.78rem; color: var(--gray-light); }
+/* ═══════ FOOTER ═══════ */
+footer { border-top: 1px solid var(--bg-card-border); padding: 3rem; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.footer-left { font-size: 0.78rem; color: var(--text-muted); }
 .footer-links { display: flex; gap: 2rem; }
-.footer-links a { font-size: 0.78rem; color: var(--gray); text-decoration: none; }
-.footer-links a:hover { color: var(--black); }
+.footer-links a { font-size: 0.78rem; color: var(--text-secondary); text-decoration: none; }
+.footer-links a:hover { color: var(--white); }
 
-@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 
+/* ═══════ RESPONSIVE ═══════ */
 @media (max-width: 900px) {
   nav { padding: 1rem 1.5rem; }
   .nav-links a:not(.nav-cta) { display: none; }
   .section, .section-full { padding: 4rem 1.5rem; }
-
-  /* Hero — stack vertically, shrink scroll runway */
   .hero { min-height: 200vh; }
-  .hero-sticky {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-  }
-  .hero-text {
-    padding: 5.5rem 1.5rem 0;
-    text-align: center;
-  }
+  .hero-sticky { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .hero-text { padding: 5.5rem 1.5rem 0; text-align: center; }
   .hero-text h1 { text-align: center; font-size: clamp(2rem, 8vw, 3rem); }
   .hero-text > p { text-align: center; margin-left: auto; margin-right: auto; font-size: 0.88rem; max-width: 340px; }
   .hero-ctas { justify-content: center; flex-wrap: wrap; }
   .hero-scroll-hint { justify-content: center; margin-top: 1.5rem; }
-
-  /* Building — centered, smaller, no bleed */
-  .hero-building-area {
-    justify-content: center;
-    overflow: hidden;
-  }
-  .hero-building-area video {
-    height: 55vh;
-    margin-left: 0;
-    -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%);
-    mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%);
-  }
-
-  /* Labels hidden on mobile */
+  .hero-building-area { justify-content: center; overflow: hidden; }
+  .hero-building-area video { height: 55vh; margin-left: 0; -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%); mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%); }
   .cl { display: none; }
-
-  /* Sections */
+  .dashboard-showcase { flex-direction: column; gap: 1.5rem; perspective: none; }
+  .dash-card { width: 100%; max-width: 360px; }
+  .dash-card-side, .dash-card-side-r { transform: none !important; }
+  .dash-card.visible.dash-card-side, .dash-card.visible.dash-card-side-r { transform: none !important; }
   .problem-inner { grid-template-columns: 1fr; gap: 2rem; }
   .problem-cards { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-  .problem-card { padding: 1.2rem; }
-
   .flow-container { flex-direction: column; align-items: center; gap: 0; }
   .flow-step { padding: 1.5rem; max-width: 100%; }
   .flow-connector { width: auto; height: 30px; }
   .flow-connector::after { width: 2px; height: 100%; }
-
   .features-grid { grid-template-columns: 1fr; }
   .feature-card { padding: 1.8rem 1.5rem; }
-
   .trust-items { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
   .trust-item-number { font-size: 2rem; }
-
   .stats-inner { grid-template-columns: 1fr 1fr; }
-  .stat-item { padding: 2rem 1rem; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .stat-item { padding: 2rem 1rem; border-right: none; border-bottom: 1px solid var(--bg-card-border); }
   .stat-number { font-size: 2.2rem; }
-
   .eco-timeline { flex-direction: column; gap: 2rem; }
   .eco-timeline::before { width: 2px; height: 100%; top: 0; left: 7px; }
   .eco-phase { padding-left: 2.5rem; padding-top: 0; padding-right: 0; }
   .eco-phase::before { top: 0; }
-
   .cta-section { padding: 5rem 1.5rem; }
-  .cta-section .section-title { font-size: clamp(1.8rem, 6vw, 2.5rem); }
-
   footer { flex-direction: column; gap: 1rem; text-align: center; }
 }
-
 @media (max-width: 600px) {
   .hero { min-height: 180vh; }
   .hero-text { padding: 5rem 1.2rem 0; }
   .hero-text h1 { font-size: 1.8rem; }
-  .hero-text > p { font-size: 0.82rem; }
   .hero-ctas { flex-direction: column; align-items: center; gap: 0.75rem; }
   .btn-primary, .btn-secondary { width: 100%; max-width: 260px; text-align: center; }
   .hero-building-area video { height: 45vh; }
-
   .problem-cards { grid-template-columns: 1fr; }
   .section-title { font-size: clamp(1.6rem, 6vw, 2rem); }
-  .section-desc { font-size: 0.9rem; }
-
   .trust-items { grid-template-columns: 1fr; }
   .stats-inner { grid-template-columns: 1fr; }
-
   .cta-buttons { flex-direction: column; align-items: center; }
   .cta-buttons a { width: 100%; max-width: 260px; text-align: center; }
 }
@@ -334,8 +325,6 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
 <!-- ═══════════════ HERO ═══════════════ -->
 <section class="hero">
   <div class="hero-sticky">
-
-    <!-- LEFT: copy -->
     <div class="hero-text">
       <div class="hero-badge"><div class="hero-badge-dot"></div>Rental infrastructure for Kenya</div>
       <h1>We took rental <em>apart.</em><br>So you don't have to.</h1>
@@ -350,80 +339,110 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
       </div>
     </div>
 
-    <!-- RIGHT: building + labels -->
     <div class="hero-building-area">
       <video id="heroVideo" src="keja-building.mp4" muted playsinline preload="auto"></video>
-
       <div class="callout-labels">
-
-        <!-- LEFT side of building (these point left, dot on building edge) -->
         <div class="cl left" data-appear="0.20" style="top: 68%; right: 48%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 90px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">Instant Rent Collection</div>
-            <div class="cl-label-sub">Exact amount to landlord. No delays.</div>
-          </div>
+          <div class="cl-dot"></div><div class="cl-line" style="width: 90px;"></div>
+          <div class="cl-label"><div class="cl-label-title">Instant Rent Collection</div><div class="cl-label-sub">Exact amount to landlord. No delays.</div></div>
         </div>
-
         <div class="cl left" data-appear="0.40" style="top: 42%; right: 45%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 110px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">KRA Tax Compliance</div>
-            <div class="cl-label-sub">Auto-generated rental tax invoices.</div>
-          </div>
+          <div class="cl-dot"></div><div class="cl-line" style="width: 110px;"></div>
+          <div class="cl-label"><div class="cl-label-title">KRA Tax Compliance</div><div class="cl-label-sub">Auto-generated rental tax invoices.</div></div>
         </div>
-
         <div class="cl left" data-appear="0.60" style="top: 18%; right: 42%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 140px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">Dispute Resolution</div>
-            <div class="cl-label-sub">Every payment gets a verifiable URL.</div>
-          </div>
+          <div class="cl-dot"></div><div class="cl-line" style="width: 140px;"></div>
+          <div class="cl-label"><div class="cl-label-title">Dispute Resolution</div><div class="cl-label-sub">Every payment gets a verifiable URL.</div></div>
         </div>
-
-        <!-- RIGHT side of building (these point right, dot on building edge) -->
         <div class="cl right" data-appear="0.10" style="top: 82%; left: 55%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 120px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">M-Pesa Payment Rails</div>
-            <div class="cl-label-sub">Paybill in, B2C out. Under 3 seconds.</div>
-          </div>
+          <div class="cl-dot"></div><div class="cl-line" style="width: 120px;"></div>
+          <div class="cl-label"><div class="cl-label-title">M-Pesa Payment Rails</div><div class="cl-label-sub">Paybill in, B2C out. Under 3 seconds.</div></div>
         </div>
-
         <div class="cl right" data-appear="0.30" style="top: 55%; left: 58%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 80px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">Dual-Party Receipts</div>
-            <div class="cl-label-sub">Both sides get M-Pesa proof. Always.</div>
-          </div>
+          <div class="cl-dot"></div><div class="cl-line" style="width: 80px;"></div>
+          <div class="cl-label"><div class="cl-label-title">Dual-Party Receipts</div><div class="cl-label-sub">Both sides get M-Pesa proof. Always.</div></div>
         </div>
-
         <div class="cl right" data-appear="0.50" style="top: 30%; left: 52%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 120px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">Tenant Verification</div>
-            <div class="cl-label-sub">ID-linked profiles. Payment as reputation.</div>
-          </div>
+          <div class="cl-dot"></div><div class="cl-line" style="width: 120px;"></div>
+          <div class="cl-label"><div class="cl-label-title">Tenant Verification</div><div class="cl-label-sub">ID-linked profiles. Payment as reputation.</div></div>
         </div>
-
         <div class="cl right" data-appear="0.70" style="top: 8%; left: 48%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 160px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">Maintenance & Services</div>
-            <div class="cl-label-sub">Fundi marketplace. Cleaning. Utilities.</div>
-          </div>
+          <div class="cl-dot"></div><div class="cl-line" style="width: 160px;"></div>
+          <div class="cl-label"><div class="cl-label-title">Maintenance & Services</div><div class="cl-label-sub">Fundi marketplace. Cleaning. Utilities.</div></div>
         </div>
-
       </div>
     </div>
+  </div>
+</section>
 
+<!-- ═══════════════ DASHBOARD ═══════════════ -->
+<section class="section-full dashboard-section">
+  <div class="dashboard-inner">
+    <span class="section-label">The command center</span>
+    <h2 class="section-title">Your property. <em>One dashboard.</em></h2>
+    <p class="section-desc">See every payment, every tenant, every unit — in real time. No spreadsheets. No guessing.</p>
+
+    <div class="dashboard-showcase" id="dashShowcase">
+
+      <!-- Card 1: Rent Collection (bar chart) -->
+      <div class="dash-card dash-card-side dash-float-1" data-animate>
+        <div class="dash-header">
+          <div class="dash-header-dot"></div>
+          <div class="dash-header-title">Rent Collection</div>
+        </div>
+        <div class="dash-bars" style="position:relative;">
+          <div class="dash-grid"><div class="dash-grid-line"></div><div class="dash-grid-line"></div><div class="dash-grid-line"></div><div class="dash-grid-line"></div></div>
+          <div class="dash-bar" style="height:65%"><span class="dash-bar-label">Oct</span></div>
+          <div class="dash-bar" style="height:78%"><span class="dash-bar-label">Nov</span></div>
+          <div class="dash-bar" style="height:55%"><span class="dash-bar-label">Dec</span></div>
+          <div class="dash-bar" style="height:90%"><span class="dash-bar-label">Jan</span></div>
+          <div class="dash-bar" style="height:85%"><span class="dash-bar-label">Feb</span></div>
+          <div class="dash-bar" style="height:98%"><span class="dash-bar-label">Mar</span></div>
+        </div>
+        <div class="dash-stats">
+          <div><div class="dash-stat-value">KES 847,200</div><div class="dash-stat-label">Collected this month</div></div>
+          <div style="text-align:right"><div class="dash-stat-value">98%</div><div class="dash-stat-label">On time</div></div>
+        </div>
+      </div>
+
+      <!-- Card 2: Payment Activity (transaction feed) -->
+      <div class="dash-card dash-float-2" data-animate>
+        <div class="dash-header">
+          <div class="dash-header-dot"></div>
+          <div class="dash-header-title">Recent Activity</div>
+        </div>
+        <div class="dash-tx"><div class="dash-tx-avatar">JM</div><div class="dash-tx-info"><div class="dash-tx-name">James M.</div><div class="dash-tx-time">2 min ago</div></div><div class="dash-tx-amount">KES 15,000</div></div>
+        <div class="dash-tx"><div class="dash-tx-avatar">WK</div><div class="dash-tx-info"><div class="dash-tx-name">Wanjiku K.</div><div class="dash-tx-time">18 min ago</div></div><div class="dash-tx-amount">KES 22,500</div></div>
+        <div class="dash-tx"><div class="dash-tx-avatar">HO</div><div class="dash-tx-info"><div class="dash-tx-name">Hassan O.</div><div class="dash-tx-time">1 hr ago</div></div><div class="dash-tx-amount">KES 12,000</div></div>
+        <div class="dash-tx"><div class="dash-tx-avatar">NW</div><div class="dash-tx-info"><div class="dash-tx-name">Njeri W.</div><div class="dash-tx-time">3 hrs ago</div></div><div class="dash-tx-amount">KES 18,500</div></div>
+      </div>
+
+      <!-- Card 3: Portfolio Health (progress ring) -->
+      <div class="dash-card dash-card-side-r dash-float-3" data-animate>
+        <div class="dash-header">
+          <div class="dash-header-dot"></div>
+          <div class="dash-header-title">Portfolio Health</div>
+        </div>
+        <div class="dash-ring-container">
+          <div class="dash-ring">
+            <svg viewBox="0 0 120 120" width="120" height="120">
+              <defs><linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00D26A"/><stop offset="100%" stop-color="#00A855"/></linearGradient></defs>
+              <circle class="dash-ring-bg" cx="60" cy="60" r="54"/>
+              <circle class="dash-ring-fill" cx="60" cy="60" r="54"/>
+            </svg>
+            <div class="dash-ring-text">
+              <div class="dash-ring-pct">92%</div>
+              <div class="dash-ring-label">Occupancy</div>
+            </div>
+          </div>
+          <div class="dash-pills">
+            <span class="dash-pill">24 Units</span>
+            <span class="dash-pill">3 Vacant</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -444,58 +463,67 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   </div>
 </section>
 
-<section class="section how-section" id="how">
-  <span class="section-label">How it works</span>
-  <h2 class="section-title" style="text-align:center;margin:0 auto;">You set the rent. <em>Keja does the rest.</em></h2>
-  <p class="section-desc" style="text-align:center;margin:1rem auto 0;">No software to learn. No subscription to pay. Your tenants pay through Keja, you receive the exact rent you set — instantly, with proof.</p>
-  <div class="flow-container">
-    <div class="flow-step" data-animate><div class="flow-number">1</div><h3>Tenant dials or pays</h3><p>USSD or M-Pesa Paybill. The same motion they already use. No app download. Works on any phone.</p><div class="flow-ussd">*384*456#</div></div>
-    <div class="flow-connector"></div>
-    <div class="flow-step" data-animate><div class="flow-number">2</div><h3>Rent arrives in your M-Pesa</h3><p>The exact amount you set. In under 3 seconds. Keja never holds your money — it routes through, never sits.</p><div style="margin-top:1rem;font-size:0.72rem;color:var(--gray-light);font-weight:500;">You pay nothing. Zero. Ever.</div></div>
-    <div class="flow-connector"></div>
-    <div class="flow-step" data-animate><div class="flow-number">3</div><h3>Records build themselves</h3><p>Receipts to both parties. KRA tax invoices auto-filed. Payment history tracked. Your books are done before you check them.</p><div style="margin-top:1rem;"><span style="font-size:0.72rem;padding:0.3rem 0.8rem;background:var(--green-tint);border-radius:100px;color:var(--green);font-weight:600;">✓ Verified on M-Pesa</span></div></div>
+<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+<section class="section-full how-section" id="how">
+  <div class="section" style="padding-top:0;padding-bottom:0;">
+    <span class="section-label">How it works</span>
+    <h2 class="section-title" style="text-align:center;margin:0 auto;">You set the rent. <em>Keja does the rest.</em></h2>
+    <p class="section-desc" style="text-align:center;margin:1rem auto 0;color:#6B6B6B;">No software to learn. No subscription to pay. Your tenants pay through Keja, you receive the exact rent you set — instantly, with proof.</p>
+    <div class="flow-container">
+      <div class="flow-step" data-animate><div class="flow-number">1</div><h3>Tenant dials or pays</h3><p>USSD or M-Pesa Paybill. The same motion they already use. No app download. Works on any phone.</p><div class="flow-ussd">*384*456#</div></div>
+      <div class="flow-connector"></div>
+      <div class="flow-step" data-animate><div class="flow-number">2</div><h3>Rent arrives in your M-Pesa</h3><p>The exact amount you set. In under 3 seconds. Keja never holds your money — it routes through, never sits.</p><div style="margin-top:1rem;font-size:0.72rem;color:#A0A0A0;font-weight:500;">You pay nothing. Zero. Ever.</div></div>
+      <div class="flow-connector"></div>
+      <div class="flow-step" data-animate><div class="flow-number">3</div><h3>Records build themselves</h3><p>Receipts to both parties. KRA tax invoices auto-filed. Payment history tracked. Your books are done before you check them.</p><div style="margin-top:1rem;"><span style="font-size:0.72rem;padding:0.3rem 0.8rem;background:rgba(15,76,46,0.1);border-radius:100px;color:#0F4C2E;font-weight:600;">✓ Verified on M-Pesa</span></div></div>
+    </div>
   </div>
 </section>
 
-<section class="section" id="features">
-  <div style="text-align:center;">
-    <span class="section-label">What you get — for free</span>
-    <h2 class="section-title" style="margin:0 auto;text-align:center;">Other platforms charge for this. <em>Keja doesn't.</em></h2>
-    <p class="section-desc" style="margin:1rem auto 0;text-align:center;">Every feature competitors sell for KES 1,500–4,500/month is built into the rails. You never see a bill.</p>
-  </div>
-  <div class="features-grid">
-    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="22" width="24" height="4" rx="1" fill="var(--green)" opacity="0.2"/><rect x="6" y="14" width="20" height="8" rx="1" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M12 14v8M20 14v8" stroke="var(--green)" stroke-width="1" opacity="0.4"/><path d="M6 14l10-8 10 8" stroke="var(--green)" stroke-width="1.5" fill="none"/></svg></div><h4>Your rent, in seconds</h4><p>Tenant pays, you receive — in under 3 seconds. The exact amount. Straight to your M-Pesa. No waiting, no clearing.</p></div>
-    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="3" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="18" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M14 14h4M14 18h4" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="2 2"/><rect x="5" y="11" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.2"/><rect x="24" y="11" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.2"/></svg></div><h4>No more "I already paid"</h4><p>Both you and the tenant get a receipt with an M-Pesa transaction code. Disputes end before they start.</p></div>
-    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="6" y="10" width="20" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M6 15h20" stroke="var(--green)" stroke-width="1" opacity="0.3"/><rect x="9" y="18" width="6" height="2" rx="0.5" fill="var(--green)" opacity="0.3"/><rect x="9" y="22" width="10" height="1" rx="0.5" fill="var(--green)" opacity="0.2"/><path d="M22 6l3 4h-6l3-4z" fill="var(--green)" opacity="0.15" stroke="var(--green)" stroke-width="1.5"/></svg></div><h4>KRA sorted, automatically</h4><p>Rental income tax invoices filed as rent comes in. Not at year-end. Not by your accountant. By the system.</p></div>
-    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="8" y="4" width="16" height="24" rx="2" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="11" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="11" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="14.5" y="24" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.15"/></svg></div><h4>Any phone. Any town.</h4><p>Your tenant in Lodwar on a KES 3,000 phone with 2G can pay rent the same way someone in Westlands does. USSD.</p></div>
-    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="5" y="6" width="22" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="8" y="9" width="7" height="5" rx="0.5" fill="var(--green)" opacity="0.15"/><rect x="8" y="16" width="10" height="1" rx="0.5" fill="var(--green)" opacity="0.2"/><rect x="8" y="19" width="6" height="1" rx="0.5" fill="var(--green)" opacity="0.15"/><circle cx="23" cy="11" r="2" stroke="var(--green)" stroke-width="1.2" fill="none"/><path d="M22 13l2-2" stroke="var(--green)" stroke-width="1.2"/><rect x="12" y="24" width="8" height="3" rx="0.5" fill="var(--green)" opacity="0.1" stroke="var(--green)" stroke-width="1"/></svg></div><h4>Know who's moving in</h4><p>Every tenant builds a Keja profile — ID-verified, payment history tracked. Their reputation follows them. Yours is protected.</p></div>
-    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="7" y="4" width="18" height="20" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M11 10h10M11 14h7" stroke="var(--green)" stroke-width="1" opacity="0.3"/><path d="M16 20v8M12 24l4 4 4-4" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4>Your data. Always.</h4><p>Export everything — every payment, every tenant, every record. We never lock you in. Leave any time with all your history.</p></div>
+<!-- ═══════════════ FEATURES ═══════════════ -->
+<section class="section-full features-section" id="features">
+  <div class="section" style="padding-top:0;padding-bottom:0;">
+    <div style="text-align:center;">
+      <span class="section-label">What you get — for free</span>
+      <h2 class="section-title" style="margin:0 auto;text-align:center;">Other platforms charge for this. <em>Keja doesn't.</em></h2>
+      <p class="section-desc" style="margin:1rem auto 0;text-align:center;">Every feature competitors sell for KES 1,500–4,500/month is built into the rails. You never see a bill.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="22" width="24" height="4" rx="1" fill="var(--green)" opacity="0.2"/><rect x="6" y="14" width="20" height="8" rx="1" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M12 14v8M20 14v8" stroke="var(--green)" stroke-width="1" opacity="0.4"/><path d="M6 14l10-8 10 8" stroke="var(--green)" stroke-width="1.5" fill="none"/></svg></div><h4>Your rent, in seconds</h4><p>Tenant pays, you receive — in under 3 seconds. The exact amount. Straight to your M-Pesa. No waiting, no clearing.</p></div>
+      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="3" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="18" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M14 14h4M14 18h4" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="2 2"/><rect x="5" y="11" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.2"/><rect x="24" y="11" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.2"/></svg></div><h4>No more "I already paid"</h4><p>Both you and the tenant get a receipt with an M-Pesa transaction code. Disputes end before they start.</p></div>
+      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="6" y="10" width="20" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M6 15h20" stroke="var(--green)" stroke-width="1" opacity="0.3"/><rect x="9" y="18" width="6" height="2" rx="0.5" fill="var(--green)" opacity="0.3"/><rect x="9" y="22" width="10" height="1" rx="0.5" fill="var(--green)" opacity="0.2"/><path d="M22 6l3 4h-6l3-4z" fill="var(--green)" opacity="0.15" stroke="var(--green)" stroke-width="1.5"/></svg></div><h4>KRA sorted, automatically</h4><p>Rental income tax invoices filed as rent comes in. Not at year-end. Not by your accountant. By the system.</p></div>
+      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="8" y="4" width="16" height="24" rx="2" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="11" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="11" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="14.5" y="24" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.15"/></svg></div><h4>Any phone. Any town.</h4><p>Your tenant in Lodwar on a KES 3,000 phone with 2G can pay rent the same way someone in Westlands does. USSD.</p></div>
+      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="5" y="6" width="22" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="8" y="9" width="7" height="5" rx="0.5" fill="var(--green)" opacity="0.15"/><rect x="8" y="16" width="10" height="1" rx="0.5" fill="var(--green)" opacity="0.2"/><rect x="8" y="19" width="6" height="1" rx="0.5" fill="var(--green)" opacity="0.15"/><circle cx="23" cy="11" r="2" stroke="var(--green)" stroke-width="1.2" fill="none"/><path d="M22 13l2-2" stroke="var(--green)" stroke-width="1.2"/><rect x="12" y="24" width="8" height="3" rx="0.5" fill="var(--green)" opacity="0.1" stroke="var(--green)" stroke-width="1"/></svg></div><h4>Know who's moving in</h4><p>Every tenant builds a Keja profile — ID-verified, payment history tracked. Their reputation follows them. Yours is protected.</p></div>
+      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="7" y="4" width="18" height="20" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M11 10h10M11 14h7" stroke="var(--green)" stroke-width="1" opacity="0.3"/><path d="M16 20v8M12 24l4 4 4-4" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4>Your data. Always.</h4><p>Export everything — every payment, every tenant, every record. We never lock you in. Leave any time with all your history.</p></div>
+    </div>
   </div>
 </section>
 
+<!-- ═══════════════ TRUST ═══════════════ -->
 <section class="section-full trust-section">
   <div class="trust-inner">
     <span class="section-label">Trust architecture</span>
     <h2 class="section-title">Transparency isn't a feature. It's the <em>foundation.</em></h2>
     <p class="section-desc">Every shilling traceable. Every receipt verifiable. Every record exportable. We built Keja so you never have to take our word for it.</p>
     <div class="trust-items">
-      <div class="trust-item" data-animate><div class="trust-item-number">0</div><h4>Seconds we hold your money</h4><p>Rent routes through, never sits.</p></div>
-      <div class="trust-item" data-animate><div class="trust-item-number">2</div><h4>Receipts per transaction</h4><p>Both parties get proof.</p></div>
-      <div class="trust-item" data-animate><div class="trust-item-number">100%</div><h4>Data exportable</h4><p>Every record downloadable.</p></div>
+      <div class="trust-item" data-animate><div class="trust-item-number" data-count="0">0</div><h4>Seconds we hold your money</h4><p>Rent routes through, never sits.</p></div>
+      <div class="trust-item" data-animate><div class="trust-item-number" data-count="2">2</div><h4>Receipts per transaction</h4><p>Both parties get proof.</p></div>
+      <div class="trust-item" data-animate><div class="trust-item-number" data-count="100" data-suffix="%">100%</div><h4>Data exportable</h4><p>Every record downloadable.</p></div>
       <div class="trust-item" data-animate><div class="trust-item-number">Live</div><h4>M-Pesa verification</h4><p>Verify us against them.</p></div>
     </div>
   </div>
 </section>
 
+<!-- ═══════════════ STATS ═══════════════ -->
 <section class="section-full stats-strip">
   <div class="stats-inner">
     <div class="stat-item" data-animate><div class="stat-number">4.7M</div><div class="stat-label">Rental households in Kenya</div></div>
     <div class="stat-item" data-animate><div class="stat-number">88%</div><div class="stat-label">Rent from individual landlords</div></div>
     <div class="stat-item" data-animate><div class="stat-number">78%</div><div class="stat-label">Urban rental rate</div></div>
-    <div class="stat-item" data-animate><div class="stat-number">< 3s</div><div class="stat-label">Rent arrives in landlord's M-Pesa</div></div>
+    <div class="stat-item" data-animate><div class="stat-number">&lt; 3s</div><div class="stat-label">Rent arrives in landlord's M-Pesa</div></div>
   </div>
 </section>
 
+<!-- ═══════════════ ECOSYSTEM ═══════════════ -->
 <section class="section-full ecosystem-section" id="ecosystem">
   <div class="eco-inner">
     <span class="section-label">The ecosystem</span>
@@ -510,6 +538,7 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   </div>
 </section>
 
+<!-- ═══════════════ CTA ═══════════════ -->
 <section class="cta-section" id="cta">
   <div class="cta-bg-text">keja</div>
   <span class="section-label">Ready?</span>
@@ -527,9 +556,11 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
 </footer>
 
 <script>
+/* ═══════ NAV SCROLL ═══════ */
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
 
+/* ═══════ VIDEO SCRUB ═══════ */
 const video = document.getElementById('heroVideo');
 const scrollHint = document.getElementById('scrollHint');
 const hero = document.querySelector('.hero');
@@ -545,7 +576,6 @@ function scrub() {
   const scrolled = -rect.top;
   const range = hero.offsetHeight - window.innerHeight;
   const p = Math.max(0, Math.min(1, scrolled / range));
-
   video.currentTime = p * vDur;
   if (scrollHint) scrollHint.style.opacity = p > 0.02 ? '0' : '1';
   callouts.forEach(c => c.classList.toggle('show', p >= parseFloat(c.dataset.appear)));
@@ -553,14 +583,75 @@ function scrub() {
 window.addEventListener('scroll', scrub, { passive: true });
 video.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
 
+/* ═══════ SCROLL ANIMATIONS ═══════ */
 const aEls = document.querySelectorAll('[data-animate]');
 const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { const i = Array.from(e.target.parentElement.querySelectorAll('[data-animate]')).indexOf(e.target); setTimeout(() => e.target.classList.add('visible'), i*120); obs.unobserve(e.target); }});
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const siblings = e.target.parentElement.querySelectorAll('[data-animate]');
+      const i = Array.from(siblings).indexOf(e.target);
+      setTimeout(() => e.target.classList.add('visible'), i * 120);
+      obs.unobserve(e.target);
+    }
+  });
 }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
 aEls.forEach(el => obs.observe(el));
 
+/* ═══════ DASHBOARD PARALLAX ═══════ */
+const dashSection = document.querySelector('.dashboard-showcase');
+if (dashSection) {
+  window.addEventListener('scroll', () => {
+    const rect = dashSection.getBoundingClientRect();
+    const centerOffset = (rect.top + rect.height / 2 - window.innerHeight / 2) / window.innerHeight;
+    const cards = dashSection.querySelectorAll('.dash-card');
+    cards.forEach((card, i) => {
+      const speed = (i - 1) * 0.5;
+      const y = centerOffset * speed * 30;
+      if (card.classList.contains('visible')) {
+        if (card.classList.contains('dash-card-side')) {
+          card.style.transform = `rotateY(8deg) scale(0.92) translateY(${y}px)`;
+        } else if (card.classList.contains('dash-card-side-r')) {
+          card.style.transform = `rotateY(-8deg) scale(0.92) translateY(${y}px)`;
+        } else {
+          card.style.transform = `translateY(${y}px)`;
+        }
+      }
+    });
+  }, { passive: true });
+}
+
+/* ═══════ COUNTER ANIMATION ═══════ */
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target;
+      const target = parseFloat(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      if (isNaN(target)) return;
+      const duration = 1500;
+      const start = performance.now();
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(eased * target);
+        el.textContent = current + suffix;
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      counterObs.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
+
+/* ═══════ SMOOTH ANCHORS ═══════ */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', function(e) { e.preventDefault(); const t = document.querySelector(this.getAttribute('href')); if (t) t.scrollIntoView({ behavior:'smooth', block:'start' }); });
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const t = document.querySelector(this.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 });
 </script>
 </body>
