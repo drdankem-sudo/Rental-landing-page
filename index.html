@@ -9,14 +9,10 @@
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
-  --bg: #FFFFFF; --bg-alt: #F7F8FA; --bg-dark: #0A0F0D;
-  --bg-card: #FFFFFF; --bg-card-border: rgba(0,0,0,0.06);
-  --white: #FFFFFF; --black: #0D0D0D;
-  --green: #0F4C2E; --green-bright: #00D26A; --green-light: #1A6B40; --green-tint: #E8F0EC;
-  --green-glow: rgba(15,76,46,0.12); --green-glow-strong: rgba(15,76,46,0.2);
-  --green-gradient: linear-gradient(135deg, #0F4C2E, #1A6B40);
-  --green-gradient-bright: linear-gradient(135deg, #00D26A, #00A855);
-  --text-primary: #0D0D0D; --text-secondary: #6B6B6B; --text-muted: #A0A0A0;
+  --white: #FFFFFF; --black: #0D0D0D; --dark: #0A0F0D;
+  --green: #0F4C2E; --green-light: #1A6B40; --green-tint: #E8F0EC;
+  --green-bright: #00D26A; --green-accent: #4ADE80;
+  --warm: #F7F8FA; --gray: #6B6B6B; --gray-light: #A0A0A0;
   --serif: 'Instrument Serif', serif; --sans: 'Outfit', sans-serif;
 }
 html { scroll-behavior: smooth; }
@@ -24,19 +20,19 @@ body { font-family: var(--sans); background: var(--white); color: var(--black); 
 
 /* ═══════ NAV ═══════ */
 nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1.25rem 3rem; display: flex; align-items: center; justify-content: space-between; transition: all 0.4s; }
-nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.06); padding: 0.9rem 3rem; }
+nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.06); padding: 0.9rem 3rem; }
 .nav-logo { font-weight: 700; font-size: 1.5rem; letter-spacing: -0.03em; color: var(--black); text-decoration: none; }
 .nav-logo span { color: var(--green); }
 .nav-links { display: flex; gap: 2.5rem; align-items: center; }
-.nav-links a { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+.nav-links a { font-size: 0.85rem; font-weight: 500; color: var(--gray); text-decoration: none; transition: color 0.2s; }
 .nav-links a:hover { color: var(--black); }
-.nav-cta { background: var(--green) !important; color: var(--white) !important; padding: 0.6rem 1.5rem !important; border-radius: 100px; font-weight: 600 !important; font-size: 0.82rem !important; transition: all 0.25s !important; }
-.nav-cta:hover { background: var(--green-light) !important; transform: translateY(-1px); box-shadow: 0 4px 20px var(--green-glow); }
+.nav-cta { background: var(--green) !important; color: var(--white) !important; padding: 0.6rem 1.5rem !important; border-radius: 100px; font-weight: 600 !important; font-size: 0.82rem !important; }
+.nav-cta:hover { background: var(--green-light) !important; }
 
 /* ═══════ BUTTONS ═══════ */
-.btn-primary { background: var(--green); color: var(--white); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.22,1,0.36,1); text-decoration: none; display: inline-block; }
+.btn-primary { background: var(--green); color: var(--white); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.25s; text-decoration: none; display: inline-block; }
 .btn-primary:hover { background: var(--green-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(15,76,46,0.2); }
-.btn-secondary { background: transparent; color: var(--black); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 500; font-size: 0.9rem; border: 1.5px solid rgba(0,0,0,0.15); cursor: pointer; transition: all 0.3s cubic-bezier(0.22,1,0.36,1); text-decoration: none; display: inline-block; }
+.btn-secondary { background: transparent; color: var(--black); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 500; font-size: 0.9rem; border: 1.5px solid rgba(0,0,0,0.15); cursor: pointer; transition: all 0.25s; text-decoration: none; display: inline-block; }
 .btn-secondary:hover { border-color: var(--black); }
 .btn-lg { padding: 1rem 2.5rem; font-size: 1rem; }
 
@@ -51,33 +47,26 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem 0.4rem 0.5rem; background: var(--green-tint); border-radius: 100px; font-size: 0.75rem; font-weight: 500; color: var(--green); margin-bottom: 1.2rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
 .hero-badge-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse-dot 2s infinite; }
 @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.hero-text h1 { font-family: var(--serif); font-size: clamp(2.6rem, 4.5vw, 4.4rem); line-height: 1.06; letter-spacing: -0.03em; font-weight: 400; color: var(--black); opacity: 0; animation: fadeUp 0.8s 0.4s forwards; }
+.hero-text h1 { font-family: var(--serif); font-size: clamp(2.6rem, 4.5vw, 4.2rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 400; opacity: 0; animation: fadeUp 0.8s 0.4s forwards; }
 .hero-text h1 em { font-style: italic; color: var(--green); }
-.hero-text > p { font-size: 0.95rem; color: var(--text-secondary); max-width: 400px; margin-top: 1.2rem; line-height: 1.65; font-weight: 300; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
-.hero-ctas { display: flex; gap: 1rem; margin-top: 2rem; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
-.hero-scroll-hint { margin-top: 2.5rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 0.8s 1.2s forwards; transition: opacity 0.4s; }
+.hero-text > p { font-size: 0.95rem; color: var(--gray); max-width: 380px; margin-top: 1rem; line-height: 1.6; font-weight: 300; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
+.hero-ctas { display: flex; gap: 1rem; margin-top: 1.8rem; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
+.hero-scroll-hint { margin-top: 2.5rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gray-light); font-weight: 500; display: flex; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 0.8s 1.2s forwards; transition: opacity 0.4s; }
 .hero-scroll-hint svg { animation: bounce-down 1.5s infinite; }
 @keyframes bounce-down { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
 
-/* Hero building */
 .hero-building-area { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; overflow: visible; }
-.hero-building-area video {
-  height: 110vh; width: auto; display: block;
-  background: var(--white); mix-blend-mode: multiply;
-  filter: brightness(1.15) contrast(1.1);
-  -webkit-mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%);
-  mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%);
-}
+.hero-building-area video { height: 110vh; width: auto; display: block; background: var(--white); mix-blend-mode: multiply; filter: brightness(1.15) contrast(1.1); -webkit-mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%); mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%); }
 
-/* ═══════ CALLOUT LABELS (glass) ═══════ */
+/* ═══════ CALLOUT LABELS ═══════ */
 .callout-labels { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 5; }
-.cl { position: absolute; display: flex; align-items: center; gap: 0; opacity: 0; transition: all 0.7s cubic-bezier(0.22,1,0.36,1); }
+.cl { position: absolute; display: flex; align-items: center; gap: 0; opacity: 0; transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
 .cl.show { opacity: 1; }
 .cl.right { flex-direction: row; }
-.cl.right .cl-label { transform: translateX(16px); transition: transform 0.7s cubic-bezier(0.22,1,0.36,1); }
+.cl.right .cl-label { transform: translateX(16px); transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
 .cl.right.show .cl-label { transform: translateX(0); }
 .cl.left { flex-direction: row-reverse; }
-.cl.left .cl-label { transform: translateX(-16px); transition: transform 0.7s cubic-bezier(0.22,1,0.36,1); }
+.cl.left .cl-label { transform: translateX(-16px); transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
 .cl.left.show .cl-label { transform: translateX(0); }
 .cl-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--green); flex-shrink: 0; box-shadow: 0 0 0 4px rgba(15,76,46,0.15), 0 0 0 8px rgba(15,76,46,0.06); }
 .cl-line { height: 2.5px; background: var(--green); opacity: 0.5; flex-shrink: 0; }
@@ -85,193 +74,223 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .cl-label-title { font-size: 0.82rem; font-weight: 700; color: var(--white); letter-spacing: 0.01em; line-height: 1.2; }
 .cl-label-sub { font-size: 0.68rem; color: rgba(255,255,255,0.7); font-weight: 400; line-height: 1.3; margin-top: 0.15rem; }
 
-/* ═══════ SECTIONS BASE ═══════ */
+/* ═══════ SECTIONS ═══════ */
 .section { padding: 7rem 3rem; max-width: 1200px; margin: 0 auto; }
 .section-full { padding: 7rem 3rem; }
 .section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--green); font-weight: 600; margin-bottom: 1.2rem; }
 .section-title { font-family: var(--serif); font-size: clamp(2rem,4vw,3.2rem); line-height: 1.15; max-width: 650px; letter-spacing: -0.02em; font-weight: 400; }
 .section-title em { font-style: italic; color: var(--green); }
-.section-desc { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.7; max-width: 500px; margin-top: 1rem; font-weight: 300; }
+.section-desc { font-size: 1.05rem; color: var(--gray); line-height: 1.7; max-width: 500px; margin-top: 1rem; font-weight: 300; }
 
-/* ═══════ DASHBOARD SECTION (DARK accent) ═══════ */
-.dashboard-section { background: var(--bg-dark); overflow: hidden; position: relative; padding-bottom: 8rem; color: var(--white); }
-.dashboard-section::before { content: ''; position: absolute; top: -200px; left: 50%; transform: translateX(-50%); width: 900px; height: 900px; background: radial-gradient(circle, rgba(0,210,106,0.1) 0%, rgba(0,168,85,0.03) 40%, transparent 70%); pointer-events: none; }
-.dashboard-section::after { content: ''; position: absolute; bottom: -100px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,210,106,0.05) 0%, transparent 60%); pointer-events: none; }
-.dashboard-inner { max-width: 1200px; margin: 0 auto; text-align: center; position: relative; z-index: 1; }
-.dashboard-inner .section-title { margin: 0 auto; text-align: center; max-width: 600px; font-size: clamp(2.2rem, 4.5vw, 3.6rem); color: var(--white); }
-.dashboard-inner .section-title em { color: #00D26A; }
-.dashboard-inner .section-label { color: #00D26A; }
-.dashboard-inner .section-desc { margin: 1.2rem auto 0; text-align: center; max-width: 520px; color: rgba(255,255,255,0.6); }
+/* ═══════ FULL-WIDTH DASHBOARD (the visual wow) ═══════ */
+.dashboard-section { background: var(--dark); padding: 8rem 3rem 6rem; overflow: hidden; position: relative; }
+.dashboard-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); }
+.dash-header-area { max-width: 1200px; margin: 0 auto 3.5rem; }
+.dash-header-area .section-label { color: var(--green-accent); }
+.dash-header-area .section-title { color: var(--white); font-size: clamp(2.2rem, 4.5vw, 3.6rem); }
+.dash-header-area .section-title em { color: var(--green-accent); }
+.dash-header-area .section-desc { color: rgba(255,255,255,0.5); }
 
-.dashboard-showcase { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 1.5rem; margin-top: 4.5rem; align-items: start; }
-.dash-card {
-  background: #111318; border: 1px solid rgba(0,210,106,0.12);
-  border-radius: 20px; padding: 1.8rem; width: 100%;
-  opacity: 0; transform: translateY(50px) scale(0.97);
-  transition: all 0.9s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s;
-  position: relative; overflow: hidden;
-  box-shadow: 0 4px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,210,106,0.06) inset;
+/* Laptop frame */
+.laptop-frame {
+  max-width: 1000px; margin: 0 auto; perspective: 1200px;
 }
-.dash-card.visible { opacity: 1; transform: translateY(0) scale(1); }
-.dash-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent 5%, var(--green) 50%, transparent 95%); opacity: 0.7; }
-.dash-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(0,210,106,0.03) 0%, transparent 40%); pointer-events: none; }
-.dash-card:hover { border-color: rgba(0,210,106,0.25); box-shadow: 0 8px 50px rgba(0,210,106,0.12), 0 0 0 1px rgba(0,210,106,0.1) inset; transform: translateY(-6px) scale(1.01); }
-.dash-card-center { margin-top: -1.5rem; }
+.laptop-screen {
+  background: #111318; border-radius: 12px; border: 2px solid rgba(255,255,255,0.08);
+  padding: 1.5rem; position: relative; overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  opacity: 0; transform: perspective(1200px) rotateX(8deg) translateY(40px);
+  transition: all 1.2s cubic-bezier(0.22,1,0.36,1);
+}
+.laptop-screen.visible {
+  opacity: 1; transform: perspective(1200px) rotateX(2deg) translateY(0);
+}
+.laptop-screen::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent 10%, var(--green-bright) 50%, transparent 90%); opacity: 0.6; }
+.laptop-base {
+  height: 18px; background: linear-gradient(180deg, #1a1d22, #111318);
+  border-radius: 0 0 12px 12px; max-width: 600px; margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.laptop-notch { width: 80px; height: 4px; background: #222; border-radius: 0 0 4px 4px; margin: 0 auto; }
 
-.dash-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 1.4rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); position: relative; z-index: 1; }
-.dash-header-left { display: flex; align-items: center; gap: 0.6rem; }
-.dash-header-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green-glow-strong), 0 0 20px rgba(0,210,106,0.15); }
-.dash-header-title { font-size: 0.85rem; font-weight: 600; color: var(--white); letter-spacing: 0.01em; }
-.dash-header-badge { font-size: 0.6rem; font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 100px; background: rgba(0,210,106,0.12); color: var(--green); letter-spacing: 0.02em; }
+/* Dashboard UI inside laptop */
+.dash-ui { display: grid; grid-template-columns: 200px 1fr; gap: 0; min-height: 380px; }
 
-/* Dashboard: Bar Chart */
-.dash-bars { display: flex; align-items: flex-end; gap: 10px; height: 120px; padding: 0 0.25rem; margin-bottom: 1.5rem; position: relative; }
-.dash-bar { flex: 1; border-radius: 6px 6px 2px 2px; background: var(--green-gradient); position: relative; transition: all 0.3s; min-width: 0; box-shadow: 0 0 12px rgba(0,210,106,0.15); }
-.dash-bar:hover { filter: brightness(1.2); box-shadow: 0 0 20px rgba(0,210,106,0.3); }
-.dash-bar-label { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-size: 0.62rem; color: var(--text-muted); white-space: nowrap; font-weight: 500; }
-.dash-bar-value { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.55rem; color: var(--green); white-space: nowrap; font-weight: 700; opacity: 0; transition: opacity 0.2s; }
-.dash-bar:hover .dash-bar-value { opacity: 1; }
-.dash-grid { position: absolute; top: 0; left: -4px; right: -4px; bottom: 20px; pointer-events: none; }
-.dash-grid-line { border-bottom: 1px dashed rgba(255,255,255,0.04); height: 25%; }
-.dash-stats { display: flex; justify-content: space-between; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 0.8rem; position: relative; z-index: 1; }
-.dash-stat-value { font-size: 1rem; font-weight: 700; color: var(--green); font-family: var(--sans); }
-.dash-stat-label { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; }
+/* Sidebar */
+.dash-sidebar { background: #0d0f12; border-right: 1px solid rgba(255,255,255,0.06); padding: 1.2rem 0; border-radius: 8px 0 0 8px; }
+.dash-sidebar-logo { padding: 0 1rem 1rem; font-weight: 700; font-size: 1rem; color: var(--white); letter-spacing: -0.02em; }
+.dash-sidebar-logo span { color: var(--green-bright); }
+.dash-sidebar-nav { list-style: none; }
+.dash-sidebar-nav li { padding: 0.55rem 1rem; font-size: 0.72rem; color: rgba(255,255,255,0.35); font-weight: 500; display: flex; align-items: center; gap: 0.6rem; cursor: default; transition: all 0.2s; border-left: 2px solid transparent; }
+.dash-sidebar-nav li.active { color: var(--white); background: rgba(255,255,255,0.04); border-left-color: var(--green-bright); }
+.dash-sidebar-nav li svg { width: 14px; height: 14px; opacity: 0.5; }
+.dash-sidebar-nav li.active svg { opacity: 1; }
 
-/* Dashboard: Transaction Feed */
-.dash-tx { display: flex; align-items: center; gap: 0.8rem; padding: 0.75rem 0.5rem; margin: 0 -0.5rem; border-radius: 10px; transition: background 0.2s; position: relative; z-index: 1; }
-.dash-tx:hover { background: rgba(255,255,255,0.03); }
-.dash-tx + .dash-tx { border-top: 1px solid rgba(255,255,255,0.04); }
-.dash-tx-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, rgba(0,210,106,0.25), rgba(0,210,106,0.08)); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; color: var(--green); flex-shrink: 0; border: 1px solid rgba(0,210,106,0.15); }
-.dash-tx-info { flex: 1; min-width: 0; }
-.dash-tx-name { font-size: 0.8rem; font-weight: 600; color: var(--white); }
-.dash-tx-time { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.1rem; }
-.dash-tx-amount { font-size: 0.88rem; font-weight: 700; color: var(--green); white-space: nowrap; }
-.dash-tx-status { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-left: 0.4rem; box-shadow: 0 0 6px rgba(0,210,106,0.4); }
+/* Main content area */
+.dash-main { padding: 1.2rem 1.5rem; }
+.dash-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.dash-topbar-title { font-size: 0.95rem; font-weight: 700; color: var(--white); }
+.dash-topbar-right { display: flex; gap: 0.5rem; }
+.dash-topbar-pill { padding: 0.3rem 0.7rem; border-radius: 100px; font-size: 0.6rem; font-weight: 600; background: rgba(0,210,106,0.1); color: var(--green-bright); border: 1px solid rgba(0,210,106,0.15); }
+.dash-topbar-pill.secondary { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.08); }
 
-/* Dashboard: Progress Ring */
-.dash-ring-container { display: flex; flex-direction: column; align-items: center; padding: 0.8rem 0; position: relative; z-index: 1; }
-.dash-ring { position: relative; width: 140px; height: 140px; }
-.dash-ring svg { transform: rotate(-90deg); }
-.dash-ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 10; }
-.dash-ring-fill { fill: none; stroke: url(#greenGrad); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 376.991; stroke-dashoffset: 30.159; transition: stroke-dashoffset 2s cubic-bezier(0.22,1,0.36,1); filter: drop-shadow(0 0 8px rgba(0,210,106,0.3)); }
-.dash-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
-.dash-ring-pct { font-family: var(--serif); font-size: 2.6rem; color: var(--green); line-height: 1; }
-.dash-ring-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; font-weight: 500; }
-.dash-pills { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
-.dash-pill { padding: 0.35rem 0.9rem; background: rgba(0,210,106,0.1); border: 1px solid rgba(0,210,106,0.2); border-radius: 100px; font-size: 0.72rem; font-weight: 600; color: var(--green); }
-.dash-mini-stats { display: flex; gap: 1.5rem; margin-top: 1rem; }
-.dash-mini-stat { text-align: center; }
-.dash-mini-stat-val { font-size: 0.9rem; font-weight: 700; color: var(--white); }
-.dash-mini-stat-label { font-size: 0.6rem; color: var(--text-muted); margin-top: 0.15rem; }
+/* Dashboard cards row */
+.dash-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; margin-bottom: 1.2rem; }
+.dash-kpi { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.8rem 1rem; }
+.dash-kpi-label { font-size: 0.58rem; color: rgba(255,255,255,0.4); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+.dash-kpi-value { font-family: var(--serif); font-size: 1.4rem; color: var(--white); margin-top: 0.2rem; line-height: 1; }
+.dash-kpi-change { font-size: 0.55rem; font-weight: 600; margin-top: 0.3rem; display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; }
+.dash-kpi-change.up { color: var(--green-bright); background: rgba(0,210,106,0.1); }
 
-/* Float animation */
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-.dash-float-1 { animation: float 5s ease-in-out infinite; }
-.dash-float-2 { animation: float 6s ease-in-out infinite 0.5s; }
-.dash-float-3 { animation: float 5.5s ease-in-out infinite 1s; }
+/* Chart + Feed row */
+.dash-content-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0.8rem; }
+.dash-chart-card, .dash-feed-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem; }
+.dash-chart-title, .dash-feed-title { font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.5); margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
 
-/* ═══════ PROBLEM SECTION (LIGHT for contrast) ═══════ */
-.problem-section { background: #F8FAF9; }
-.problem-section .section-label { color: var(--green-deep); }
-.problem-section .section-title { color: #0D0D0D; }
-.problem-section .section-title em { color: var(--green-deep); }
-.problem-section .section-desc { color: #6B6B6B; }
+/* SVG Bar chart */
+.dash-chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 110px; padding-top: 10px; }
+.dash-chart-bar { flex: 1; border-radius: 4px 4px 1px 1px; position: relative; transition: all 0.3s; }
+.dash-chart-bar-fill { background: linear-gradient(180deg, var(--green-bright), var(--green)); border-radius: 4px 4px 1px 1px; width: 100%; position: absolute; bottom: 0; transition: height 1s cubic-bezier(0.22,1,0.36,1); }
+.dash-chart-bar:hover .dash-chart-bar-fill { filter: brightness(1.2); }
+.dash-chart-bar-lbl { position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; color: rgba(255,255,255,0.3); }
+.dash-chart-legend { display: flex; gap: 1rem; margin-top: 1.2rem; }
+.dash-chart-legend-item { font-size: 0.58rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 0.3rem; }
+.dash-chart-legend-dot { width: 6px; height: 6px; border-radius: 2px; background: var(--green-bright); }
+
+/* Transaction feed */
+.dash-feed-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0; }
+.dash-feed-item + .dash-feed-item { border-top: 1px solid rgba(255,255,255,0.04); }
+.dash-feed-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, rgba(0,210,106,0.2), rgba(0,210,106,0.05)); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 700; color: var(--green-bright); flex-shrink: 0; }
+.dash-feed-info { flex: 1; min-width: 0; }
+.dash-feed-name { font-size: 0.65rem; font-weight: 600; color: var(--white); }
+.dash-feed-unit { font-size: 0.55rem; color: rgba(255,255,255,0.3); }
+.dash-feed-amount { font-size: 0.7rem; font-weight: 700; color: var(--green-bright); }
+.dash-feed-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green-bright); box-shadow: 0 0 6px rgba(0,210,106,0.4); margin-left: 0.3rem; }
+
+/* ═══════ PROBLEM ═══════ */
+.problem-section { background: var(--warm); }
 .problem-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
 .problem-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.problem-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.06); padding: 1.8rem; border-radius: 16px; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+.problem-card { background: var(--white); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
 .problem-card.visible { opacity: 1; transform: translateY(0); }
-.problem-card:hover { border-color: rgba(0,0,0,0.1); box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
-.problem-card-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem; }
-.problem-card h4 { font-weight: 600; font-size: 0.92rem; margin-bottom: 0.4rem; color: #0D0D0D; }
-.problem-card p { font-size: 0.8rem; color: #6B6B6B; line-height: 1.6; font-weight: 300; }
-.pc-red .problem-card-icon { background: #FEE2E2; color: #DC2626; }
-.pc-orange .problem-card-icon { background: #FEF3C7; color: #D97706; }
-.pc-purple .problem-card-icon { background: #EDE9FE; color: #7C3AED; }
-.pc-gray .problem-card-icon { background: #F3F4F6; color: #6B7280; }
+.problem-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.06); transform: translateY(-2px); }
+.problem-card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.8rem; color: rgba(0,0,0,0.5); }
+.problem-card h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.35rem; }
+.problem-card p { font-size: 0.78rem; color: var(--gray); line-height: 1.55; font-weight: 300; }
+.pc-red .problem-card-icon { background: #FEE2E2; }
+.pc-orange .problem-card-icon { background: #FEF3C7; }
+.pc-purple .problem-card-icon { background: #EDE9FE; }
+.pc-gray .problem-card-icon { background: #F3F4F6; }
 
-/* ═══════ HOW IT WORKS (light section) ═══════ */
-.how-section { background: #FAFAFA; color: var(--black); text-align: center; }
-.how-section .section-label { color: var(--green-deep); }
-.how-section .section-title { color: var(--black); }
-.how-section .section-title em { color: var(--green-deep); }
-.how-section .section-desc { color: #6B6B6B; }
-.flow-container { display: flex; align-items: stretch; justify-content: center; margin-top: 4rem; }
-.flow-step { flex: 1; max-width: 320px; padding: 2.5rem 2rem; text-align: center; opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.33,1,0.68,1); }
+/* ═══════ HOW IT WORKS — with phone mockup ═══════ */
+.how-section { text-align: center; }
+.how-layout { display: grid; grid-template-columns: 1fr 300px; gap: 4rem; align-items: center; margin-top: 3rem; max-width: 1000px; margin-left: auto; margin-right: auto; text-align: left; }
+.flow-steps { display: flex; flex-direction: column; gap: 0; }
+.flow-step { padding: 1.8rem 0; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.flow-step:last-child { border-bottom: none; }
 .flow-step.visible { opacity: 1; transform: translateY(0); }
-.flow-number { width: 52px; height: 52px; border-radius: 50%; background: var(--green-deep); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; margin: 0 auto 1.2rem; box-shadow: 0 4px 16px rgba(15,76,46,0.2); }
-.flow-step h3 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 0.6rem; color: var(--black); }
-.flow-step p { font-size: 0.88rem; color: #6B6B6B; line-height: 1.6; font-weight: 300; }
-.flow-connector { width: 80px; display: flex; align-items: center; }
-.flow-connector::after { content: ''; width: 100%; height: 2px; background: repeating-linear-gradient(90deg, var(--green-deep) 0, var(--green-deep) 6px, transparent 6px, transparent 12px); opacity: 0.3; }
-.flow-ussd { margin-top: 1rem; display: inline-block; padding: 0.4rem 1rem; background: var(--black); color: var(--green); font-family: 'Courier New', monospace; font-size: 0.82rem; border-radius: 6px; font-weight: 600; }
+.flow-step-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+.flow-number { width: 36px; height: 36px; border-radius: 50%; background: var(--green); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+.flow-step h3 { font-family: var(--serif); font-size: 1.3rem; }
+.flow-step p { font-size: 0.85rem; color: var(--gray); line-height: 1.55; font-weight: 300; padding-left: 52px; }
+.flow-ussd { margin-top: 0.5rem; margin-left: 52px; display: inline-block; padding: 0.4rem 1rem; background: var(--black); color: var(--green-accent); font-family: 'Courier New', monospace; font-size: 0.82rem; border-radius: 6px; font-weight: 600; }
+.flow-tag { margin-top: 0.5rem; margin-left: 52px; display: inline-block; font-size: 0.72rem; padding: 0.3rem 0.8rem; background: var(--green-tint); border-radius: 100px; color: var(--green); font-weight: 600; }
 
-/* ═══════ FEATURES GRID ═══════ */
-.features-section { background: var(--white); }
-.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem; margin-top: 3.5rem; }
-.feature-card { background: var(--white); border: 1px solid rgba(0,0,0,0.06); padding: 2.5rem 2rem; border-radius: 18px; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); position: relative; overflow: hidden; }
-.feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--green-gradient); opacity: 0; transition: opacity 0.4s; border-radius: 18px 18px 0 0; }
+/* Phone mockup */
+.phone-mockup {
+  width: 260px; height: 520px; background: var(--black); border-radius: 36px;
+  border: 3px solid #333; position: relative; overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+  opacity: 0; transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.22,1,0.36,1);
+  margin: 0 auto;
+}
+.phone-mockup.visible { opacity: 1; transform: translateY(0); }
+.phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 28px; background: var(--black); border-radius: 0 0 18px 18px; z-index: 2; }
+.phone-screen { padding: 3rem 1.2rem 1.2rem; height: 100%; display: flex; flex-direction: column; }
+.phone-status { text-align: center; margin-bottom: 1.5rem; }
+.phone-status-carrier { font-size: 0.6rem; color: rgba(255,255,255,0.4); font-weight: 500; }
+.phone-mpesa-logo { font-size: 1.1rem; font-weight: 800; color: var(--green-bright); margin-top: 0.8rem; letter-spacing: -0.02em; }
+.phone-mpesa-sub { font-size: 0.6rem; color: rgba(255,255,255,0.3); margin-top: 0.2rem; }
+.phone-amount { text-align: center; margin: 1.5rem 0; }
+.phone-amount-label { font-size: 0.6rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; }
+.phone-amount-value { font-family: var(--serif); font-size: 2.2rem; color: var(--white); margin-top: 0.3rem; }
+.phone-amount-kes { font-size: 0.9rem; color: rgba(255,255,255,0.5); }
+.phone-details { flex: 1; }
+.phone-detail-row { display: flex; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.phone-detail-label { font-size: 0.6rem; color: rgba(255,255,255,0.35); }
+.phone-detail-value { font-size: 0.6rem; color: var(--white); font-weight: 600; }
+.phone-confirm-btn {
+  width: 100%; padding: 0.7rem; border-radius: 12px; border: none;
+  background: var(--green-bright); color: var(--black); font-weight: 700;
+  font-size: 0.75rem; font-family: var(--sans); margin-top: auto;
+  cursor: default;
+}
+.phone-receipt { text-align: center; font-size: 0.55rem; color: rgba(255,255,255,0.3); margin-top: 0.5rem; }
+
+/* ═══════ FEATURES — Bento grid ═══════ */
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-top: 3.5rem; }
+.feature-card { background: var(--white); padding: 2.2rem 1.8rem; border-radius: 16px; border: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); position: relative; overflow: hidden; }
+.feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--green), var(--green-light)); border-radius: 16px 16px 0 0; opacity: 0; transition: opacity 0.3s; }
 .feature-card:hover::before { opacity: 1; }
 .feature-card.visible { opacity: 1; transform: translateY(0); }
-.feature-card:hover { border-color: rgba(15,76,46,0.12); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
-.feature-icon { margin-bottom: 1.4rem; line-height: 0; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--green-tint); border-radius: 12px; }
-.feature-icon svg { width: 24px; height: 24px; }
-.feature-card h4 { font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.6rem; color: var(--black); }
-.feature-card p { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.65; font-weight: 300; }
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+.feature-icon { margin-bottom: 1.2rem; line-height: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: var(--green-tint); border-radius: 10px; }
+.feature-icon svg { width: 22px; height: 22px; }
+.feature-card h4 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem; }
+.feature-card p { font-size: 0.82rem; color: var(--gray); line-height: 1.6; font-weight: 300; }
 
-/* ═══════ TRUST SECTION ═══════ */
-.trust-section { background: var(--bg-dark); color: var(--white); }
-.trust-section .section-label { color: #4ADE80; }
-.trust-section .section-title { color: var(--white); }
-.trust-section .section-title em { color: #4ADE80; }
-.trust-section .section-desc { color: rgba(255,255,255,0.5); }
+/* ═══════ TRUST — dark section ═══════ */
+.trust-section { background: var(--dark); color: var(--white); }
 .trust-inner { max-width: 1200px; margin: 0 auto; }
+.trust-section .section-label { color: var(--green-accent); }
+.trust-section .section-title { color: var(--white); }
+.trust-section .section-title em { color: var(--green-accent); }
+.trust-section .section-desc { color: rgba(255,255,255,0.5); }
 .trust-items { display: grid; grid-template-columns: repeat(4,1fr); gap: 2rem; margin-top: 3.5rem; }
-.trust-item { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); border-left: 2px solid #4ADE80; padding-left: 1.5rem; }
+.trust-item { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); border-left: 2px solid var(--green-accent); padding-left: 1.5rem; }
 .trust-item.visible { opacity: 1; transform: translateY(0); }
-.trust-item-number { font-family: var(--serif); font-size: 3.5rem; color: #4ADE80; line-height: 1; margin-bottom: 0.6rem; }
-.trust-item h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.3rem; color: var(--white); }
+.trust-item-number { font-family: var(--serif); font-size: 2.8rem; color: var(--green-accent); line-height: 1; margin-bottom: 0.6rem; }
+.trust-item h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.3rem; }
 .trust-item p { font-size: 0.78rem; color: rgba(255,255,255,0.45); line-height: 1.55; font-weight: 300; }
 
-/* ═══════ STATS STRIP ═══════ */
+/* ═══════ STATS ═══════ */
 .stats-strip { border-top: 1px solid rgba(0,0,0,0.06); border-bottom: 1px solid rgba(0,0,0,0.06); }
 .stats-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); }
-.stat-item { padding: 4.5rem 2rem; text-align: center; border-right: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
+.stat-item { padding: 3.5rem 2rem; text-align: center; border-right: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
 .stat-item:last-child { border-right: none; }
 .stat-item.visible { opacity: 1; transform: translateY(0); }
-.stat-number { font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 4rem); color: var(--green); line-height: 1; }
-.stat-label { font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.8rem; font-weight: 400; }
+.stat-number { font-family: var(--serif); font-size: 3.2rem; color: var(--green); line-height: 1; }
+.stat-label { font-size: 0.78rem; color: var(--gray); margin-top: 0.5rem; }
 
 /* ═══════ ECOSYSTEM ═══════ */
-.ecosystem-section { background: #F7F8FA; }
+.ecosystem-section { background: var(--warm); }
 .eco-inner { max-width: 1200px; margin: 0 auto; }
 .eco-timeline { display: flex; margin-top: 3.5rem; position: relative; }
 .eco-timeline::before { content: ''; position: absolute; top: 28px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--green), var(--green-light), rgba(26,107,64,0.2)); }
 .eco-phase { flex: 1; padding-top: 3.5rem; padding-right: 2rem; position: relative; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.33,1,0.68,1); }
 .eco-phase.visible { opacity: 1; transform: translateY(0); }
-.eco-phase::before { content: ''; position: absolute; top: 20px; left: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--green); border: 3px solid #F7F8FA; box-shadow: 0 0 0 2px var(--green); }
+.eco-phase::before { content: ''; position: absolute; top: 20px; left: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--green); border: 3px solid var(--warm); box-shadow: 0 0 0 2px var(--green); }
 .eco-phase-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--green); font-weight: 600; margin-bottom: 0.5rem; }
 .eco-phase h4 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem; }
-.eco-phase p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; font-weight: 300; }
+.eco-phase p { font-size: 0.82rem; color: var(--gray); line-height: 1.55; font-weight: 300; }
 .eco-services { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
-.eco-tag { padding: 0.25rem 0.7rem; background: var(--white); border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--text-secondary); border: 1px solid rgba(0,0,0,0.08); }
+.eco-tag { padding: 0.25rem 0.7rem; background: var(--white); border-radius: 100px; font-size: 0.7rem; font-weight: 500; color: var(--gray); border: 1px solid rgba(0,0,0,0.08); }
 
 /* ═══════ CTA ═══════ */
-.cta-section { text-align: center; padding: 10rem 3rem; position: relative; background: var(--white); overflow: hidden; }
-.cta-section::before { content:''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(15,76,46,0.06) 0%, rgba(15,76,46,0.02) 40%, transparent 60%); pointer-events: none; filter: blur(40px); }
-.cta-section .section-title { margin: 0 auto; max-width: 700px; font-size: clamp(2.4rem,5.5vw,4.2rem); }
-.cta-section .section-desc { margin: 1.5rem auto 0; text-align: center; max-width: 480px; }
-.cta-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 3rem; }
-.cta-buttons .btn-primary { padding: 1.1rem 3rem; font-size: 1.05rem; box-shadow: 0 8px 30px rgba(15,76,46,0.2); }
-.cta-bg-text { position: absolute; font-family: var(--serif); font-size: clamp(8rem,18vw,16rem); color: rgba(0,0,0,0.02); pointer-events: none; top: 50%; left: 50%; transform: translate(-50%,-50%); white-space: nowrap; }
+.cta-section { text-align: center; padding: 9rem 3rem; position: relative; }
+.cta-section .section-title { margin: 0 auto; max-width: 700px; font-size: clamp(2.2rem,5vw,3.8rem); }
+.cta-section .section-desc { margin: 1.2rem auto 0; text-align: center; max-width: 450px; }
+.cta-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 2.5rem; }
+.cta-bg-text { position: absolute; font-family: var(--serif); font-size: clamp(6rem,15vw,14rem); color: rgba(0,0,0,0.02); pointer-events: none; top: 50%; left: 50%; transform: translate(-50%,-50%); white-space: nowrap; }
 
-/* ═══════ FOOTER ═══════ */
 footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-.footer-left { font-size: 0.78rem; color: #A0A0A0; }
+.footer-left { font-size: 0.78rem; color: var(--gray-light); }
 .footer-links { display: flex; gap: 2rem; }
-.footer-links a { font-size: 0.78rem; color: var(--text-secondary); text-decoration: none; }
+.footer-links a { font-size: 0.78rem; color: var(--gray); text-decoration: none; }
 .footer-links a:hover { color: var(--black); }
 
-@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ═══════ RESPONSIVE ═══════ */
 @media (max-width: 900px) {
@@ -286,23 +305,21 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   .hero-ctas { justify-content: center; flex-wrap: wrap; }
   .hero-scroll-hint { justify-content: center; margin-top: 1.5rem; }
   .hero-building-area { justify-content: center; overflow: hidden; }
-  .hero-building-area video { height: 55vh; margin-left: 0; -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%); mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%); }
+  .hero-building-area video { height: 55vh; -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%); mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%); }
   .cl { display: none; }
-  .dashboard-showcase { grid-template-columns: 1fr; gap: 1.5rem; max-width: 400px; margin-left: auto; margin-right: auto; }
-  .dash-card-center { margin-top: 0; }
+  .dash-ui { grid-template-columns: 1fr; }
+  .dash-sidebar { display: none; }
+  .dash-kpi-row { grid-template-columns: 1fr 1fr; }
+  .dash-content-row { grid-template-columns: 1fr; }
   .problem-inner { grid-template-columns: 1fr; gap: 2rem; }
   .problem-cards { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-  .flow-container { flex-direction: column; align-items: center; gap: 0; }
-  .flow-step { padding: 1.5rem; max-width: 100%; }
-  .flow-connector { width: auto; height: 30px; }
-  .flow-connector::after { width: 2px; height: 100%; }
+  .how-layout { grid-template-columns: 1fr; gap: 2rem; }
+  .phone-mockup { width: 220px; height: 440px; }
   .features-grid { grid-template-columns: 1fr; }
   .feature-card { padding: 1.8rem 1.5rem; }
   .trust-items { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  .trust-item-number { font-size: 2rem; }
   .stats-inner { grid-template-columns: 1fr 1fr; }
   .stat-item { padding: 2rem 1rem; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.06); }
-  .stat-number { font-size: 2.2rem; }
   .eco-timeline { flex-direction: column; gap: 2rem; }
   .eco-timeline::before { width: 2px; height: 100%; top: 0; left: 7px; }
   .eco-phase { padding-left: 2.5rem; padding-top: 0; padding-right: 0; }
@@ -338,7 +355,7 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   </div>
 </nav>
 
-<!-- ═══════════════ HERO ═══════════════ -->
+<!-- ═══════ HERO ═══════ -->
 <section class="hero">
   <div class="hero-sticky">
     <div class="hero-text">
@@ -349,182 +366,176 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
         <a href="#cta" class="btn-primary">Join the waitlist</a>
         <a href="#how" class="btn-secondary">See how it works</a>
       </div>
-      <div class="hero-scroll-hint" id="scrollHint">
-        Scroll to disassemble
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v8m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
+      <div class="hero-scroll-hint" id="scrollHint">Scroll to disassemble <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v8m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     </div>
-
     <div class="hero-building-area">
       <video id="heroVideo" src="keja-building.mp4" muted playsinline preload="auto"></video>
       <div class="callout-labels">
-        <div class="cl left" data-appear="0.20" style="top: 68%; right: 48%;">
-          <div class="cl-dot"></div><div class="cl-line" style="width: 90px;"></div>
-          <div class="cl-label"><div class="cl-label-title">Instant Rent Collection</div><div class="cl-label-sub">Exact amount to landlord. No delays.</div></div>
-        </div>
-        <div class="cl left" data-appear="0.40" style="top: 42%; right: 45%;">
-          <div class="cl-dot"></div><div class="cl-line" style="width: 110px;"></div>
-          <div class="cl-label"><div class="cl-label-title">KRA Tax Compliance</div><div class="cl-label-sub">Auto-generated rental tax invoices.</div></div>
-        </div>
-        <div class="cl left" data-appear="0.60" style="top: 18%; right: 42%;">
-          <div class="cl-dot"></div><div class="cl-line" style="width: 140px;"></div>
-          <div class="cl-label"><div class="cl-label-title">Dispute Resolution</div><div class="cl-label-sub">Every payment gets a verifiable URL.</div></div>
-        </div>
-        <div class="cl right" data-appear="0.10" style="top: 82%; left: 55%;">
-          <div class="cl-dot"></div><div class="cl-line" style="width: 120px;"></div>
-          <div class="cl-label"><div class="cl-label-title">M-Pesa Payment Rails</div><div class="cl-label-sub">Paybill in, B2C out. Under 3 seconds.</div></div>
-        </div>
-        <div class="cl right" data-appear="0.30" style="top: 55%; left: 58%;">
-          <div class="cl-dot"></div><div class="cl-line" style="width: 80px;"></div>
-          <div class="cl-label"><div class="cl-label-title">Dual-Party Receipts</div><div class="cl-label-sub">Both sides get M-Pesa proof. Always.</div></div>
-        </div>
-        <div class="cl right" data-appear="0.50" style="top: 30%; left: 52%;">
-          <div class="cl-dot"></div><div class="cl-line" style="width: 120px;"></div>
-          <div class="cl-label"><div class="cl-label-title">Tenant Verification</div><div class="cl-label-sub">ID-linked profiles. Payment as reputation.</div></div>
-        </div>
-        <div class="cl right" data-appear="0.70" style="top: 8%; left: 48%;">
-          <div class="cl-dot"></div><div class="cl-line" style="width: 160px;"></div>
-          <div class="cl-label"><div class="cl-label-title">Maintenance & Services</div><div class="cl-label-sub">Fundi marketplace. Cleaning. Utilities.</div></div>
-        </div>
+        <div class="cl left" data-appear="0.20" style="top:68%;right:48%"><div class="cl-dot"></div><div class="cl-line" style="width:90px"></div><div class="cl-label"><div class="cl-label-title">Instant Rent Collection</div><div class="cl-label-sub">Exact amount to landlord. No delays.</div></div></div>
+        <div class="cl left" data-appear="0.40" style="top:42%;right:45%"><div class="cl-dot"></div><div class="cl-line" style="width:110px"></div><div class="cl-label"><div class="cl-label-title">KRA Tax Compliance</div><div class="cl-label-sub">Auto-generated rental tax invoices.</div></div></div>
+        <div class="cl left" data-appear="0.60" style="top:18%;right:42%"><div class="cl-dot"></div><div class="cl-line" style="width:140px"></div><div class="cl-label"><div class="cl-label-title">Dispute Resolution</div><div class="cl-label-sub">Every payment gets a verifiable URL.</div></div></div>
+        <div class="cl right" data-appear="0.10" style="top:82%;left:55%"><div class="cl-dot"></div><div class="cl-line" style="width:120px"></div><div class="cl-label"><div class="cl-label-title">M-Pesa Payment Rails</div><div class="cl-label-sub">Paybill in, B2C out. Under 3 seconds.</div></div></div>
+        <div class="cl right" data-appear="0.30" style="top:55%;left:58%"><div class="cl-dot"></div><div class="cl-line" style="width:80px"></div><div class="cl-label"><div class="cl-label-title">Dual-Party Receipts</div><div class="cl-label-sub">Both sides get M-Pesa proof. Always.</div></div></div>
+        <div class="cl right" data-appear="0.50" style="top:30%;left:52%"><div class="cl-dot"></div><div class="cl-line" style="width:120px"></div><div class="cl-label"><div class="cl-label-title">Tenant Verification</div><div class="cl-label-sub">ID-linked profiles. Payment as reputation.</div></div></div>
+        <div class="cl right" data-appear="0.70" style="top:8%;left:48%"><div class="cl-dot"></div><div class="cl-line" style="width:160px"></div><div class="cl-label"><div class="cl-label-title">Maintenance & Services</div><div class="cl-label-sub">Fundi marketplace. Cleaning. Utilities.</div></div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ DASHBOARD ═══════════════ -->
+<!-- ═══════ DASHBOARD — Full-width laptop mockup ═══════ -->
 <section class="section-full dashboard-section">
-  <div class="dashboard-inner">
+  <div class="dash-header-area">
     <span class="section-label">The command center</span>
     <h2 class="section-title">Your property. <em>One dashboard.</em></h2>
     <p class="section-desc">See every payment, every tenant, every unit — in real time. No spreadsheets. No guessing.</p>
-
-    <div class="dashboard-showcase" id="dashShowcase">
-
-      <!-- Card 1: Rent Collection (bar chart) -->
-      <div class="dash-card dash-float-1" data-animate style="transition-delay:0ms">
-        <div class="dash-header">
-          <div class="dash-header-left"><div class="dash-header-dot"></div><div class="dash-header-title">Rent Collection</div></div>
-          <div class="dash-header-badge">LIVE</div>
+  </div>
+  <div class="laptop-frame">
+    <div class="laptop-screen" data-animate>
+      <div class="dash-ui">
+        <!-- Sidebar -->
+        <div class="dash-sidebar">
+          <div class="dash-sidebar-logo">ke<span>ja</span></div>
+          <ul class="dash-sidebar-nav">
+            <li class="active"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg> Overview</li>
+            <li><svg viewBox="0 0 16 16" fill="none"><path d="M2 12V4a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.2"/><path d="M2 6h12" stroke="currentColor" stroke-width="1.2"/></svg> Payments</li>
+            <li><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.2"/></svg> Tenants</li>
+            <li><svg viewBox="0 0 16 16" fill="none"><path d="M3 12V6l5-4 5 4v6a1 1 0 01-1 1H4a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.2"/></svg> Properties</li>
+            <li><svg viewBox="0 0 16 16" fill="none"><path d="M6 2h4v4H6zM2 10h4v4H2zM10 10h4v4h-4z" stroke="currentColor" stroke-width="1.2"/></svg> Tax & Reports</li>
+          </ul>
         </div>
-        <div class="dash-bars" style="position:relative;">
-          <div class="dash-grid"><div class="dash-grid-line"></div><div class="dash-grid-line"></div><div class="dash-grid-line"></div><div class="dash-grid-line"></div></div>
-          <div class="dash-bar" style="height:65%"><span class="dash-bar-value">112K</span><span class="dash-bar-label">Oct</span></div>
-          <div class="dash-bar" style="height:78%"><span class="dash-bar-value">134K</span><span class="dash-bar-label">Nov</span></div>
-          <div class="dash-bar" style="height:55%"><span class="dash-bar-value">94K</span><span class="dash-bar-label">Dec</span></div>
-          <div class="dash-bar" style="height:90%"><span class="dash-bar-value">155K</span><span class="dash-bar-label">Jan</span></div>
-          <div class="dash-bar" style="height:85%"><span class="dash-bar-value">146K</span><span class="dash-bar-label">Feb</span></div>
-          <div class="dash-bar" style="height:98%"><span class="dash-bar-value">168K</span><span class="dash-bar-label">Mar</span></div>
-        </div>
-        <div class="dash-stats">
-          <div><div class="dash-stat-value">KES 847,200</div><div class="dash-stat-label">Collected this month</div></div>
-          <div style="text-align:right"><div class="dash-stat-value">98%</div><div class="dash-stat-label">On time</div></div>
-        </div>
-      </div>
-
-      <!-- Card 2: Payment Activity (transaction feed) — center, larger -->
-      <div class="dash-card dash-card-center dash-float-2" data-animate style="transition-delay:150ms">
-        <div class="dash-header">
-          <div class="dash-header-left"><div class="dash-header-dot"></div><div class="dash-header-title">Recent Activity</div></div>
-          <div class="dash-header-badge">4 NEW</div>
-        </div>
-        <div class="dash-tx"><div class="dash-tx-avatar">JM</div><div class="dash-tx-info"><div class="dash-tx-name">James Mwangi</div><div class="dash-tx-time">2 min ago · Unit 4B</div></div><div class="dash-tx-amount">KES 15,000<span class="dash-tx-status"></span></div></div>
-        <div class="dash-tx"><div class="dash-tx-avatar">WK</div><div class="dash-tx-info"><div class="dash-tx-name">Wanjiku Kamau</div><div class="dash-tx-time">18 min ago · Unit 2A</div></div><div class="dash-tx-amount">KES 22,500<span class="dash-tx-status"></span></div></div>
-        <div class="dash-tx"><div class="dash-tx-avatar">HO</div><div class="dash-tx-info"><div class="dash-tx-name">Hassan Omar</div><div class="dash-tx-time">1 hr ago · Unit 7C</div></div><div class="dash-tx-amount">KES 12,000<span class="dash-tx-status"></span></div></div>
-        <div class="dash-tx"><div class="dash-tx-avatar">NW</div><div class="dash-tx-info"><div class="dash-tx-name">Njeri Wambui</div><div class="dash-tx-time">3 hrs ago · Unit 1A</div></div><div class="dash-tx-amount">KES 18,500<span class="dash-tx-status"></span></div></div>
-        <div class="dash-tx"><div class="dash-tx-avatar">AO</div><div class="dash-tx-info"><div class="dash-tx-name">Atieno Ochieng</div><div class="dash-tx-time">5 hrs ago · Unit 6D</div></div><div class="dash-tx-amount">KES 16,000<span class="dash-tx-status"></span></div></div>
-      </div>
-
-      <!-- Card 3: Portfolio Health (progress ring) -->
-      <div class="dash-card dash-float-3" data-animate style="transition-delay:300ms">
-        <div class="dash-header">
-          <div class="dash-header-left"><div class="dash-header-dot"></div><div class="dash-header-title">Portfolio Health</div></div>
-          <div class="dash-header-badge">GOOD</div>
-        </div>
-        <div class="dash-ring-container">
-          <div class="dash-ring">
-            <svg viewBox="0 0 130 130" width="140" height="140">
-              <defs><linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00D26A"/><stop offset="100%" stop-color="#00A855"/></linearGradient></defs>
-              <circle class="dash-ring-bg" cx="65" cy="65" r="55"/>
-              <circle class="dash-ring-fill" cx="65" cy="65" r="55" style="stroke-dasharray:345.575;stroke-dashoffset:27.646;"/>
-            </svg>
-            <div class="dash-ring-text">
-              <div class="dash-ring-pct">92%</div>
-              <div class="dash-ring-label">Occupancy</div>
+        <!-- Main -->
+        <div class="dash-main">
+          <div class="dash-topbar">
+            <div class="dash-topbar-title">Portfolio Overview</div>
+            <div class="dash-topbar-right">
+              <span class="dash-topbar-pill">March 2026</span>
+              <span class="dash-topbar-pill secondary">Export</span>
             </div>
           </div>
-          <div class="dash-pills">
-            <span class="dash-pill">24 Units</span>
-            <span class="dash-pill">3 Vacant</span>
+          <div class="dash-kpi-row">
+            <div class="dash-kpi"><div class="dash-kpi-label">Collected</div><div class="dash-kpi-value">847,200</div><div class="dash-kpi-change up">↑ 12%</div></div>
+            <div class="dash-kpi"><div class="dash-kpi-label">Occupancy</div><div class="dash-kpi-value">92%</div><div class="dash-kpi-change up">↑ 3%</div></div>
+            <div class="dash-kpi"><div class="dash-kpi-label">On Time</div><div class="dash-kpi-value">98%</div><div class="dash-kpi-change up">↑ 5%</div></div>
+            <div class="dash-kpi"><div class="dash-kpi-label">Units</div><div class="dash-kpi-value">24</div><div class="dash-kpi-change up">3 vacant</div></div>
           </div>
-          <div class="dash-mini-stats">
-            <div class="dash-mini-stat"><div class="dash-mini-stat-val">KES 1.2M</div><div class="dash-mini-stat-label">Monthly Revenue</div></div>
-            <div class="dash-mini-stat"><div class="dash-mini-stat-val">4.8★</div><div class="dash-mini-stat-label">Tenant Rating</div></div>
+          <div class="dash-content-row">
+            <div class="dash-chart-card">
+              <div class="dash-chart-title">Monthly Collection (KES)</div>
+              <div class="dash-chart-bars" id="dashBars">
+                <div class="dash-chart-bar"><div class="dash-chart-bar-fill" data-h="52%"></div><div class="dash-chart-bar-lbl">Oct</div></div>
+                <div class="dash-chart-bar"><div class="dash-chart-bar-fill" data-h="68%"></div><div class="dash-chart-bar-lbl">Nov</div></div>
+                <div class="dash-chart-bar"><div class="dash-chart-bar-fill" data-h="45%"></div><div class="dash-chart-bar-lbl">Dec</div></div>
+                <div class="dash-chart-bar"><div class="dash-chart-bar-fill" data-h="82%"></div><div class="dash-chart-bar-lbl">Jan</div></div>
+                <div class="dash-chart-bar"><div class="dash-chart-bar-fill" data-h="75%"></div><div class="dash-chart-bar-lbl">Feb</div></div>
+                <div class="dash-chart-bar"><div class="dash-chart-bar-fill" data-h="95%"></div><div class="dash-chart-bar-lbl">Mar</div></div>
+              </div>
+              <div class="dash-chart-legend"><span class="dash-chart-legend-item"><span class="dash-chart-legend-dot"></span> Rent collected</span></div>
+            </div>
+            <div class="dash-feed-card">
+              <div class="dash-feed-title">Recent Payments</div>
+              <div class="dash-feed-item"><div class="dash-feed-avatar">JM</div><div class="dash-feed-info"><div class="dash-feed-name">James Mwangi</div><div class="dash-feed-unit">Unit 4B · 2m ago</div></div><div class="dash-feed-amount">15,000<span class="dash-feed-dot"></span></div></div>
+              <div class="dash-feed-item"><div class="dash-feed-avatar">WK</div><div class="dash-feed-info"><div class="dash-feed-name">Wanjiku Kamau</div><div class="dash-feed-unit">Unit 2A · 18m ago</div></div><div class="dash-feed-amount">22,500<span class="dash-feed-dot"></span></div></div>
+              <div class="dash-feed-item"><div class="dash-feed-avatar">HO</div><div class="dash-feed-info"><div class="dash-feed-name">Hassan Omar</div><div class="dash-feed-unit">Unit 7C · 1h ago</div></div><div class="dash-feed-amount">12,000<span class="dash-feed-dot"></span></div></div>
+              <div class="dash-feed-item"><div class="dash-feed-avatar">NW</div><div class="dash-feed-info"><div class="dash-feed-name">Njeri Wambui</div><div class="dash-feed-unit">Unit 1A · 3h ago</div></div><div class="dash-feed-amount">18,500<span class="dash-feed-dot"></span></div></div>
+            </div>
           </div>
         </div>
       </div>
-
     </div>
+    <div class="laptop-notch"></div>
+    <div class="laptop-base"></div>
   </div>
 </section>
 
-<!-- ═══════════════ PROBLEM ═══════════════ -->
+<!-- ═══════ PROBLEM ═══════ -->
 <section class="section-full problem-section">
   <div class="problem-inner">
     <div>
       <span class="section-label">The problem</span>
       <h2 class="section-title">You're managing property with <em>M-Pesa screenshots</em> and prayer</h2>
-      <p class="section-desc">You own the building. But you don't own the data, the receipts, or the proof. Every month is a guessing game — who paid, who's lying, and where the caretaker's cut went.</p>
+      <p class="section-desc">You own the building. But you don't own the data, the receipts, or the proof. Every month is a guessing game.</p>
     </div>
     <div class="problem-cards">
       <div class="problem-card pc-red" data-animate><div class="problem-card-icon">KES</div><h4>You can't prove your income</h4><p>No records means no bank loans, no KRA compliance, no proof your buildings earn what they earn.</p></div>
-      <div class="problem-card pc-orange" data-animate><div class="problem-card-icon">KRA</div><h4>Tax is a nightmare you ignore</h4><p>You know you should file rental income. But the paperwork is impossible. So you don't. And the risk grows.</p></div>
-      <div class="problem-card pc-purple" data-animate><div class="problem-card-icon">?=?</div><h4>Tenants say they paid. Did they?</h4><p>No receipts. No trail. Just WhatsApp arguments and a caretaker whose numbers never quite add up.</p></div>
+      <div class="problem-card pc-orange" data-animate><div class="problem-card-icon">KRA</div><h4>Tax is a nightmare you ignore</h4><p>You know you should file rental income. But the paperwork is impossible. So you don't.</p></div>
+      <div class="problem-card pc-purple" data-animate><div class="problem-card-icon">?=?</div><h4>Tenants say they paid. Did they?</h4><p>No receipts. No trail. Just WhatsApp arguments and a caretaker whose numbers never add up.</p></div>
       <div class="problem-card pc-gray" data-animate><div class="problem-card-icon">NBO</div><h4>Every tool charges you monthly</h4><p>KES 1,500–4,500/month for software you barely use. Why are you paying to collect your own rent?</p></div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
-<section class="section-full how-section" id="how">
-  <div class="section" style="padding-top:0;padding-bottom:0;">
-    <span class="section-label">How it works</span>
-    <h2 class="section-title" style="text-align:center;margin:0 auto;">You set the rent. <em>Keja does the rest.</em></h2>
-    <p class="section-desc" style="text-align:center;margin:1rem auto 0;color:#6B6B6B;">No software to learn. No subscription to pay. Your tenants pay through Keja, you receive the exact rent you set — instantly, with proof.</p>
-    <div class="flow-container">
-      <div class="flow-step" data-animate><div class="flow-number">1</div><h3>Tenant dials or pays</h3><p>USSD or M-Pesa Paybill. The same motion they already use. No app download. Works on any phone.</p><div class="flow-ussd">*384*456#</div></div>
-      <div class="flow-connector"></div>
-      <div class="flow-step" data-animate><div class="flow-number">2</div><h3>Rent arrives in your M-Pesa</h3><p>The exact amount you set. In under 3 seconds. Keja never holds your money — it routes through, never sits.</p><div style="margin-top:1rem;font-size:0.72rem;color:#A0A0A0;font-weight:500;">You pay nothing. Zero. Ever.</div></div>
-      <div class="flow-connector"></div>
-      <div class="flow-step" data-animate><div class="flow-number">3</div><h3>Records build themselves</h3><p>Receipts to both parties. KRA tax invoices auto-filed. Payment history tracked. Your books are done before you check them.</p><div style="margin-top:1rem;"><span style="font-size:0.72rem;padding:0.3rem 0.8rem;background:rgba(15,76,46,0.1);border-radius:100px;color:#0F4C2E;font-weight:600;">✓ Verified on M-Pesa</span></div></div>
+<!-- ═══════ HOW IT WORKS — with phone mockup ═══════ -->
+<section class="section how-section" id="how">
+  <span class="section-label" style="text-align:center;display:block;">How it works</span>
+  <h2 class="section-title" style="text-align:center;margin:0 auto;">You set the rent. <em>Keja does the rest.</em></h2>
+  <p class="section-desc" style="text-align:center;margin:1rem auto 0;">No software to learn. No subscription. Your tenants pay, you receive — instantly, with proof.</p>
+  <div class="how-layout">
+    <div class="flow-steps">
+      <div class="flow-step" data-animate>
+        <div class="flow-step-header"><div class="flow-number">1</div><h3>Tenant dials or pays</h3></div>
+        <p>USSD or M-Pesa Paybill. The same motion they already use. No app download. Works on any phone.</p>
+        <div class="flow-ussd">*384*456#</div>
+      </div>
+      <div class="flow-step" data-animate>
+        <div class="flow-step-header"><div class="flow-number">2</div><h3>Rent arrives in your M-Pesa</h3></div>
+        <p>The exact amount you set. In under 3 seconds. Keja never holds your money — it routes through.</p>
+        <div class="flow-tag">You pay nothing. Zero. Ever.</div>
+      </div>
+      <div class="flow-step" data-animate>
+        <div class="flow-step-header"><div class="flow-number">3</div><h3>Records build themselves</h3></div>
+        <p>Receipts to both parties. KRA tax invoices auto-filed. Payment history tracked.</p>
+        <div class="flow-tag">✓ Verified on M-Pesa</div>
+      </div>
+    </div>
+    <!-- Phone mockup -->
+    <div class="phone-mockup" data-animate>
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-status"><div class="phone-status-carrier">Safaricom · 4G</div></div>
+        <div class="phone-mpesa-logo">M-PESA</div>
+        <div class="phone-mpesa-sub">Payment Confirmation</div>
+        <div class="phone-amount">
+          <div class="phone-amount-label">Amount Paid</div>
+          <div class="phone-amount-value"><span class="phone-amount-kes">KES</span> 15,000</div>
+        </div>
+        <div class="phone-details">
+          <div class="phone-detail-row"><span class="phone-detail-label">To</span><span class="phone-detail-value">Sunrise Apartments</span></div>
+          <div class="phone-detail-row"><span class="phone-detail-label">Unit</span><span class="phone-detail-value">4B — James Mwangi</span></div>
+          <div class="phone-detail-row"><span class="phone-detail-label">Ref</span><span class="phone-detail-value">SHK7X9M2LP</span></div>
+          <div class="phone-detail-row"><span class="phone-detail-label">Time</span><span class="phone-detail-value">14:32 · 3 Apr 2026</span></div>
+          <div class="phone-detail-row"><span class="phone-detail-label">Receipt</span><span class="phone-detail-value" style="color:#00D26A;">Sent to both parties</span></div>
+        </div>
+        <button class="phone-confirm-btn">✓ Payment Complete</button>
+        <div class="phone-receipt">KRA invoice auto-generated</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ FEATURES ═══════════════ -->
-<section class="section-full features-section" id="features">
-  <div class="section" style="padding-top:0;padding-bottom:0;">
-    <div style="text-align:center;">
-      <span class="section-label">What you get — for free</span>
-      <h2 class="section-title" style="margin:0 auto;text-align:center;">Other platforms charge for this. <em>Keja doesn't.</em></h2>
-      <p class="section-desc" style="margin:1rem auto 0;text-align:center;">Every feature competitors sell for KES 1,500–4,500/month is built into the rails. You never see a bill.</p>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="22" width="24" height="4" rx="1" fill="var(--green)" opacity="0.2"/><rect x="6" y="14" width="20" height="8" rx="1" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M12 14v8M20 14v8" stroke="var(--green)" stroke-width="1" opacity="0.4"/><path d="M6 14l10-8 10 8" stroke="var(--green)" stroke-width="1.5" fill="none"/></svg></div><h4>Your rent, in seconds</h4><p>Tenant pays, you receive — in under 3 seconds. The exact amount. Straight to your M-Pesa. No waiting, no clearing.</p></div>
-      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="3" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="18" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M14 14h4M14 18h4" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="2 2"/><rect x="5" y="11" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.2"/><rect x="24" y="11" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.2"/></svg></div><h4>No more "I already paid"</h4><p>Both you and the tenant get a receipt with an M-Pesa transaction code. Disputes end before they start.</p></div>
-      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="6" y="10" width="20" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M6 15h20" stroke="var(--green)" stroke-width="1" opacity="0.3"/><rect x="9" y="18" width="6" height="2" rx="0.5" fill="var(--green)" opacity="0.3"/><rect x="9" y="22" width="10" height="1" rx="0.5" fill="var(--green)" opacity="0.2"/><path d="M22 6l3 4h-6l3-4z" fill="var(--green)" opacity="0.15" stroke="var(--green)" stroke-width="1.5"/></svg></div><h4>KRA sorted, automatically</h4><p>Rental income tax invoices filed as rent comes in. Not at year-end. Not by your accountant. By the system.</p></div>
-      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="8" y="4" width="16" height="24" rx="2" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="11" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="11" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="14.5" y="24" width="3" height="4" rx="0.5" fill="var(--green)" opacity="0.15"/></svg></div><h4>Any phone. Any town.</h4><p>Your tenant in Lodwar on a KES 3,000 phone with 2G can pay rent the same way someone in Westlands does. USSD.</p></div>
-      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="5" y="6" width="22" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="8" y="9" width="7" height="5" rx="0.5" fill="var(--green)" opacity="0.15"/><rect x="8" y="16" width="10" height="1" rx="0.5" fill="var(--green)" opacity="0.2"/><rect x="8" y="19" width="6" height="1" rx="0.5" fill="var(--green)" opacity="0.15"/><circle cx="23" cy="11" r="2" stroke="var(--green)" stroke-width="1.2" fill="none"/><path d="M22 13l2-2" stroke="var(--green)" stroke-width="1.2"/><rect x="12" y="24" width="8" height="3" rx="0.5" fill="var(--green)" opacity="0.1" stroke="var(--green)" stroke-width="1"/></svg></div><h4>Know who's moving in</h4><p>Every tenant builds a Keja profile — ID-verified, payment history tracked. Their reputation follows them. Yours is protected.</p></div>
-      <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="7" y="4" width="18" height="20" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M11 10h10M11 14h7" stroke="var(--green)" stroke-width="1" opacity="0.3"/><path d="M16 20v8M12 24l4 4 4-4" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4>Your data. Always.</h4><p>Export everything — every payment, every tenant, every record. We never lock you in. Leave any time with all your history.</p></div>
-    </div>
+<!-- ═══════ FEATURES ═══════ -->
+<section class="section" id="features">
+  <div style="text-align:center;">
+    <span class="section-label">What you get — for free</span>
+    <h2 class="section-title" style="margin:0 auto;text-align:center;">Other platforms charge for this. <em>Keja doesn't.</em></h2>
+    <p class="section-desc" style="margin:1rem auto 0;text-align:center;">Every feature competitors sell for KES 1,500–4,500/month is built into the rails. You never see a bill.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="22" width="24" height="4" rx="1" fill="var(--green)" opacity="0.2"/><rect x="6" y="14" width="20" height="8" rx="1" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M12 14v8M20 14v8" stroke="var(--green)" stroke-width="1" opacity="0.4"/><path d="M6 14l10-8 10 8" stroke="var(--green)" stroke-width="1.5" fill="none"/></svg></div><h4>Your rent, in seconds</h4><p>Tenant pays, you receive — in under 3 seconds. The exact amount. Straight to your M-Pesa.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="3" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="18" y="8" width="11" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M14 14h4M14 18h4" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="2 2"/></svg></div><h4>No more "I already paid"</h4><p>Both you and the tenant get a receipt with an M-Pesa transaction code. Disputes end before they start.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="6" y="10" width="20" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M6 15h20" stroke="var(--green)" stroke-width="1" opacity="0.3"/><path d="M22 6l3 4h-6l3-4z" fill="var(--green)" opacity="0.15" stroke="var(--green)" stroke-width="1.5"/></svg></div><h4>KRA sorted, automatically</h4><p>Rental income tax invoices filed as rent comes in. Not at year-end. By the system.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="8" y="4" width="16" height="24" rx="2" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="11" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="12" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="11" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/><rect x="18" y="18" width="3" height="3" rx="0.5" fill="var(--green)" opacity="0.25"/></svg></div><h4>Any phone. Any town.</h4><p>Your tenant in Lodwar on a KES 3,000 phone with 2G can pay rent the same way someone in Westlands does.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="5" y="6" width="22" height="16" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><rect x="8" y="9" width="7" height="5" rx="0.5" fill="var(--green)" opacity="0.15"/><circle cx="23" cy="11" r="2" stroke="var(--green)" stroke-width="1.2" fill="none"/></svg></div><h4>Know who's moving in</h4><p>Every tenant builds a Keja profile — ID-verified, payment history tracked. Their reputation follows them.</p></div>
+    <div class="feature-card" data-animate><div class="feature-icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="7" y="4" width="18" height="20" rx="1.5" stroke="var(--green)" stroke-width="1.5" fill="none"/><path d="M11 10h10M11 14h7" stroke="var(--green)" stroke-width="1" opacity="0.3"/><path d="M16 20v8M12 24l4 4 4-4" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h4>Your data. Always.</h4><p>Export everything — every payment, every tenant, every record. We never lock you in.</p></div>
   </div>
 </section>
 
-<!-- ═══════════════ TRUST ═══════════════ -->
+<!-- ═══════ TRUST ═══════ -->
 <section class="section-full trust-section">
   <div class="trust-inner">
     <span class="section-label">Trust architecture</span>
     <h2 class="section-title">Transparency isn't a feature. It's the <em>foundation.</em></h2>
-    <p class="section-desc">Every shilling traceable. Every receipt verifiable. Every record exportable. We built Keja so you never have to take our word for it.</p>
+    <p class="section-desc">Every shilling traceable. Every receipt verifiable. Every record exportable.</p>
     <div class="trust-items">
       <div class="trust-item" data-animate><div class="trust-item-number" data-count="0">0</div><h4>Seconds we hold your money</h4><p>Rent routes through, never sits.</p></div>
       <div class="trust-item" data-animate><div class="trust-item-number" data-count="2">2</div><h4>Receipts per transaction</h4><p>Both parties get proof.</p></div>
@@ -534,7 +545,6 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   </div>
 </section>
 
-<!-- ═══════════════ STATS ═══════════════ -->
 <section class="section-full stats-strip">
   <div class="stats-inner">
     <div class="stat-item" data-animate><div class="stat-number">4.7M</div><div class="stat-label">Rental households in Kenya</div></div>
@@ -544,7 +554,6 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   </div>
 </section>
 
-<!-- ═══════════════ ECOSYSTEM ═══════════════ -->
 <section class="section-full ecosystem-section" id="ecosystem">
   <div class="eco-inner">
     <span class="section-label">The ecosystem</span>
@@ -559,16 +568,12 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   </div>
 </section>
 
-<!-- ═══════════════ CTA ═══════════════ -->
 <section class="cta-section" id="cta">
   <div class="cta-bg-text">keja</div>
   <span class="section-label">Ready?</span>
   <h2 class="section-title" style="text-align:center;">The foundation is <em>poured.</em><br>Build with us.</h2>
   <p class="section-desc" style="text-align:center;">We're onboarding landlords and property managers in Nairobi, Narok, and Maua.</p>
-  <div class="cta-buttons">
-    <a href="#" class="btn-primary btn-lg">Get early access</a>
-    <a href="#" class="btn-secondary btn-lg">Talk to us</a>
-  </div>
+  <div class="cta-buttons"><a href="#" class="btn-primary btn-lg">Get early access</a><a href="#" class="btn-secondary btn-lg">Talk to us</a></div>
 </section>
 
 <footer>
@@ -577,20 +582,18 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
 </footer>
 
 <script>
-/* ═══════ NAV SCROLL ═══════ */
+/* Nav */
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
 
-/* ═══════ VIDEO SCRUB ═══════ */
+/* Video scrub */
 const video = document.getElementById('heroVideo');
 const scrollHint = document.getElementById('scrollHint');
 const hero = document.querySelector('.hero');
 const callouts = document.querySelectorAll('.cl[data-appear]');
 let vDur = 0, vReady = false;
-
 video.addEventListener('loadedmetadata', () => { vDur = video.duration; vReady = true; video.currentTime = 0; });
 video.load();
-
 function scrub() {
   if (!vReady || !vDur) return;
   const rect = hero.getBoundingClientRect();
@@ -604,70 +607,55 @@ function scrub() {
 window.addEventListener('scroll', scrub, { passive: true });
 video.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
 
-/* ═══════ SCROLL ANIMATIONS ═══════ */
+/* Scroll animations */
 const aEls = document.querySelectorAll('[data-animate]');
 const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      const siblings = e.target.parentElement.querySelectorAll('[data-animate]');
-      const i = Array.from(siblings).indexOf(e.target);
-      setTimeout(() => e.target.classList.add('visible'), i * 120);
-      obs.unobserve(e.target);
-    }
-  });
+  entries.forEach(e => { if (e.isIntersecting) {
+    const siblings = e.target.parentElement.querySelectorAll('[data-animate]');
+    const i = Array.from(siblings).indexOf(e.target);
+    setTimeout(() => e.target.classList.add('visible'), i * 120);
+    obs.unobserve(e.target);
+  }});
 }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
 aEls.forEach(el => obs.observe(el));
 
-/* ═══════ DASHBOARD PARALLAX ═══════ */
-const dashSection = document.querySelector('.dashboard-showcase');
-if (dashSection) {
-  window.addEventListener('scroll', () => {
-    const rect = dashSection.getBoundingClientRect();
-    const centerOffset = (rect.top + rect.height / 2 - window.innerHeight / 2) / window.innerHeight;
-    const cards = dashSection.querySelectorAll('.dash-card');
-    cards.forEach((card, i) => {
-      const speed = [0.6, 0, -0.6][i] || 0;
-      const y = centerOffset * speed * 35;
-      if (card.classList.contains('visible')) {
-        const base = card.classList.contains('dash-card-center') ? 'translateY(-1.5rem)' : '';
-        card.style.transform = `${base} translateY(${y}px) scale(1)`;
-      }
+/* Dashboard chart bar animation */
+const barObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) {
+    e.target.querySelectorAll('.dash-chart-bar-fill').forEach((bar, i) => {
+      setTimeout(() => { bar.style.height = bar.dataset.h; }, i * 100);
     });
-  }, { passive: true });
-}
+    barObs.unobserve(e.target);
+  }});
+}, { threshold: 0.3 });
+const dashBars = document.getElementById('dashBars');
+if (dashBars) barObs.observe(dashBars);
 
-/* ═══════ COUNTER ANIMATION ═══════ */
+/* Counter animation */
 const counterObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      const el = e.target;
-      const target = parseFloat(el.dataset.count);
-      const suffix = el.dataset.suffix || '';
-      if (isNaN(target)) return;
-      const duration = 1500;
-      const start = performance.now();
-      function tick(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const current = Math.round(eased * target);
-        el.textContent = current + suffix;
-        if (progress < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-      counterObs.unobserve(el);
+  entries.forEach(e => { if (e.isIntersecting) {
+    const el = e.target;
+    const target = parseFloat(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    if (isNaN(target)) return;
+    const duration = 1500;
+    const start = performance.now();
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target) + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
     }
-  });
+    requestAnimationFrame(tick);
+    counterObs.unobserve(el);
+  }});
 }, { threshold: 0.5 });
 document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
 
-/* ═══════ SMOOTH ANCHORS ═══════ */
+/* Smooth anchor links */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', function(e) {
-    e.preventDefault();
-    const t = document.querySelector(this.getAttribute('href'));
-    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+  a.addEventListener('click', function(e) { e.preventDefault(); const t = document.querySelector(this.getAttribute('href')); if (t) t.scrollIntoView({ behavior:'smooth', block:'start' }); });
 });
 </script>
 </body>
