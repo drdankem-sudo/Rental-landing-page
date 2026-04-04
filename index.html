@@ -121,14 +121,15 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .laptop-frame { max-width: 1000px; margin: 0 auto; perspective: 1200px; transition: transform 0.1s ease-out; }
 .laptop-frame.floating { animation: laptopFloat 6s ease-in-out infinite; }
 @keyframes laptopFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-/* Cursor spotlight on hover */
-.laptop-screen .cursor-glow {
-  position: absolute; width: 300px; height: 300px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,210,106,0.07) 0%, transparent 70%);
-  pointer-events: none; z-index: 1; opacity: 0; transition: opacity 0.3s;
-  transform: translate(-50%, -50%);
-}
-.laptop-screen:hover .cursor-glow { opacity: 1; }
+/* Smooth transitions for hover color changes */
+.dash-kpi-value, .dash-kpi-label { transition: color 0.25s; }
+.dash-feed-name { transition: color 0.25s; }
+.dash-chart-title, .dash-feed-title { transition: color 0.25s; }
+.dash-chart-bar-fill { transition: height 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s, box-shadow 0.25s, transform 0.25s; }
+.dash-chart-bar-lbl { transition: color 0.25s; }
+.dash-chart-card, .dash-feed-card { transition: all 0.7s cubic-bezier(0.22,1,0.36,1), border-color 0.25s, background 0.25s, box-shadow 0.25s; }
+.dash-feed-item { transition: all 0.6s cubic-bezier(0.22,1,0.36,1), background 0.25s, box-shadow 0.25s; cursor: default; }
+.dash-sidebar-nav li { transition: all 0.5s cubic-bezier(0.22,1,0.36,1), color 0.2s, background 0.2s; cursor: default; }
 .laptop-base {
   height: 18px; background: linear-gradient(180deg, #1a1d22, #111318);
   border-radius: 0 0 12px 12px; max-width: 600px; margin: 0 auto;
@@ -139,8 +140,10 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .laptop-notch { width: 80px; height: 4px; background: #222; border-radius: 0 0 4px 4px; margin: 0 auto; opacity: 0; transition: opacity 0.8s 0.3s; }
 
 /* KPI stagger reveal — bigger delays, scale up effect */
-.dash-kpi { opacity: 0; transform: translateY(16px) scale(0.95); transition: all 0.6s cubic-bezier(0.22,1,0.36,1); }
-.dash-kpi:hover { background: rgba(255,255,255,0.06); border-color: rgba(0,210,106,0.15); }
+.dash-kpi { opacity: 0; transform: translateY(16px) scale(0.95); transition: all 0.6s cubic-bezier(0.22,1,0.36,1); cursor: default; }
+.dash-kpi:hover { background: rgba(0,210,106,0.08); border-color: rgba(0,210,106,0.3); transform: translateY(-2px) scale(1.03); box-shadow: 0 4px 20px rgba(0,210,106,0.15), 0 0 0 1px rgba(0,210,106,0.1) inset; }
+.dash-kpi:hover .dash-kpi-value { color: var(--green-bright); }
+.dash-kpi:hover .dash-kpi-label { color: rgba(255,255,255,0.7); }
 .laptop-screen.visible .dash-kpi:nth-child(1) { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0.6s; }
 .laptop-screen.visible .dash-kpi:nth-child(2) { opacity: 1; transform: translateY(0) scale(1); transition-delay: 0.8s; }
 .laptop-screen.visible .dash-kpi:nth-child(3) { opacity: 1; transform: translateY(0) scale(1); transition-delay: 1.0s; }
@@ -148,7 +151,8 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 
 /* Feed items stagger from right — bigger delays */
 .dash-feed-item { opacity: 0; transform: translateX(30px); transition: all 0.6s cubic-bezier(0.22,1,0.36,1); }
-.dash-feed-item:hover { background: rgba(255,255,255,0.04); border-radius: 8px; }
+.dash-feed-item:hover { background: rgba(0,210,106,0.06); border-radius: 8px; box-shadow: 0 2px 12px rgba(0,210,106,0.1); transform: translateX(-4px); }
+.dash-feed-item:hover .dash-feed-name { color: var(--green-bright); }
 .laptop-screen.visible .dash-feed-item:nth-child(1) { opacity: 1; transform: translateX(0); transition-delay: 1.8s; }
 .laptop-screen.visible .dash-feed-item:nth-child(2) { opacity: 1; transform: translateX(0); transition-delay: 2.0s; }
 .laptop-screen.visible .dash-feed-item:nth-child(3) { opacity: 1; transform: translateX(0); transition-delay: 2.2s; }
@@ -161,7 +165,7 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 
 /* Sidebar nav items stagger — bigger delays */
 .dash-sidebar-nav li { opacity: 0; transform: translateX(-14px); transition: all 0.5s cubic-bezier(0.22,1,0.36,1); }
-.dash-sidebar-nav li:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.03); }
+.dash-sidebar-nav li:hover { color: var(--green-bright); background: rgba(0,210,106,0.06); border-radius: 6px; box-shadow: inset 2px 0 0 var(--green-bright); }
 .laptop-screen.visible .dash-sidebar-nav li:nth-child(1) { opacity: 1; transform: translateX(0); transition-delay: 0.5s; }
 .laptop-screen.visible .dash-sidebar-nav li:nth-child(2) { opacity: 1; transform: translateX(0); transition-delay: 0.65s; }
 .laptop-screen.visible .dash-sidebar-nav li:nth-child(3) { opacity: 1; transform: translateX(0); transition-delay: 0.8s; }
@@ -185,9 +189,14 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .laptop-screen.visible .dash-topbar { opacity: 1; }
 
 /* Hover effects on dashboard inner elements */
-.dash-chart-bar:hover .dash-chart-bar-fill { filter: brightness(1.3); box-shadow: 0 0 16px rgba(0,210,106,0.3); }
+.dash-chart-bar { cursor: default; }
+.dash-chart-bar:hover .dash-chart-bar-fill { filter: brightness(1.4); box-shadow: 0 0 20px rgba(0,210,106,0.4), 0 -4px 12px rgba(0,210,106,0.2); transform: scaleX(1.15); }
+.dash-chart-bar:hover .dash-chart-bar-lbl { color: var(--green-bright); }
 .dash-feed-avatar { transition: transform 0.2s, box-shadow 0.2s; }
-.dash-feed-item:hover .dash-feed-avatar { transform: scale(1.1); box-shadow: 0 0 12px rgba(0,210,106,0.2); }
+.dash-feed-item:hover .dash-feed-avatar { transform: scale(1.15); box-shadow: 0 0 16px rgba(0,210,106,0.3); }
+/* Chart + feed cards hover */
+.dash-chart-card:hover, .dash-feed-card:hover { border-color: rgba(0,210,106,0.2); background: rgba(0,210,106,0.03); box-shadow: 0 4px 24px rgba(0,210,106,0.08); }
+.dash-chart-card:hover .dash-chart-title, .dash-feed-card:hover .dash-feed-title { color: var(--green-bright); }
 
 /* Dashboard UI inside laptop */
 .dash-ui { display: grid; grid-template-columns: 200px 1fr; gap: 0; min-height: 380px; }
@@ -470,7 +479,6 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   </div>
   <div class="laptop-frame">
     <div class="laptop-screen" data-animate>
-      <div class="cursor-glow"></div>
       <div class="dash-ui">
         <!-- Sidebar -->
         <div class="dash-sidebar">
@@ -746,29 +754,22 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', function(e) { e.preventDefault(); const t = document.querySelector(this.getAttribute('href')); if (t) t.scrollIntoView({ behavior:'smooth', block:'start' }); });
 });
 
-/* Mouse-following 3D tilt + cursor glow — Laptop */
+/* Mouse-following 3D tilt — Laptop */
 (function() {
   const frame = document.querySelector('.laptop-frame');
   const screen = document.querySelector('.laptop-screen');
-  const glow = document.querySelector('.laptop-screen .cursor-glow');
-  if (!frame || !screen || !glow) return;
+  if (!frame || !screen) return;
 
   screen.addEventListener('mousemove', function(e) {
     const rect = screen.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;  // -0.5 to 0.5
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    // Subtle tilt: ±3deg
     frame.style.transform = 'rotateY(' + (x * 6) + 'deg) rotateX(' + (-y * 4) + 'deg)';
-    // Move glow
-    glow.style.left = e.clientX - rect.left + 'px';
-    glow.style.top = e.clientY - rect.top + 'px';
-    // Pause floating
     frame.classList.remove('floating');
   });
 
   screen.addEventListener('mouseleave', function() {
     frame.style.transform = '';
-    // Resume floating after a beat
     setTimeout(function() { frame.classList.add('floating'); }, 300);
   });
 })();
