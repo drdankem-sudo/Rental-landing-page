@@ -105,13 +105,70 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .laptop-screen.visible {
   opacity: 1; transform: perspective(1200px) rotateX(2deg) translateY(0);
 }
-.laptop-screen::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent 10%, var(--green-bright) 50%, transparent 90%); opacity: 0.6; }
+/* Green accent line at top */
+.laptop-screen::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent 10%, var(--green-bright) 50%, transparent 90%); opacity: 0.6; z-index: 2; }
+/* Scanning light sweep */
+.laptop-screen::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,210,106,0.03), transparent);
+  z-index: 1; pointer-events: none; opacity: 0;
+}
+.laptop-screen.visible::after { opacity: 1; animation: scanSweep 4s 1.5s ease-in-out infinite; }
+@keyframes scanSweep { 0%{left:-100%} 50%{left:100%} 100%{left:100%} }
+/* Subtle float on whole laptop */
+.laptop-frame.floating { animation: laptopFloat 6s ease-in-out infinite; }
+@keyframes laptopFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 .laptop-base {
   height: 18px; background: linear-gradient(180deg, #1a1d22, #111318);
   border-radius: 0 0 12px 12px; max-width: 600px; margin: 0 auto;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  opacity: 0; transition: opacity 0.8s 0.3s;
 }
-.laptop-notch { width: 80px; height: 4px; background: #222; border-radius: 0 0 4px 4px; margin: 0 auto; }
+.laptop-screen.visible ~ .laptop-notch, .laptop-screen.visible ~ .laptop-base { opacity: 1; }
+.laptop-notch { width: 80px; height: 4px; background: #222; border-radius: 0 0 4px 4px; margin: 0 auto; opacity: 0; transition: opacity 0.8s 0.3s; }
+
+/* KPI stagger reveal */
+.dash-kpi { opacity: 0; transform: translateY(12px); transition: all 0.5s cubic-bezier(0.22,1,0.36,1); }
+.laptop-screen.visible .dash-kpi:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+.laptop-screen.visible .dash-kpi:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.5s; }
+.laptop-screen.visible .dash-kpi:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
+.laptop-screen.visible .dash-kpi:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.7s; }
+
+/* Feed items stagger from right */
+.dash-feed-item { opacity: 0; transform: translateX(20px); transition: all 0.5s cubic-bezier(0.22,1,0.36,1); }
+.laptop-screen.visible .dash-feed-item:nth-child(1) { opacity: 1; transform: translateX(0); transition-delay: 0.9s; }
+.laptop-screen.visible .dash-feed-item:nth-child(2) { opacity: 1; transform: translateX(0); transition-delay: 1.05s; }
+.laptop-screen.visible .dash-feed-item:nth-child(3) { opacity: 1; transform: translateX(0); transition-delay: 1.2s; }
+.laptop-screen.visible .dash-feed-item:nth-child(4) { opacity: 1; transform: translateX(0); transition-delay: 1.35s; }
+
+/* Chart card + feed card fade */
+.dash-chart-card, .dash-feed-card { opacity: 0; transform: translateY(10px); transition: all 0.6s cubic-bezier(0.22,1,0.36,1); }
+.laptop-screen.visible .dash-chart-card { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
+.laptop-screen.visible .dash-feed-card { opacity: 1; transform: translateY(0); transition-delay: 0.75s; }
+
+/* Sidebar nav items stagger */
+.dash-sidebar-nav li { opacity: 0; transform: translateX(-10px); transition: all 0.4s cubic-bezier(0.22,1,0.36,1); }
+.laptop-screen.visible .dash-sidebar-nav li:nth-child(1) { opacity: 1; transform: translateX(0); transition-delay: 0.3s; }
+.laptop-screen.visible .dash-sidebar-nav li:nth-child(2) { opacity: 1; transform: translateX(0); transition-delay: 0.4s; }
+.laptop-screen.visible .dash-sidebar-nav li:nth-child(3) { opacity: 1; transform: translateX(0); transition-delay: 0.5s; }
+.laptop-screen.visible .dash-sidebar-nav li:nth-child(4) { opacity: 1; transform: translateX(0); transition-delay: 0.6s; }
+.laptop-screen.visible .dash-sidebar-nav li:nth-child(5) { opacity: 1; transform: translateX(0); transition-delay: 0.7s; }
+/* Active sidebar item glow pulse */
+.dash-sidebar-nav li.active { position: relative; }
+.laptop-screen.visible .dash-sidebar-nav li.active::after {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: var(--green-bright); box-shadow: 0 0 8px rgba(0,210,106,0.4);
+  animation: sidebarPulse 2s ease-in-out infinite;
+}
+@keyframes sidebarPulse { 0%,100%{opacity:1;box-shadow:0 0 8px rgba(0,210,106,0.4)} 50%{opacity:0.6;box-shadow:0 0 4px rgba(0,210,106,0.2)} }
+
+/* Green dot pulse on feed */
+.dash-feed-dot { animation: dotPulse 2s ease-in-out infinite; }
+@keyframes dotPulse { 0%,100%{opacity:1;box-shadow:0 0 6px rgba(0,210,106,0.4)} 50%{opacity:0.5;box-shadow:0 0 2px rgba(0,210,106,0.2)} }
+
+/* Topbar fade */
+.dash-topbar { opacity: 0; transition: opacity 0.5s 0.2s; }
+.laptop-screen.visible .dash-topbar { opacity: 1; }
 
 /* Dashboard UI inside laptop */
 .dash-ui { display: grid; grid-template-columns: 200px 1fr; gap: 0; min-height: 380px; }
@@ -150,7 +207,7 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 /* SVG Bar chart */
 .dash-chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 110px; padding-top: 10px; }
 .dash-chart-bar { flex: 1; border-radius: 4px 4px 1px 1px; position: relative; transition: all 0.3s; }
-.dash-chart-bar-fill { background: linear-gradient(180deg, var(--green-bright), var(--green)); border-radius: 4px 4px 1px 1px; width: 100%; position: absolute; bottom: 0; transition: height 1s cubic-bezier(0.22,1,0.36,1); }
+.dash-chart-bar-fill { background: linear-gradient(180deg, var(--green-bright), var(--green)); border-radius: 4px 4px 1px 1px; width: 100%; height: 0; position: absolute; bottom: 0; transition: height 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 10px rgba(0,210,106,0.15); }
 .dash-chart-bar:hover .dash-chart-bar-fill { filter: brightness(1.2); }
 .dash-chart-bar-lbl { position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; color: rgba(255,255,255,0.3); }
 .dash-chart-legend { display: flex; gap: 1rem; margin-top: 1.2rem; }
@@ -619,17 +676,26 @@ const obs = new IntersectionObserver(entries => {
 }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
 aEls.forEach(el => obs.observe(el));
 
-/* Dashboard chart bar animation */
-const barObs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) {
-    e.target.querySelectorAll('.dash-chart-bar-fill').forEach((bar, i) => {
-      setTimeout(() => { bar.style.height = bar.dataset.h; }, i * 100);
-    });
-    barObs.unobserve(e.target);
-  }});
-}, { threshold: 0.3 });
-const dashBars = document.getElementById('dashBars');
-if (dashBars) barObs.observe(dashBars);
+/* Dashboard staged animation */
+const laptopScreen = document.querySelector('.laptop-screen');
+const laptopFrame = document.querySelector('.laptop-frame');
+if (laptopScreen) {
+  const laptopObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      laptopScreen.classList.add('visible');
+      // Start floating after initial reveal completes
+      setTimeout(() => { if (laptopFrame) laptopFrame.classList.add('floating'); }, 1800);
+      // Animate bar chart bars with stagger (after KPIs appear)
+      setTimeout(() => {
+        document.querySelectorAll('.dash-chart-bar-fill').forEach((bar, i) => {
+          setTimeout(() => { bar.style.height = bar.dataset.h; }, i * 120);
+        });
+      }, 800);
+      laptopObs.unobserve(e.target);
+    }});
+  }, { threshold: 0.15, rootMargin: '0px 0px -80px 0px' });
+  laptopObs.observe(laptopScreen);
+}
 
 /* Counter animation */
 const counterObs = new IntersectionObserver(entries => {
