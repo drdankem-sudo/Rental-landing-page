@@ -20,8 +20,9 @@ router.post('/request-otp', async (req, res, next) => {
     // Find or note user
     let user = await prisma.user.findUnique({ where: { phone: normalized } });
 
-    // Generate 6-digit OTP
-    const code = String(Math.floor(100000 + Math.random() * 900000));
+    // Generate 6-digit OTP (dev mode uses fixed code 123456)
+    const isDev = !process.env.AT_API_KEY || process.env.AT_USERNAME === 'sandbox';
+    const code = isDev ? '123456' : String(Math.floor(100000 + Math.random() * 900000));
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
     if (user) {
