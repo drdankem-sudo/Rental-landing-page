@@ -1,0 +1,337 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════ AUTH & USERS ═══════
+
+enum UserRole {
+  OWNER
+  MANAGER
+  CARETAKER
+  TENANT
+}
+
+model User {
+  id          String   @id @default(cuid())
+  phone       String   @unique
+  name        String
+  email       String?
+  role        UserRole
+  idNumber    String?  // National ID
+  idVerified  Boolean  @default(false)
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ownedProperties    Property[]        @relation("PropertyOwner")
+  managedProperties  PropertyManager[]
+  tenancies          Tenancy[]
+  maintenanceRequests MaintenanceRequest[]
+  sentNotifications  Notification[]    @relation("NotificationSender")
+  notifications      Notification[]    @relation("NotificationRecipient")
+  otpCodes           OtpCode[]
+  activityLogs       ActivityLog[]
+
+  @@index([phone])
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, code])
+}
+
+// ═══════ PROPERTIES & UNITS ═══════
+
+enum PropertyType {
+  APARTMENT
+  MAISONETTE
+  BUNGALOW
+  BEDSITTER
+  SINGLE_ROOM
+  COMMERCIAL
+}
+
+model Property {
+  id            String       @id @default(cuid())
+  name          String       // "Sunrise Apartments"
+  type          PropertyType
+  address       String
+  county        String       // Nairobi, Narok, etc.
+  town          String
+  totalUnits    Int
+  ownerId       String
+  paybillNumber String?      // Landlord's existing M-Pesa Paybill
+  tillNumber    String?      // Or Till number
+  darajaConsumerKey    String?
+  darajaConsumerSecret String?
+  darajaShortcode      String?
+  darajaPasskey        String?
+  darajaCallbackRegistered Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  owner    User              @relation("PropertyOwner", fields: [ownerId], references: [id])
+  units    Unit[]
+  managers PropertyManager[]
+  payments Payment[]
+  activityLogs ActivityLog[]
+
+  @@index([ownerId])
+  @@index([paybillNumber])
+}
+
+model PropertyManager {
+  id         String   @id @default(cuid())
+  propertyId String
+  userId     String
+  role       UserRole // MANAGER or CARETAKER
+  canViewPayments Boolean @default(true)
+  canManageTenants Boolean @default(true)
+  canManageUnits   Boolean @default(false)
+  createdAt  DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@unique([propertyId, userId])
+}
+
+enum UnitStatus {
+  OCCUPIED
+  VACANT
+  NOTICE_GIVEN
+  MAINTENANCE
+}
+
+model Unit {
+  id          String     @id @default(cuid())
+  propertyId  String
+  unitNumber  String     // "4B"
+  floor       Int?
+  bedrooms    Int?
+  rentAmount  Int        // KES, stored as integer (no decimals in M-Pesa)
+  depositAmount Int?
+  status      UnitStatus @default(VACANT)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  property  Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenancies Tenancy[]
+  payments  Payment[]
+  maintenanceRequests MaintenanceRequest[]
+
+  @@unique([propertyId, unitNumber])
+  @@index([propertyId])
+}
+
+// ═══════ TENANCIES ═══════
+
+enum TenancyStatus {
+  ACTIVE
+  NOTICE_GIVEN
+  ENDED
+}
+
+model Tenancy {
+  id          String        @id @default(cuid())
+  unitId      String
+  tenantId    String
+  rentAmount  Int           // Rent at time of lease (may differ from unit default)
+  depositPaid Int           @default(0)
+  startDate   DateTime
+  endDate     DateTime?
+  noticeDate  DateTime?
+  status      TenancyStatus @default(ACTIVE)
+  leaseDocUrl String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  unit    Unit      @relation(fields: [unitId], references: [id])
+  tenant  User      @relation(fields: [tenantId], references: [id])
+  payments Payment[]
+
+  @@index([unitId])
+  @@index([tenantId])
+  @@index([status])
+}
+
+// ═══════ PAYMENTS ═══════
+
+enum PaymentStatus {
+  MATCHED       // Auto-matched to tenant + unit
+  UNMATCHED     // Received but can't identify tenant/unit
+  PARTIAL       // Less than rent amount
+  OVERPAYMENT   // More than rent amount
+  MANUALLY_MATCHED // Landlord resolved manually
+}
+
+enum PaymentSource {
+  MPESA_C2B     // Paybill/Till callback
+  MANUAL_ENTRY  // Landlord entered manually
+  BANK_TRANSFER // Future
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  propertyId        String
+  unitId            String?       // Null if unmatched
+  tenancyId         String?       // Null if unmatched
+  amount            Int           // KES
+  mpesaRef          String?       @unique // M-Pesa transaction code e.g. "SHK7X9M2LP"
+  mpesaPhone        String?       // Phone that sent payment
+  mpesaName         String?       // Name from M-Pesa
+  accountReference  String?       // Account ref sent by payer (unit number, name, etc.)
+  status            PaymentStatus @default(UNMATCHED)
+  source            PaymentSource @default(MPESA_C2B)
+  paidAt            DateTime      // When M-Pesa confirms
+  month             String        // "2026-04" — which rent month this covers
+  receiptSentTenant   Boolean     @default(false)
+  receiptSentLandlord Boolean     @default(false)
+  kraInvoiceGenerated Boolean     @default(false)
+  notes             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  property Property @relation(fields: [propertyId], references: [id])
+  unit     Unit?    @relation(fields: [unitId], references: [id])
+  tenancy  Tenancy? @relation(fields: [tenancyId], references: [id])
+  receipt  Receipt?
+
+  @@index([propertyId])
+  @@index([mpesaRef])
+  @@index([mpesaPhone])
+  @@index([paidAt])
+  @@index([status])
+  @@index([month])
+}
+
+model Receipt {
+  id          String   @id @default(cuid())
+  paymentId   String   @unique
+  receiptNo   String   @unique // "KJ-2026-00142"
+  tenantPhone String?
+  landlordPhone String?
+  amount      Int
+  kraPin      String?  // Landlord's KRA PIN for tax invoice
+  taxAmount   Int?     // Calculated rental income tax
+  pdfUrl      String?
+  createdAt   DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+}
+
+// ═══════ MAINTENANCE ═══════
+
+enum MaintenanceStatus {
+  SUBMITTED
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintenanceCategory {
+  PLUMBING
+  ELECTRICAL
+  PAINTING
+  CARPENTRY
+  GENERAL
+  SECURITY
+  CLEANING
+  OTHER
+}
+
+model MaintenanceRequest {
+  id          String              @id @default(cuid())
+  unitId      String
+  requesterId String             // Tenant who submitted
+  category    MaintenanceCategory
+  description String
+  photoUrls   String[]           // Array of image URLs
+  status      MaintenanceStatus  @default(SUBMITTED)
+  assignedTo  String?            // Fundi name or caretaker
+  notes       String?
+  completedAt DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  unit      Unit @relation(fields: [unitId], references: [id])
+  requester User @relation(fields: [requesterId], references: [id])
+
+  @@index([unitId])
+  @@index([status])
+}
+
+// ═══════ NOTIFICATIONS ═══════
+
+enum NotificationType {
+  PAYMENT_RECEIVED
+  PAYMENT_REMINDER
+  RENT_OVERDUE
+  RECEIPT
+  LEASE_EXPIRY
+  MAINTENANCE_UPDATE
+  GENERAL
+}
+
+enum NotificationChannel {
+  SMS
+  IN_APP
+  BOTH
+}
+
+model Notification {
+  id          String              @id @default(cuid())
+  recipientId String
+  senderId    String?
+  type        NotificationType
+  channel     NotificationChannel @default(SMS)
+  title       String
+  message     String
+  smsSent     Boolean             @default(false)
+  readAt      DateTime?
+  createdAt   DateTime            @default(now())
+
+  recipient User  @relation("NotificationRecipient", fields: [recipientId], references: [id])
+  sender    User? @relation("NotificationSender", fields: [senderId], references: [id])
+
+  @@index([recipientId])
+  @@index([type])
+}
+
+// ═══════ ACTIVITY LOG ═══════
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String
+  propertyId String?
+  action     String   // "payment.matched", "tenant.added", "unit.updated"
+  details    String?  // JSON string with context
+  createdAt  DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id])
+  property Property? @relation(fields: [propertyId], references: [id])
+
+  @@index([userId])
+  @@index([propertyId])
+  @@index([createdAt])
+}
