@@ -520,7 +520,8 @@ async function updateUnit(id) {
 // ═══════ TENANTS TAB ═══════
 async function renderTenants() {
   if (!state.activeProperty) { content.innerHTML = '<p>Select a property first.</p>'; return; }
-  const tenants = await api(`/tenants/${state.activeProperty.id}`);
+  const data = await api(`/tenants/property/${state.activeProperty.id}`);
+  const tenants = data.tenancies || [];
   const statusColors = { ACTIVE: 'green', NOTICE_GIVEN: 'amber', ENDED: 'red' };
   content.innerHTML = `
     <div class="tab-header"><h2>Tenants — ${state.activeProperty.name}</h2>
@@ -555,10 +556,15 @@ function showAssignTenant() {
 
 async function assignTenant() {
   try {
-    await api(`/tenants/${state.activeProperty.id}/assign`, { method: 'POST', body: JSON.stringify({
-      name: document.getElementById('tName').value,
-      phone: document.getElementById('tPhone').value,
-      unitNumber: document.getElementById('tUnit').value,
+    // Find unit by number to get unitId
+    const units = await api(`/units/${state.activeProperty.id}`);
+    const unitNum = document.getElementById('tUnit').value.trim();
+    const unit = units.find(u => u.unitNumber === unitNum);
+    if (!unit) { toast('Unit not found', 'error'); return; }
+    await api('/tenants/assign', { method: 'POST', body: JSON.stringify({
+      unitId: unit.id,
+      tenantPhone: document.getElementById('tPhone').value,
+      tenantName: document.getElementById('tName').value,
       rentAmount: parseInt(document.getElementById('tRent').value),
       depositPaid: parseInt(document.getElementById('tDeposit').value) || 0
     })});
@@ -569,7 +575,7 @@ async function assignTenant() {
 async function giveNotice(tenancyId) {
   if (!confirm('Mark tenant as notice given?')) return;
   try {
-    await api(`/tenants/tenancy/${tenancyId}/notice`, { method: 'PATCH' });
+    await api('/tenants/give-notice', { method: 'POST', body: JSON.stringify({ tenancyId }) });
     toast('Notice recorded'); renderTenants();
   } catch (e) { toast(e.message, 'error'); }
 }
@@ -577,7 +583,7 @@ async function giveNotice(tenancyId) {
 async function moveOut(tenancyId) {
   if (!confirm('Move out this tenant? This will end their tenancy.')) return;
   try {
-    await api(`/tenants/tenancy/${tenancyId}/move-out`, { method: 'PATCH' });
+    await api('/tenants/move-out', { method: 'POST', body: JSON.stringify({ tenancyId }) });
     toast('Tenant moved out'); renderTenants();
   } catch (e) { toast(e.message, 'error'); }
 }
@@ -585,14 +591,11 @@ async function moveOut(tenancyId) {
 // ═══════ MAINTENANCE TAB ═══════
 async function renderMaintenance() {
   if (!state.activeProperty) { content.innerHTML = '<p>Select a property first.</p>'; return; }
-  const units = await api(`/units/${state.activeProperty.id}`);
   let allReqs = [];
-  for (const u of units) {
-    try {
-      const reqs = await api(`/maintenance/${u.id}`);
-      allReqs = allReqs.concat(reqs.map(r => ({ ...r, unitNumber: u.unitNumber })));
-    } catch(e) {}
-  }
+  try {
+    const data = await api(`/maintenance/property/${state.activeProperty.id}`);
+    allReqs = data.requests || [];
+  } catch(e) {}
   const statusColors = { SUBMITTED: 'amber', ASSIGNED: 'blue', IN_PROGRESS: 'blue', COMPLETED: 'green', CANCELLED: 'red' };
   content.innerHTML = `
     <div class="tab-header"><h2>Maintenance — ${state.activeProperty.name}</h2></div>
@@ -601,7 +604,7 @@ async function renderMaintenance() {
       <th>Unit</th><th>Category</th><th>Description</th><th>Status</th><th>Submitted</th><th>Actions</th>
     </tr></thead><tbody>
     ${allReqs.map(r => `<tr>
-      <td>${r.unitNumber}</td>
+      <td>${r.unit?.unitNumber || '-'}</td>
       <td>${r.category}</td>
       <td>${r.description.substring(0, 60)}${r.description.length > 60 ? '...' : ''}</td>
       <td><span class="badge badge-${statusColors[r.status] || 'amber'}">${r.status.replace('_',' ')}</span></td>
@@ -620,7 +623,7 @@ async function renderMaintenance() {
 async function updateMaintenance(id, status) {
   if (!status) return;
   try {
-    await api(`/maintenance/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+    await api(`/maintenance/${id}`, { method: 'PUT', body: JSON.stringify({ status }) });
     toast('Status updated'); renderMaintenance();
   } catch (e) { toast(e.message, 'error'); }
 }
