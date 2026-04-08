@@ -13,5 +13,15 @@
       ]
     }
   ],
-  "cleanUrls": true
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" }
+  ],
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "backend/**"
+    }
+  },
+  "buildCommand": "cd backend && npm install && npx prisma generate",
+  "installCommand": "cd backend && npm install"
 }
