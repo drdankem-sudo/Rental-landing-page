@@ -22,6 +22,7 @@
       "includeFiles": "backend/**"
     }
   },
+  "outputDirectory": ".",
   "buildCommand": "cd backend && npm install && npx prisma generate",
   "installCommand": "cd backend && npm install"
 }
