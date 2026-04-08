@@ -27,13 +27,8 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Debug - check generated output
-        run: |
-          echo "=== Checking generated directory ==="
-          ls -la generated/ 2>/dev/null || echo "No generated/ directory"
-          ls -la generated/prisma/ 2>/dev/null || echo "No generated/prisma/ directory"
-          ls -la node_modules/.prisma/ 2>/dev/null || echo "No .prisma in node_modules"
-          ls -la node_modules/@prisma/client/ 2>/dev/null || echo "No @prisma/client"
+      - name: Debug generated output
+        run: ls -la generated/prisma/ | head -20
 
       - name: Run seed script
         run: node prisma/seed.js
