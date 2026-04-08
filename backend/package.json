@@ -12,10 +12,16 @@
     "db:seed": "node prisma/seed.js",
     "db:generate": "npx prisma generate"
   },
-  "keywords": ["keja", "rental", "mpesa", "kenya"],
+  "keywords": [
+    "keja",
+    "rental",
+    "mpesa",
+    "kenya"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
@@ -24,6 +30,7 @@
     "express-rate-limit": "^8.3.2",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0",
     "prisma": "^7.7.0"
   },
   "devDependencies": {
