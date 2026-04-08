@@ -1,3 +1,5 @@
+// Keja — Rental Payment Intelligence for Kenya
+
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
