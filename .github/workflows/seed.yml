@@ -12,6 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: claude/redesign-visual-dashboards-yJe0Z
 
       - uses: actions/setup-node@v4
         with:
