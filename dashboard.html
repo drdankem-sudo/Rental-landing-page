@@ -235,7 +235,7 @@ function hideError() { document.getElementById('loginError').style.display = 'no
 // ═══════ INIT ═══════
 async function initApp() {
   document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+  document.getElementById('app').style.display = 'flex';
   try {
     if (!state.user) { const d = await api('/auth/me'); state.user = d.user; }
     document.getElementById('userName').textContent = state.user.name || 'User';
@@ -652,7 +652,7 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) {
   if (token) {
     state.token = token;
     document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appShell').style.display = 'flex';
+    document.getElementById('app').style.display = 'flex';
     initApp();
   }
 })();
