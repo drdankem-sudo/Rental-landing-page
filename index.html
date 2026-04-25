@@ -63,15 +63,15 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
   justify-content: center;
   overflow: visible;
 }
-.hero-building-area video {
+.hero-building-area video,
+.hero-building-area canvas {
   height: 110vh;
   width: auto;
   display: block;
   background: var(--white);
-  mix-blend-mode: multiply;
-  filter: brightness(1.15) contrast(1.1);
-  -webkit-mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%);
-  mask-image: radial-gradient(ellipse 85% 80% at 55% 50%, black 50%, transparent 90%);
+}
+.hero-building-area canvas {
+  image-rendering: high-quality;
 }
 
 /* ═══════ CALLOUT LABELS ═══════ */
@@ -257,11 +257,9 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
     justify-content: center;
     overflow: hidden;
   }
-  .hero-building-area video {
+  .hero-building-area canvas {
     height: 55vh;
     margin-left: 0;
-    -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%);
-    mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 85%);
   }
 
   /* Labels hidden on mobile */
@@ -305,7 +303,7 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   .hero-text > p { font-size: 0.82rem; }
   .hero-ctas { flex-direction: column; align-items: center; gap: 0.75rem; }
   .btn-primary, .btn-secondary { width: 100%; max-width: 260px; text-align: center; }
-  .hero-building-area video { height: 45vh; }
+  .hero-building-area canvas { height: 45vh; }
 
   .problem-cards { grid-template-columns: 1fr; }
   .section-title { font-size: clamp(1.6rem, 6vw, 2rem); }
@@ -352,7 +350,7 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
 
     <!-- RIGHT: building + labels -->
     <div class="hero-building-area">
-      <video id="heroVideo" src="keja-building.mp4" muted playsinline preload="auto"></video>
+      <canvas id="heroCanvas" width="1200" height="720"></canvas>
 
       <div class="callout-labels">
 
@@ -530,29 +528,78 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
 
-const video = document.getElementById('heroVideo');
-const scrollHint = document.getElementById('scrollHint');
+// ═══════════════ CANVAS FRAME SCRUBBER ═══════════════
+const FRAME_COUNT = 160;
+const canvas = document.getElementById('heroCanvas');
+const ctx = canvas.getContext('2d');
 const hero = document.querySelector('.hero');
+const scrollHint = document.getElementById('scrollHint');
 const callouts = document.querySelectorAll('.cl[data-appear]');
-let vDur = 0, vReady = false;
 
-video.addEventListener('loadedmetadata', () => { vDur = video.duration; vReady = true; video.currentTime = 0; });
-video.load();
+// Preload all frames
+const frames = [];
+let loadedCount = 0;
+
+function framePath(i) {
+  return 'frames/f_' + String(i).padStart(4, '0') + '.webp';
+}
+
+function drawFrame(index) {
+  const idx = Math.max(0, Math.min(FRAME_COUNT - 1, index));
+  if (frames[idx] && frames[idx].complete) {
+    ctx.drawImage(frames[idx], 0, 0, canvas.width, canvas.height);
+  }
+}
+
+// Load frames — first frame immediately, rest in order
+function preloadFrames() {
+  for (let i = 0; i < FRAME_COUNT; i++) {
+    const img = new Image();
+    img.src = framePath(i + 1);
+    if (i === 0) {
+      img.onload = () => drawFrame(0);
+    }
+    img.onload = () => {
+      loadedCount++;
+    };
+    frames[i] = img;
+  }
+}
+preloadFrames();
+
+// Scroll handler — map scroll position to frame index
+let currentFrame = 0;
+let targetFrame = 0;
+let ticking = false;
 
 function scrub() {
-  if (!vReady || !vDur) return;
   const rect = hero.getBoundingClientRect();
   const scrolled = -rect.top;
   const range = hero.offsetHeight - window.innerHeight;
-  const p = Math.max(0, Math.min(1, scrolled / range));
+  const progress = Math.max(0, Math.min(1, scrolled / range));
 
-  video.currentTime = p * vDur;
-  if (scrollHint) scrollHint.style.opacity = p > 0.02 ? '0' : '1';
-  callouts.forEach(c => c.classList.toggle('show', p >= parseFloat(c.dataset.appear)));
+  targetFrame = Math.round(progress * (FRAME_COUNT - 1));
+
+  if (scrollHint) scrollHint.style.opacity = progress > 0.02 ? '0' : '1';
+  callouts.forEach(c => c.classList.toggle('show', progress >= parseFloat(c.dataset.appear)));
+
+  if (!ticking) {
+    requestAnimationFrame(updateCanvas);
+    ticking = true;
+  }
 }
-window.addEventListener('scroll', scrub, { passive: true });
-video.addEventListener('click', () => { if (video.paused) video.play(); else video.pause(); });
 
+function updateCanvas() {
+  if (currentFrame !== targetFrame) {
+    currentFrame = targetFrame;
+    drawFrame(currentFrame);
+  }
+  ticking = false;
+}
+
+window.addEventListener('scroll', scrub, { passive: true });
+
+// ═══════════════ INTERSECTION OBSERVER ═══════════════
 const aEls = document.querySelectorAll('[data-animate]');
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { const i = Array.from(e.target.parentElement.querySelectorAll('[data-animate]')).indexOf(e.target); setTimeout(() => e.target.classList.add('visible'), i*120); obs.unobserve(e.target); }});
