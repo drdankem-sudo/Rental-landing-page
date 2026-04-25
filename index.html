@@ -44,16 +44,6 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
   height: 150%; width: auto;
   z-index: 1;
 }
-.hero-sticky::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, rgba(255,255,255,0.97) 55%, rgba(255,255,255,0) 100%);
-  z-index: 2;
-  pointer-events: none;
-}
 
 /* ── Left: text ── */
 .hero-text {
@@ -64,9 +54,9 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem 0.4rem 0.5rem; background: var(--green-tint); border-radius: 100px; font-size: 0.75rem; font-weight: 500; color: var(--green); margin-bottom: 1.2rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
 .hero-badge-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse-dot 2s infinite; }
 @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.hero-text h1 { font-family: var(--serif); font-size: clamp(2.6rem, 4.5vw, 4.2rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 400; opacity: 0; animation: fadeUp 0.8s 0.4s forwards; }
+.hero-text h1 { font-family: var(--serif); font-size: clamp(2.6rem, 4.5vw, 4.2rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 400; opacity: 0; animation: fadeUp 0.8s 0.4s forwards; text-shadow: 0 1px 8px rgba(255,255,255,0.6); }
 .hero-text h1 em { font-style: italic; color: var(--green); }
-.hero-text > p { font-size: 0.95rem; color: var(--gray); max-width: 380px; margin-top: 1rem; line-height: 1.6; font-weight: 300; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
+.hero-text > p { font-size: 0.95rem; color: var(--black); max-width: 380px; margin-top: 1rem; line-height: 1.6; font-weight: 400; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; text-shadow: 0 1px 6px rgba(255,255,255,0.5); }
 .hero-ctas { display: flex; gap: 1rem; margin-top: 1.8rem; opacity: 0; animation: fadeUp 0.8s 0.8s forwards; }
 .hero-scroll-hint { margin-top: 2.5rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gray-light); font-weight: 500; display: flex; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 0.8s 1.2s forwards; transition: opacity 0.4s; }
 .hero-scroll-hint svg { animation: bounce-down 1.5s infinite; }
@@ -145,8 +135,8 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 /* ═══════ BUTTONS ═══════ */
 .btn-primary { background: var(--green); color: var(--white); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.25s; text-decoration: none; }
 .btn-primary:hover { background: var(--green-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(15,76,46,0.2); }
-.btn-secondary { background: transparent; color: var(--black); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 500; font-size: 0.9rem; border: 1.5px solid rgba(0,0,0,0.15); cursor: pointer; transition: all 0.25s; text-decoration: none; }
-.btn-secondary:hover { border-color: var(--black); }
+.btn-secondary { background: rgba(255,255,255,0.85); color: var(--black); padding: 0.85rem 2rem; border-radius: 100px; font-family: var(--sans); font-weight: 500; font-size: 0.9rem; border: 1.5px solid rgba(0,0,0,0.15); cursor: pointer; transition: all 0.25s; text-decoration: none; backdrop-filter: blur(8px); }
+.btn-secondary:hover { border-color: var(--black); background: rgba(255,255,255,1); }
 .btn-lg { padding: 1rem 2.5rem; font-size: 1rem; }
 
 /* ═══════ SECTIONS ═══════ */
@@ -248,11 +238,6 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
   }
-  .hero-sticky::before {
-    width: 100%;
-    height: 55%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.97) 50%, rgba(255,255,255,0) 100%);
-  }
   .hero-text {
     padding: 5.5rem 1.5rem 0;
     text-align: center;
@@ -303,7 +288,6 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   .hero-text > p { font-size: 0.82rem; }
   .hero-ctas { flex-direction: column; align-items: center; gap: 0.75rem; }
   .btn-primary, .btn-secondary { width: 100%; max-width: 260px; text-align: center; }
-  .hero-sticky::before { height: 50%; }
 
   .problem-cards { grid-template-columns: 1fr; }
   .section-title { font-size: clamp(1.6rem, 6vw, 2rem); }
