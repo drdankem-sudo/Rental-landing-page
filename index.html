@@ -32,16 +32,34 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .hero { min-height: 350vh; position: relative; }
 .hero-sticky {
   position: sticky; top: 0; height: 100vh; width: 100%;
-  background: var(--white); overflow: hidden;
+  overflow: hidden;
   display: grid;
   grid-template-columns: 38% 62%;
   align-items: center;
+}
+#heroCanvas {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  height: 150%; width: auto;
+  z-index: 1;
+}
+.hero-sticky::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0.97) 55%, rgba(255,255,255,0) 100%);
+  z-index: 2;
+  pointer-events: none;
 }
 
 /* ── Left: text ── */
 .hero-text {
   padding: 0 2rem 0 4rem;
   z-index: 10;
+  position: relative;
 }
 .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem 0.4rem 0.5rem; background: var(--green-tint); border-radius: 100px; font-size: 0.75rem; font-weight: 500; color: var(--green); margin-bottom: 1.2rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
 .hero-badge-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse-dot 2s infinite; }
@@ -54,20 +72,11 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .hero-scroll-hint svg { animation: bounce-down 1.5s infinite; }
 @keyframes bounce-down { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
 
-/* ── Right: building — bleeds off-screen ── */
+/* ── Right: labels overlay ── */
 .hero-building-area {
   position: relative;
   height: 100%;
-  overflow: hidden;
-}
-.hero-building-area canvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  height: 115%;
-  width: auto;
-  display: block;
+  z-index: 5;
 }
 
 /* ═══════ CALLOUT LABELS ═══════ */
@@ -239,6 +248,11 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
   }
+  .hero-sticky::before {
+    width: 100%;
+    height: 55%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.97) 50%, rgba(255,255,255,0) 100%);
+  }
   .hero-text {
     padding: 5.5rem 1.5rem 0;
     text-align: center;
@@ -247,11 +261,6 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   .hero-text > p { text-align: center; margin-left: auto; margin-right: auto; font-size: 0.88rem; max-width: 340px; }
   .hero-ctas { justify-content: center; flex-wrap: wrap; }
   .hero-scroll-hint { justify-content: center; margin-top: 1.5rem; }
-
-  /* Building — centered, smaller, no bleed */
-  .hero-building-area canvas {
-    height: 100%;
-  }
 
   /* Labels hidden on mobile */
   .cl { display: none; }
@@ -294,7 +303,7 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   .hero-text > p { font-size: 0.82rem; }
   .hero-ctas { flex-direction: column; align-items: center; gap: 0.75rem; }
   .btn-primary, .btn-secondary { width: 100%; max-width: 260px; text-align: center; }
-  .hero-building-area canvas { height: 90%; }
+  .hero-sticky::before { height: 50%; }
 
   .problem-cards { grid-template-columns: 1fr; }
   .section-title { font-size: clamp(1.6rem, 6vw, 2rem); }
@@ -323,6 +332,7 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
 <!-- ═══════════════ HERO ═══════════════ -->
 <section class="hero">
   <div class="hero-sticky">
+    <canvas id="heroCanvas" width="1200" height="720"></canvas>
 
     <!-- LEFT: copy -->
     <div class="hero-text">
@@ -339,10 +349,8 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
       </div>
     </div>
 
-    <!-- RIGHT: building + labels -->
+    <!-- RIGHT: labels -->
     <div class="hero-building-area">
-      <canvas id="heroCanvas" width="1200" height="720"></canvas>
-
       <div class="callout-labels">
 
         <!-- LEFT side of building (these point left, dot on building edge) -->
