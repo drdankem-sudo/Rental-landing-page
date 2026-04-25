@@ -62,16 +62,14 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
   align-items: center;
   justify-content: center;
   overflow: visible;
+  background: #4B8FD4;
 }
 .hero-building-area video,
 .hero-building-area canvas {
   height: 110vh;
   width: auto;
   display: block;
-  background: var(--white);
-}
-.hero-building-area canvas {
-  image-rendering: high-quality;
+  background: transparent;
 }
 
 /* ═══════ CALLOUT LABELS ═══════ */
@@ -533,12 +531,13 @@ const FRAME_COUNT = 160;
 const canvas = document.getElementById('heroCanvas');
 const ctx = canvas.getContext('2d');
 const hero = document.querySelector('.hero');
+const heroBuilding = document.querySelector('.hero-building-area');
 const scrollHint = document.getElementById('scrollHint');
 const callouts = document.querySelectorAll('.cl[data-appear]');
 
-// Preload all frames
 const frames = [];
 let loadedCount = 0;
+let lastDrawn = -1;
 
 function framePath(i) {
   return 'frames/f_' + String(i).padStart(4, '0') + '.webp';
@@ -546,58 +545,66 @@ function framePath(i) {
 
 function drawFrame(index) {
   const idx = Math.max(0, Math.min(FRAME_COUNT - 1, index));
+  if (idx === lastDrawn) return;
   if (frames[idx] && frames[idx].complete) {
     ctx.drawImage(frames[idx], 0, 0, canvas.width, canvas.height);
+    lastDrawn = idx;
   }
 }
 
-// Load frames — first frame immediately, rest in order
 function preloadFrames() {
   for (let i = 0; i < FRAME_COUNT; i++) {
     const img = new Image();
-    img.src = framePath(i + 1);
-    if (i === 0) {
-      img.onload = () => drawFrame(0);
-    }
     img.onload = () => {
       loadedCount++;
+      if (i === 0) drawFrame(0);
     };
+    img.src = framePath(i + 1);
     frames[i] = img;
   }
 }
 preloadFrames();
 
-// Scroll handler — map scroll position to frame index
-let currentFrame = 0;
+// Smooth scroll-linked animation with lerp
+let displayFrame = 0;
 let targetFrame = 0;
-let ticking = false;
+let scrollProgress = 0;
+
+const SKY = { r: 75, g: 143, b: 212 };
 
 function scrub() {
   const rect = hero.getBoundingClientRect();
   const scrolled = -rect.top;
   const range = hero.offsetHeight - window.innerHeight;
-  const progress = Math.max(0, Math.min(1, scrolled / range));
+  scrollProgress = Math.max(0, Math.min(1, scrolled / range));
 
-  targetFrame = Math.round(progress * (FRAME_COUNT - 1));
+  targetFrame = scrollProgress * (FRAME_COUNT - 1);
 
-  if (scrollHint) scrollHint.style.opacity = progress > 0.02 ? '0' : '1';
-  callouts.forEach(c => c.classList.toggle('show', progress >= parseFloat(c.dataset.appear)));
-
-  if (!ticking) {
-    requestAnimationFrame(updateCanvas);
-    ticking = true;
-  }
+  if (scrollHint) scrollHint.style.opacity = scrollProgress > 0.02 ? '0' : '1';
+  callouts.forEach(c => c.classList.toggle('show', scrollProgress >= parseFloat(c.dataset.appear)));
 }
 
-function updateCanvas() {
-  if (currentFrame !== targetFrame) {
-    currentFrame = targetFrame;
-    drawFrame(currentFrame);
+function animate() {
+  const diff = targetFrame - displayFrame;
+  if (Math.abs(diff) > 0.3) {
+    const step = diff * 0.15;
+    displayFrame += Math.abs(step) < 1 ? Math.sign(diff) : step;
+  } else {
+    displayFrame = targetFrame;
   }
-  ticking = false;
+  drawFrame(Math.round(displayFrame));
+
+  const t = Math.min(1, scrollProgress * 1.35);
+  const r = Math.round(SKY.r + (255 - SKY.r) * t);
+  const g = Math.round(SKY.g + (255 - SKY.g) * t);
+  const b = Math.round(SKY.b + (255 - SKY.b) * t);
+  heroBuilding.style.backgroundColor = 'rgb(' + r + ',' + g + ',' + b + ')';
+
+  requestAnimationFrame(animate);
 }
 
 window.addEventListener('scroll', scrub, { passive: true });
+requestAnimationFrame(animate);
 
 // ═══════════════ INTERSECTION OBSERVER ═══════════════
 const aEls = document.querySelectorAll('[data-animate]');
