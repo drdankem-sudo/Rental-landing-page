@@ -58,18 +58,16 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .hero-building-area {
   position: relative;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: visible;
-  background: #4B8FD4;
+  overflow: hidden;
 }
-.hero-building-area video,
 .hero-building-area canvas {
-  height: 110vh;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 115%;
   width: auto;
   display: block;
-  background: transparent;
 }
 
 /* ═══════ CALLOUT LABELS ═══════ */
@@ -251,13 +249,8 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   .hero-scroll-hint { justify-content: center; margin-top: 1.5rem; }
 
   /* Building — centered, smaller, no bleed */
-  .hero-building-area {
-    justify-content: center;
-    overflow: hidden;
-  }
   .hero-building-area canvas {
-    height: 55vh;
-    margin-left: 0;
+    height: 100%;
   }
 
   /* Labels hidden on mobile */
@@ -301,7 +294,7 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
   .hero-text > p { font-size: 0.82rem; }
   .hero-ctas { flex-direction: column; align-items: center; gap: 0.75rem; }
   .btn-primary, .btn-secondary { width: 100%; max-width: 260px; text-align: center; }
-  .hero-building-area canvas { height: 45vh; }
+  .hero-building-area canvas { height: 90%; }
 
   .problem-cards { grid-template-columns: 1fr; }
   .section-title { font-size: clamp(1.6rem, 6vw, 2rem); }
@@ -531,13 +524,20 @@ const FRAME_COUNT = 160;
 const canvas = document.getElementById('heroCanvas');
 const ctx = canvas.getContext('2d');
 const hero = document.querySelector('.hero');
-const heroBuilding = document.querySelector('.hero-building-area');
 const scrollHint = document.getElementById('scrollHint');
 const callouts = document.querySelectorAll('.cl[data-appear]');
 
 const frames = [];
 let loadedCount = 0;
 let lastDrawn = -1;
+
+// Pre-draw sky gradient matching frame backgrounds
+const skyGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+skyGrad.addColorStop(0, '#1f4881');
+skyGrad.addColorStop(0.5, '#3a6ea8');
+skyGrad.addColorStop(1, '#7eace1');
+ctx.fillStyle = skyGrad;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 function framePath(i) {
   return 'frames/f_' + String(i).padStart(4, '0') + '.webp';
@@ -568,20 +568,17 @@ preloadFrames();
 // Smooth scroll-linked animation with lerp
 let displayFrame = 0;
 let targetFrame = 0;
-let scrollProgress = 0;
-
-const SKY = { r: 75, g: 143, b: 212 };
 
 function scrub() {
   const rect = hero.getBoundingClientRect();
   const scrolled = -rect.top;
   const range = hero.offsetHeight - window.innerHeight;
-  scrollProgress = Math.max(0, Math.min(1, scrolled / range));
+  const progress = Math.max(0, Math.min(1, scrolled / range));
 
-  targetFrame = scrollProgress * (FRAME_COUNT - 1);
+  targetFrame = progress * (FRAME_COUNT - 1);
 
-  if (scrollHint) scrollHint.style.opacity = scrollProgress > 0.02 ? '0' : '1';
-  callouts.forEach(c => c.classList.toggle('show', scrollProgress >= parseFloat(c.dataset.appear)));
+  if (scrollHint) scrollHint.style.opacity = progress > 0.02 ? '0' : '1';
+  callouts.forEach(c => c.classList.toggle('show', progress >= parseFloat(c.dataset.appear)));
 }
 
 function animate() {
@@ -593,13 +590,6 @@ function animate() {
     displayFrame = targetFrame;
   }
   drawFrame(Math.round(displayFrame));
-
-  const t = Math.min(1, scrollProgress * 1.35);
-  const r = Math.round(SKY.r + (255 - SKY.r) * t);
-  const g = Math.round(SKY.g + (255 - SKY.g) * t);
-  const b = Math.round(SKY.b + (255 - SKY.b) * t);
-  heroBuilding.style.backgroundColor = 'rgb(' + r + ',' + g + ',' + b + ')';
-
   requestAnimationFrame(animate);
 }
 
