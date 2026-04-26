@@ -66,19 +66,12 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .hero-scroll-hint svg { animation: bounce-down 1.5s infinite; }
 @keyframes bounce-down { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
 
-/* ── Right: labels overlay ── */
-.hero-building-area {
-  position: relative;
-  height: 100%;
-  z-index: 5;
-}
-
 /* ═══════ CALLOUT LABELS ═══════ */
 .callout-labels {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   pointer-events: none;
-  z-index: 5;
+  z-index: 10;
 }
 .cl {
   position: absolute;
@@ -101,36 +94,35 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
 .cl.left.show .cl-label { transform: translateX(0); }
 
 .cl-dot {
-  width: 12px; height: 12px; border-radius: 50%;
-  background: var(--green); flex-shrink: 0;
-  box-shadow: 0 0 0 4px rgba(15,76,46,0.15), 0 0 0 8px rgba(15,76,46,0.06);
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--white); flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.35), 0 2px 8px rgba(0,0,0,0.15);
 }
 .cl-line {
-  height: 2.5px;
-  background: var(--green);
-  opacity: 0.5;
+  height: 2px;
+  background: rgba(255,255,255,0.6);
   flex-shrink: 0;
 }
-
-/* THE LABEL — bold, readable, with subtitle */
 .cl-label {
   flex-shrink: 0;
-  background: var(--green);
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: none;
   border-radius: 10px;
   padding: 0.6rem 1rem;
-  box-shadow: 0 4px 20px rgba(15,76,46,0.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 .cl-label-title {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--white);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--black);
   letter-spacing: 0.01em;
   line-height: 1.2;
 }
 .cl-label-sub {
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.7);
+  font-size: 0.65rem;
+  color: var(--gray);
   font-weight: 400;
   line-height: 1.3;
   margin-top: 0.15rem;
@@ -340,75 +332,64 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
     </div>
 
     <!-- RIGHT: labels -->
-    <div class="hero-building-area">
-      <div class="callout-labels">
+    <div class="callout-labels">
 
-        <!-- LEFT side of building (these point left, dot on building edge) -->
-        <div class="cl left" data-appear="0.20" style="top: 68%; right: 48%;">
+        <!-- LEFT-pointing: label on left, dot on building left edge -->
+        <div class="cl left" data-appear="0.15" style="top: 75%; right: 68%;">
           <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 90px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">Instant Rent Collection</div>
-            <div class="cl-label-sub">Exact amount to landlord. No delays.</div>
-          </div>
-        </div>
-
-        <div class="cl left" data-appear="0.40" style="top: 42%; right: 45%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 110px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">KRA Tax Compliance</div>
-            <div class="cl-label-sub">Auto-generated rental tax invoices.</div>
-          </div>
-        </div>
-
-        <div class="cl left" data-appear="0.60" style="top: 18%; right: 42%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 140px;"></div>
-          <div class="cl-label">
-            <div class="cl-label-title">Dispute Resolution</div>
-            <div class="cl-label-sub">Every payment gets a verifiable URL.</div>
-          </div>
-        </div>
-
-        <!-- RIGHT side of building (these point right, dot on building edge) -->
-        <div class="cl right" data-appear="0.10" style="top: 82%; left: 55%;">
-          <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 120px;"></div>
+          <div class="cl-line" style="width: 60px;"></div>
           <div class="cl-label">
             <div class="cl-label-title">M-Pesa Payment Rails</div>
             <div class="cl-label-sub">Paybill in, B2C out. Under 3 seconds.</div>
           </div>
         </div>
 
-        <div class="cl right" data-appear="0.30" style="top: 55%; left: 58%;">
+        <div class="cl left" data-appear="0.35" style="top: 50%; right: 65%;">
           <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 80px;"></div>
+          <div class="cl-line" style="width: 50px;"></div>
+          <div class="cl-label">
+            <div class="cl-label-title">Instant Rent Collection</div>
+            <div class="cl-label-sub">Exact amount to landlord. No delays.</div>
+          </div>
+        </div>
+
+        <div class="cl left" data-appear="0.55" style="top: 22%; right: 60%;">
+          <div class="cl-dot"></div>
+          <div class="cl-line" style="width: 50px;"></div>
+          <div class="cl-label">
+            <div class="cl-label-title">KRA Tax Compliance</div>
+            <div class="cl-label-sub">Auto-generated rental tax invoices.</div>
+          </div>
+        </div>
+
+        <!-- RIGHT-pointing: dot on building right edge, label extends right -->
+        <div class="cl right" data-appear="0.25" style="top: 62%; left: 72%;">
+          <div class="cl-dot"></div>
+          <div class="cl-line" style="width: 60px;"></div>
           <div class="cl-label">
             <div class="cl-label-title">Dual-Party Receipts</div>
             <div class="cl-label-sub">Both sides get M-Pesa proof. Always.</div>
           </div>
         </div>
 
-        <div class="cl right" data-appear="0.50" style="top: 30%; left: 52%;">
+        <div class="cl right" data-appear="0.45" style="top: 35%; left: 70%;">
           <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 120px;"></div>
+          <div class="cl-line" style="width: 60px;"></div>
           <div class="cl-label">
             <div class="cl-label-title">Tenant Verification</div>
             <div class="cl-label-sub">ID-linked profiles. Payment as reputation.</div>
           </div>
         </div>
 
-        <div class="cl right" data-appear="0.70" style="top: 8%; left: 48%;">
+        <div class="cl right" data-appear="0.65" style="top: 12%; left: 62%;">
           <div class="cl-dot"></div>
-          <div class="cl-line" style="width: 160px;"></div>
+          <div class="cl-line" style="width: 60px;"></div>
           <div class="cl-label">
             <div class="cl-label-title">Maintenance & Services</div>
             <div class="cl-label-sub">Fundi marketplace. Cleaning. Utilities.</div>
           </div>
         </div>
 
-      </div>
     </div>
 
   </div>
