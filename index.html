@@ -37,10 +37,12 @@ nav.scrolled { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); 
   grid-template-columns: 38% 62%;
   align-items: center;
 }
-#heroCanvas {
+#heroVideo {
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: 42% center;
   z-index: 1;
 }
 
@@ -322,7 +324,7 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
 <!-- ═══════════════ HERO ═══════════════ -->
 <section class="hero">
   <div class="hero-sticky">
-    <canvas id="heroCanvas" width="1200" height="720"></canvas>
+    <video id="heroVideo" muted playsinline preload="auto" src="keja-building.mp4"></video>
 
     <!-- LEFT: copy -->
     <div class="hero-text">
@@ -517,83 +519,17 @@ footer { border-top: 1px solid rgba(0,0,0,0.06); padding: 3rem; max-width: 1200p
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
 
-// ═══════════════ CANVAS FRAME SCRUBBER ═══════════════
-const FRAME_COUNT = 160;
-const canvas = document.getElementById('heroCanvas');
-const ctx = canvas.getContext('2d');
+// ═══════════════ VIDEO SCROLL SCRUBBER ═══════════════
+const video = document.getElementById('heroVideo');
 const hero = document.querySelector('.hero');
 const scrollHint = document.getElementById('scrollHint');
 const callouts = document.querySelectorAll('.cl[data-appear]');
 
-const frames = [];
-let loadedCount = 0;
-let lastDrawn = -1;
+let targetTime = 0;
+let currentTime = 0;
+let videoReady = false;
 
-function sizeCanvas() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = window.innerWidth * dpr;
-  canvas.height = window.innerHeight * dpr;
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  lastDrawn = -1;
-}
-
-function drawSky() {
-  const g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  g.addColorStop(0, '#1f4881');
-  g.addColorStop(0.5, '#3a6ea8');
-  g.addColorStop(1, '#7eace1');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-sizeCanvas();
-drawSky();
-window.addEventListener('resize', () => { sizeCanvas(); drawSky(); drawFrame(Math.round(displayFrame)); });
-
-function framePath(i) {
-  return 'frames/f_' + String(i).padStart(4, '0') + '.webp';
-}
-
-function drawFrame(index) {
-  const idx = Math.max(0, Math.min(FRAME_COUNT - 1, index));
-  if (idx === lastDrawn) return;
-  const img = frames[idx];
-  if (!img || !img.complete) return;
-  const imgR = img.naturalWidth / img.naturalHeight;
-  const canR = canvas.width / canvas.height;
-  let sx, sy, sw, sh;
-  if (imgR > canR) {
-    sh = img.naturalHeight;
-    sw = sh * canR;
-    sx = (img.naturalWidth - sw) * 0.42;
-    sy = 0;
-  } else {
-    sw = img.naturalWidth;
-    sh = sw / canR;
-    sx = 0;
-    sy = (img.naturalHeight - sh) * 0.5;
-  }
-  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-  lastDrawn = idx;
-}
-
-function preloadFrames() {
-  for (let i = 0; i < FRAME_COUNT; i++) {
-    const img = new Image();
-    img.onload = () => {
-      loadedCount++;
-      if (i === 0) drawFrame(0);
-    };
-    img.src = framePath(i + 1);
-    frames[i] = img;
-  }
-}
-preloadFrames();
-
-// Smooth scroll-linked animation with lerp
-let displayFrame = 0;
-let targetFrame = 0;
+video.addEventListener('loadedmetadata', () => { videoReady = true; video.currentTime = 0; });
 
 function scrub() {
   const rect = hero.getBoundingClientRect();
@@ -601,21 +537,21 @@ function scrub() {
   const range = hero.offsetHeight - window.innerHeight;
   const progress = Math.max(0, Math.min(1, scrolled / range));
 
-  targetFrame = progress * (FRAME_COUNT - 1);
+  if (videoReady) targetTime = progress * video.duration;
 
   if (scrollHint) scrollHint.style.opacity = progress > 0.02 ? '0' : '1';
   callouts.forEach(c => c.classList.toggle('show', progress >= parseFloat(c.dataset.appear)));
 }
 
 function animate() {
-  const diff = targetFrame - displayFrame;
-  if (Math.abs(diff) > 0.3) {
-    const step = diff * 0.15;
-    displayFrame += Math.abs(step) < 1 ? Math.sign(diff) : step;
-  } else {
-    displayFrame = targetFrame;
+  if (videoReady) {
+    const diff = targetTime - currentTime;
+    if (Math.abs(diff) > 0.01) {
+      const step = diff * 0.15;
+      currentTime += Math.abs(step) < 0.005 ? Math.sign(diff) * 0.005 : step;
+      video.currentTime = currentTime;
+    }
   }
-  drawFrame(Math.round(displayFrame));
   requestAnimationFrame(animate);
 }
 
