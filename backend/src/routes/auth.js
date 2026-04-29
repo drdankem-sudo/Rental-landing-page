@@ -41,7 +41,7 @@ router.post('/request-otp', async (req, res, next) => {
     }
 
     // Send SMS
-    await sms.send(normalized, `Your Keja verification code: ${code}`);
+    await sms.send(normalized, `Your Base verification code: ${code}`);
 
     res.json({ message: 'OTP sent', phone: normalized });
   } catch (err) {

@@ -93,7 +93,7 @@ async function matchPayment(paymentId) {
   if (tenancy.tenant.phone) {
     await sms.send(
       tenancy.tenant.phone,
-      `Keja: KES ${payment.amount.toLocaleString()} received for ${unitLabel}. Ref: ${payment.mpesaRef}. Receipt: ${receiptNo}`
+      `Base: KES ${payment.amount.toLocaleString()} received for ${unitLabel}. Ref: ${payment.mpesaRef}. Receipt: ${receiptNo}`
     );
     await prisma.payment.update({ where: { id: paymentId }, data: { receiptSentTenant: true } });
   }
@@ -103,7 +103,7 @@ async function matchPayment(paymentId) {
   if (owner) {
     await sms.send(
       owner.phone,
-      `Keja: KES ${payment.amount.toLocaleString()} received from ${tenancy.tenant.name || 'tenant'} for ${unitLabel}. Ref: ${payment.mpesaRef}`
+      `Base: KES ${payment.amount.toLocaleString()} received from ${tenancy.tenant.name || 'tenant'} for ${unitLabel}. Ref: ${payment.mpesaRef}`
     );
     await prisma.payment.update({ where: { id: paymentId }, data: { receiptSentLandlord: true } });
   }

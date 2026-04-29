@@ -17,7 +17,7 @@ async function main() {
     create: {
       phone: '254712345678',
       name: 'Daniel Mwangi',
-      email: 'daniel@keja.co.ke',
+      email: 'daniel@base.ke',
       role: 'OWNER',
       idNumber: '12345678',
       idVerified: true,

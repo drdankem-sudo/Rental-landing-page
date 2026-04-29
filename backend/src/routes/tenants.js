@@ -54,7 +54,7 @@ router.post('/assign', authenticate, async (req, res, next) => {
     // Notify tenant via SMS
     await sms.send(
       normalized,
-      `Welcome to ${unit.property.name}, Unit ${unit.unitNumber}. Your rent of KES ${rentAmount} is managed via Keja. You'll receive payment confirmations here.`
+      `Welcome to ${unit.property.name}, Unit ${unit.unitNumber}. Your rent of KES ${rentAmount} is managed via Base. You'll receive payment confirmations here.`
     );
 
     res.status(201).json({ tenancy, tenant: { id: tenant.id, phone: tenant.phone, name: tenant.name } });

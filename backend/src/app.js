@@ -43,7 +43,7 @@ app.use('/api/maintenance', maintenanceRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'keja-api' });
+  res.json({ status: 'ok', service: 'base-api' });
 });
 
 // Error handler

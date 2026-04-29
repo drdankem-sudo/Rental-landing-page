@@ -3,7 +3,7 @@
 
 const AT_API_KEY = process.env.AT_API_KEY;
 const AT_USERNAME = process.env.AT_USERNAME || 'sandbox';
-const AT_SENDER_ID = process.env.AT_SENDER_ID || 'KEJA';
+const AT_SENDER_ID = process.env.AT_SENDER_ID || 'BASE';
 
 async function send(phone, message) {
   // Ensure phone has + prefix for AT

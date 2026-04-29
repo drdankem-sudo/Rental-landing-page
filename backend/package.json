@@ -1,7 +1,7 @@
 {
-  "name": "keja-api",
+  "name": "base-api",
   "version": "1.0.0",
-  "description": "Keja — rental payment intelligence for Kenya",
+  "description": "Base — property management for Kenya",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -13,7 +13,7 @@
     "db:generate": "npx prisma generate"
   },
   "keywords": [
-    "keja",
+    "base",
     "rental",
     "mpesa",
     "kenya"

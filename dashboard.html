@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Keja Dashboard</title>
+<title>Base Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -185,7 +185,7 @@ tr:hover td{background:rgba(0,210,106,0.02)}
 <div class="toast" id="toast"></div>
 <script>
 const API = '/api';
-let state = { token: localStorage.getItem('keja_token'), user: null, properties: [], activeProperty: null, activeTab: 'overview' };
+let state = { token: localStorage.getItem('base_token'), user: null, properties: [], activeProperty: null, activeTab: 'overview' };
 
 // ═══════ AUTH ═══════
 async function api(path, opts = {}) {
@@ -217,14 +217,14 @@ async function verifyOtp() {
     const data = await api('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ phone, code }) });
     state.token = data.token;
     state.user = data.user;
-    localStorage.setItem('keja_token', data.token);
+    localStorage.setItem('base_token', data.token);
     initApp();
   } catch (e) { showError(e.message); }
 }
 
 function logout() {
   state.token = null; state.user = null;
-  localStorage.removeItem('keja_token');
+  localStorage.removeItem('base_token');
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
 }
@@ -651,7 +651,7 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) {
 
 // ═══════ STARTUP ═══════
 (function boot() {
-  const token = localStorage.getItem('keja_token');
+  const token = localStorage.getItem('base_token');
   if (token) {
     state.token = token;
     document.getElementById('loginScreen').style.display = 'none';
