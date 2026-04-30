@@ -183,37 +183,113 @@ tr:hover td{background:rgba(0,210,106,0.02)}
 <div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalBody"></div></div>
 <!-- Toast -->
 <div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase/05_client.js"></script>
 <script>
-let state = { user: null, properties: [], activeProperty: null, activeTab: 'overview', realtimeChannel: null };
+// ═══════ DEMO DATA ═══════
+const DEMO = {
+  user: { id: 'u1', name: 'James Mwangi', phone: '0712345678', role: 'OWNER' },
+  properties: [
+    { id: 'p1', name: 'Sunrise Apartments', type: 'APARTMENT', address: 'Ngong Road, Kilimani', county: 'Nairobi', town: 'Nairobi', total_units: 24, owner_id: 'u1' },
+    { id: 'p2', name: 'Green Valley Courts', type: 'APARTMENT', address: 'Thika Road, Roysambu', county: 'Nairobi', town: 'Nairobi', total_units: 16, owner_id: 'u1' }
+  ],
+  units: {
+    p1: [
+      { id: 'un1', property_id: 'p1', unit_number: 'A1', floor: 0, bedrooms: 1, rent_amount: 15000, deposit_amount: 15000, status: 'OCCUPIED' },
+      { id: 'un2', property_id: 'p1', unit_number: 'A2', floor: 0, bedrooms: 1, rent_amount: 15000, deposit_amount: 15000, status: 'OCCUPIED' },
+      { id: 'un3', property_id: 'p1', unit_number: 'B1', floor: 1, bedrooms: 2, rent_amount: 25000, deposit_amount: 25000, status: 'OCCUPIED' },
+      { id: 'un4', property_id: 'p1', unit_number: 'B2', floor: 1, bedrooms: 2, rent_amount: 25000, deposit_amount: 25000, status: 'VACANT' },
+      { id: 'un5', property_id: 'p1', unit_number: 'C1', floor: 2, bedrooms: 3, rent_amount: 35000, deposit_amount: 35000, status: 'OCCUPIED' },
+      { id: 'un6', property_id: 'p1', unit_number: 'C2', floor: 2, bedrooms: 3, rent_amount: 35000, deposit_amount: 35000, status: 'NOTICE_GIVEN' },
+      { id: 'un7', property_id: 'p1', unit_number: 'D1', floor: 3, bedrooms: 1, rent_amount: 18000, deposit_amount: 18000, status: 'MAINTENANCE' },
+      { id: 'un8', property_id: 'p1', unit_number: 'D2', floor: 3, bedrooms: 2, rent_amount: 28000, deposit_amount: 28000, status: 'OCCUPIED' }
+    ],
+    p2: [
+      { id: 'un9', property_id: 'p2', unit_number: '101', floor: 1, bedrooms: 1, rent_amount: 12000, deposit_amount: 12000, status: 'OCCUPIED' },
+      { id: 'un10', property_id: 'p2', unit_number: '102', floor: 1, bedrooms: 2, rent_amount: 20000, deposit_amount: 20000, status: 'VACANT' },
+      { id: 'un11', property_id: 'p2', unit_number: '201', floor: 2, bedrooms: 1, rent_amount: 12000, deposit_amount: 12000, status: 'OCCUPIED' },
+      { id: 'un12', property_id: 'p2', unit_number: '202', floor: 2, bedrooms: 2, rent_amount: 22000, deposit_amount: 22000, status: 'OCCUPIED' }
+    ]
+  },
+  tenancies: {
+    p1: [
+      { id: 't1', unit_id: 'un1', tenant_id: 'ten1', rent_amount: 15000, deposit_paid: 15000, start_date: '2025-03-01', status: 'ACTIVE', tenant: { id: 'ten1', name: 'Alice Wanjiku', phone: '0722111222', id_verified: true }, unit: { id: 'un1', unit_number: 'A1', rent_amount: 15000 } },
+      { id: 't2', unit_id: 'un2', tenant_id: 'ten2', rent_amount: 15000, deposit_paid: 15000, start_date: '2025-06-01', status: 'ACTIVE', tenant: { id: 'ten2', name: 'Brian Otieno', phone: '0733222333', id_verified: true }, unit: { id: 'un2', unit_number: 'A2', rent_amount: 15000 } },
+      { id: 't3', unit_id: 'un3', tenant_id: 'ten3', rent_amount: 25000, deposit_paid: 25000, start_date: '2025-01-15', status: 'ACTIVE', tenant: { id: 'ten3', name: 'Carol Njeri', phone: '0711333444', id_verified: false }, unit: { id: 'un3', unit_number: 'B1', rent_amount: 25000 } },
+      { id: 't5', unit_id: 'un5', tenant_id: 'ten5', rent_amount: 35000, deposit_paid: 35000, start_date: '2024-11-01', status: 'ACTIVE', tenant: { id: 'ten5', name: 'Edward Kamau', phone: '0700555666', id_verified: true }, unit: { id: 'un5', unit_number: 'C1', rent_amount: 35000 } },
+      { id: 't6', unit_id: 'un6', tenant_id: 'ten6', rent_amount: 35000, deposit_paid: 35000, start_date: '2025-02-01', status: 'NOTICE_GIVEN', tenant: { id: 'ten6', name: 'Faith Akinyi', phone: '0722666777', id_verified: true }, unit: { id: 'un6', unit_number: 'C2', rent_amount: 35000 } },
+      { id: 't8', unit_id: 'un8', tenant_id: 'ten8', rent_amount: 28000, deposit_paid: 28000, start_date: '2025-04-01', status: 'ACTIVE', tenant: { id: 'ten8', name: 'George Mutua', phone: '0733888999', id_verified: true }, unit: { id: 'un8', unit_number: 'D2', rent_amount: 28000 } }
+    ],
+    p2: [
+      { id: 't9', unit_id: 'un9', tenant_id: 'ten9', rent_amount: 12000, deposit_paid: 12000, start_date: '2025-05-01', status: 'ACTIVE', tenant: { id: 'ten9', name: 'Hannah Wambui', phone: '0711999000', id_verified: true }, unit: { id: 'un9', unit_number: '101', rent_amount: 12000 } },
+      { id: 't11', unit_id: 'un11', tenant_id: 'ten11', rent_amount: 12000, deposit_paid: 12000, start_date: '2025-07-01', status: 'ACTIVE', tenant: { id: 'ten11', name: 'Ivan Kiprop', phone: '0700111222', id_verified: false }, unit: { id: 'un11', unit_number: '201', rent_amount: 12000 } },
+      { id: 't12', unit_id: 'un12', tenant_id: 'ten12', rent_amount: 22000, deposit_paid: 22000, start_date: '2025-08-01', status: 'ACTIVE', tenant: { id: 'ten12', name: 'Jane Chebet', phone: '0722333444', id_verified: true }, unit: { id: 'un12', unit_number: '202', rent_amount: 22000 } }
+    ]
+  },
+  payments: {
+    p1: [
+      { id: 'pay1', property_id: 'p1', amount: 15000, mpesa_ref: 'SLK3A7B9XQ', mpesa_name: 'ALICE WANJIKU', paid_at: '2026-04-28T10:23:00Z', month: '2026-04', status: 'MATCHED', unit: { unit_number: 'A1' }, tenancy: { tenant: { name: 'Alice Wanjiku', phone: '0722111222' } } },
+      { id: 'pay2', property_id: 'p1', amount: 15000, mpesa_ref: 'RKQ8H2D4VP', mpesa_name: 'BRIAN OTIENO', paid_at: '2026-04-27T14:11:00Z', month: '2026-04', status: 'MATCHED', unit: { unit_number: 'A2' }, tenancy: { tenant: { name: 'Brian Otieno', phone: '0733222333' } } },
+      { id: 'pay3', property_id: 'p1', amount: 25000, mpesa_ref: 'TMN5C1F8WJ', mpesa_name: 'CAROL NJERI', paid_at: '2026-04-26T09:45:00Z', month: '2026-04', status: 'MATCHED', unit: { unit_number: 'B1' }, tenancy: { tenant: { name: 'Carol Njeri', phone: '0711333444' } } },
+      { id: 'pay4', property_id: 'p1', amount: 35000, mpesa_ref: 'YPL6E3G2XK', mpesa_name: 'EDWARD KAMAU', paid_at: '2026-04-25T16:30:00Z', month: '2026-04', status: 'MATCHED', unit: { unit_number: 'C1' }, tenancy: { tenant: { name: 'Edward Kamau', phone: '0700555666' } } },
+      { id: 'pay5', property_id: 'p1', amount: 20000, mpesa_ref: 'HBW9K4M7ZR', mpesa_name: 'FAITH AKINYI', paid_at: '2026-04-24T11:05:00Z', month: '2026-04', status: 'PARTIAL', unit: { unit_number: 'C2' }, tenancy: { tenant: { name: 'Faith Akinyi', phone: '0722666777' } } },
+      { id: 'pay6', property_id: 'p1', amount: 28000, mpesa_ref: 'QDX2J6N1LS', mpesa_name: 'GEORGE MUTUA', paid_at: '2026-04-23T08:50:00Z', month: '2026-04', status: 'MATCHED', unit: { unit_number: 'D2' }, tenancy: { tenant: { name: 'George Mutua', phone: '0733888999' } } },
+      { id: 'pay7', property_id: 'p1', amount: 14500, mpesa_ref: 'FCT7P5R3UA', mpesa_name: 'UNKNOWN SENDER', paid_at: '2026-04-22T13:20:00Z', month: '2026-04', status: 'UNMATCHED', unit: null, tenancy: null },
+      { id: 'pay8', property_id: 'p1', amount: 15000, mpesa_ref: 'MVS4L8W6YB', mpesa_name: 'ALICE WANJIKU', paid_at: '2026-03-29T10:10:00Z', month: '2026-03', status: 'MATCHED', unit: { unit_number: 'A1' }, tenancy: { tenant: { name: 'Alice Wanjiku', phone: '0722111222' } } }
+    ],
+    p2: [
+      { id: 'pay9', property_id: 'p2', amount: 12000, mpesa_ref: 'GNR1Q9T5XC', mpesa_name: 'HANNAH WAMBUI', paid_at: '2026-04-27T09:00:00Z', month: '2026-04', status: 'MATCHED', unit: { unit_number: '101' }, tenancy: { tenant: { name: 'Hannah Wambui', phone: '0711999000' } } },
+      { id: 'pay10', property_id: 'p2', amount: 12000, mpesa_ref: 'KAP3S7V2ZD', mpesa_name: 'IVAN KIPROP', paid_at: '2026-04-26T15:30:00Z', month: '2026-04', status: 'MATCHED', unit: { unit_number: '201' }, tenancy: { tenant: { name: 'Ivan Kiprop', phone: '0700111222' } } },
+      { id: 'pay11', property_id: 'p2', amount: 22000, mpesa_ref: 'WEH5U1X8BF', mpesa_name: 'JANE CHEBET', paid_at: '2026-04-25T12:15:00Z', month: '2026-04', status: 'MATCHED', unit: { unit_number: '202' }, tenancy: { tenant: { name: 'Jane Chebet', phone: '0722333444' } } }
+    ]
+  },
+  stats: {
+    p1: { totalUnits: 8, occupiedUnits: 5, vacantUnits: 1, occupancyRate: 63, expectedRent: 153000, collectedRent: 138000, collectionRate: 90, unmatchedPayments: 1 },
+    p2: { totalUnits: 4, occupiedUnits: 3, vacantUnits: 1, occupancyRate: 75, expectedRent: 46000, collectedRent: 46000, collectionRate: 100, unmatchedPayments: 0 }
+  },
+  monthlyCollections: {
+    p1: [
+      { month: '2025-11', total: 120000 }, { month: '2025-12', total: 135000 },
+      { month: '2026-01', total: 128000 }, { month: '2026-02', total: 142000 },
+      { month: '2026-03', total: 148000 }, { month: '2026-04', total: 138000 }
+    ],
+    p2: [
+      { month: '2025-11', total: 34000 }, { month: '2025-12', total: 40000 },
+      { month: '2026-01', total: 44000 }, { month: '2026-02', total: 46000 },
+      { month: '2026-03', total: 46000 }, { month: '2026-04', total: 46000 }
+    ]
+  },
+  maintenance: {
+    p1: [
+      { id: 'm1', unit: { unit_number: 'D1', property_id: 'p1' }, category: 'PLUMBING', description: 'Kitchen sink leaking badly, water pooling on floor', status: 'IN_PROGRESS', created_at: '2026-04-20T08:00:00Z' },
+      { id: 'm2', unit: { unit_number: 'A2', property_id: 'p1' }, category: 'ELECTRICAL', description: 'Bedroom light switch not working', status: 'SUBMITTED', created_at: '2026-04-26T14:00:00Z' },
+      { id: 'm3', unit: { unit_number: 'C1', property_id: 'p1' }, category: 'PAINTING', description: 'Bathroom ceiling paint peeling', status: 'COMPLETED', created_at: '2026-04-10T10:00:00Z' }
+    ],
+    p2: [
+      { id: 'm4', unit: { unit_number: '201', property_id: 'p2' }, category: 'SECURITY', description: 'Front door lock jammed, needs replacement', status: 'ASSIGNED', created_at: '2026-04-25T09:00:00Z' }
+    ]
+  }
+};
 
-// ═══════ AUTH ═══════
-async function handleRequestOtp() {
+let state = { user: null, properties: [], activeProperty: null, activeTab: 'overview' };
+
+// ═══════ AUTH (demo mode — any input works) ═══════
+function handleRequestOtp() {
   const phone = document.getElementById('phoneInput').value.trim();
-  if (!phone) return showError('Enter your phone number');
-  try {
-    await requestOtp(phone);
-    document.getElementById('phoneStep').style.display = 'none';
-    document.getElementById('otpStep').style.display = 'block';
-    hideError();
-  } catch (e) { showError(e.message); }
+  if (!phone) return showError('Enter any phone number');
+  document.getElementById('phoneStep').style.display = 'none';
+  document.getElementById('otpStep').style.display = 'block';
+  hideError();
 }
 
-async function handleVerifyOtp() {
+function handleVerifyOtp() {
   const phone = document.getElementById('phoneInput').value.trim();
   const code = document.getElementById('otpInput').value.trim();
-  if (!code) return showError('Enter the code');
-  try {
-    await verifyOtp(phone, code);
-    initApp();
-  } catch (e) { showError(e.message); }
+  if (!code) return showError('Enter any code');
+  state.user = { ...DEMO.user, phone: phone };
+  initApp();
 }
 
-async function handleLogout() {
-  try { await signOut(); } catch(e) {}
+function handleLogout() {
   state.user = null;
-  if (state.realtimeChannel) { supabase.removeChannel(state.realtimeChannel); state.realtimeChannel = null; }
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
 }
@@ -222,19 +298,15 @@ function showError(msg) { const el = document.getElementById('loginError'); el.t
 function hideError() { document.getElementById('loginError').style.display = 'none'; }
 
 // ═══════ INIT ═══════
-async function initApp() {
+function initApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
-  try {
-    if (!state.user) { state.user = await getUser(); }
-    if (!state.user) { handleLogout(); return; }
-    document.getElementById('userName').textContent = state.user.name || 'User';
-    document.getElementById('userPhone').textContent = state.user.phone;
-    state.properties = await getProperties();
-    populatePropertySelect();
-    if (state.properties.length > 0) { state.activeProperty = state.properties[0]; }
-    renderTab();
-  } catch (e) { toast('Failed to load: ' + e.message, 'error'); }
+  document.getElementById('userName').textContent = state.user.name || 'User';
+  document.getElementById('userPhone').textContent = state.user.phone;
+  state.properties = DEMO.properties;
+  populatePropertySelect();
+  if (state.properties.length > 0) { state.activeProperty = state.properties[0]; }
+  renderTab();
 }
 
 function populatePropertySelect() {
@@ -246,13 +318,6 @@ function populatePropertySelect() {
 function switchProperty() {
   const id = document.getElementById('propertySelect').value;
   state.activeProperty = state.properties.find(p => p.id === id);
-  if (state.realtimeChannel) { supabase.removeChannel(state.realtimeChannel); }
-  if (state.activeProperty) {
-    state.realtimeChannel = subscribeToPayments(state.activeProperty.id, () => {
-      if (state.activeTab === 'overview') renderOverview();
-      if (state.activeTab === 'payments') renderPayments();
-    });
-  }
   renderTab();
 }
 // ═══════ NAVIGATION ═══════
@@ -280,41 +345,36 @@ function renderTab() {
 }
 
 // ═══════ OVERVIEW ═══════
-async function renderOverview() {
+function renderOverview() {
   const c = document.getElementById('tabContent');
   if (!state.activeProperty) { c.innerHTML = '<div class="empty"><div class="empty-icon">🏠</div><p>Add a property to get started</p></div>'; return; }
-  try {
-    const pid = state.activeProperty.id;
-    const [o, monthlyCollections, recentPayments] = await Promise.all([
-      getDashboardStats(pid),
-      getMonthlyCollections(pid),
-      getPayments(pid, { limit: 8 })
-    ]);
-    c.innerHTML = '<div class="tab-content">' +
-      '<div class="kpi-row">' +
-        kpiCard('Collected', 'KES ' + (o.collectedRent || 0).toLocaleString(), o.collectionRate + '% of target') +
-        kpiCard('Occupancy', o.occupancyRate + '%', o.occupiedUnits + '/' + o.totalUnits + ' units') +
-        kpiCard('Vacant', o.vacantUnits, 'units available') +
-        kpiCard('Unmatched', o.unmatchedPayments, 'payments to resolve') +
-      '</div>' +
-      '<div class="content-grid">' +
-        '<div class="card"><div class="card-title">Monthly Collection (KES)</div><div class="chart-bars" id="chartBars"></div></div>' +
-        '<div class="card"><div class="card-title">Recent Payments</div><div id="feedList"></div></div>' +
-      '</div>' +
-    '</div>';
-    const bars = document.getElementById('chartBars');
-    const collections = monthlyCollections || [];
-    const maxVal = Math.max(...collections.map(m => m.total), 1);
-    bars.innerHTML = collections.map(m => {
-      const pct = Math.round((m.total / maxVal) * 100);
-      const label = m.month.split('-')[1];
-      const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      return '<div class="chart-bar"><div class="chart-bar-fill" style="height:' + pct + '%"></div><div class="chart-bar-lbl">' + months[parseInt(label)] + '</div></div>';
-    }).join('');
-    const feed = document.getElementById('feedList');
-    if (recentPayments.length === 0) { feed.innerHTML = '<div class="empty"><p>No payments yet</p></div>'; }
-    else { feed.innerHTML = recentPayments.slice(0, 8).map(p => feedItem(p)).join(''); }
-  } catch (e) { c.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
+  const pid = state.activeProperty.id;
+  const o = DEMO.stats[pid] || DEMO.stats.p1;
+  const collections = DEMO.monthlyCollections[pid] || [];
+  const recentPayments = (DEMO.payments[pid] || []).slice(0, 8);
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="kpi-row">' +
+      kpiCard('Collected', 'KES ' + (o.collectedRent || 0).toLocaleString(), o.collectionRate + '% of target') +
+      kpiCard('Occupancy', o.occupancyRate + '%', o.occupiedUnits + '/' + o.totalUnits + ' units') +
+      kpiCard('Vacant', o.vacantUnits, 'units available') +
+      kpiCard('Unmatched', o.unmatchedPayments, 'payments to resolve') +
+    '</div>' +
+    '<div class="content-grid">' +
+      '<div class="card"><div class="card-title">Monthly Collection (KES)</div><div class="chart-bars" id="chartBars"></div></div>' +
+      '<div class="card"><div class="card-title">Recent Payments</div><div id="feedList"></div></div>' +
+    '</div>' +
+  '</div>';
+  const bars = document.getElementById('chartBars');
+  const maxVal = Math.max(...collections.map(m => m.total), 1);
+  bars.innerHTML = collections.map(m => {
+    const pct = Math.round((m.total / maxVal) * 100);
+    const label = m.month.split('-')[1];
+    const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return '<div class="chart-bar"><div class="chart-bar-fill" style="height:' + pct + '%"></div><div class="chart-bar-lbl">' + months[parseInt(label)] + '</div></div>';
+  }).join('');
+  const feed = document.getElementById('feedList');
+  if (recentPayments.length === 0) { feed.innerHTML = '<div class="empty"><p>No payments yet</p></div>'; }
+  else { feed.innerHTML = recentPayments.map(p => feedItem(p)).join(''); }
 }
 
 function kpiCard(label, value, change) {
@@ -327,10 +387,10 @@ function feedItem(p) {
   return '<div class="feed-item"><div class="feed-avatar">' + initials + '</div><div class="feed-info"><div class="feed-name">' + name + '</div><div class="feed-sub">Unit ' + unit + '</div></div><div class="feed-amount">KES ' + (p.amount||0).toLocaleString() + '</div></div>';
 }
 // ═══════ PROPERTIES ═══════
-async function renderProperties() {
+function renderProperties() {
   const c = document.getElementById('tabContent');
-  try {
-    const all = await getProperties();
+  {
+    const all = DEMO.properties;
     c.innerHTML = '<div class="tab-content">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
         '<div style="font-size:0.85rem;color:var(--gray)">' + all.length + ' properties</div>' +
@@ -346,7 +406,7 @@ async function renderProperties() {
         '</div>').join('') +
       '</div>' +
     '</div>';
-  } catch (e) { c.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
+  }
 }
 
 function showAddProperty() {
@@ -361,25 +421,31 @@ function showAddProperty() {
     '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="addProperty()">Create</button></div>');
 }
 
-async function addProperty() {
-  try {
-    await createProperty({
-      name: document.getElementById('propName').value,
-      type: document.getElementById('propType').value,
-      address: document.getElementById('propAddr').value,
-      county: document.getElementById('propCounty').value,
-      town: document.getElementById('propTown').value,
-      total_units: parseInt(document.getElementById('propUnits').value),
-      paybill_number: document.getElementById('propPaybill').value || null
-    });
-    hideModal(); toast('Property created!');
-    state.properties = await getProperties();
-    populatePropertySelect();
-    renderProperties();
-  } catch (e) { toast(e.message, 'error'); }
+function addProperty() {
+  const prop = {
+    id: 'p' + (DEMO.properties.length + 1),
+    name: document.getElementById('propName').value,
+    type: document.getElementById('propType').value,
+    address: document.getElementById('propAddr').value,
+    county: document.getElementById('propCounty').value,
+    town: document.getElementById('propTown').value,
+    total_units: parseInt(document.getElementById('propUnits').value) || 0,
+    owner_id: state.user.id
+  };
+  DEMO.properties.push(prop);
+  DEMO.units[prop.id] = [];
+  DEMO.tenancies[prop.id] = [];
+  DEMO.payments[prop.id] = [];
+  DEMO.stats[prop.id] = { totalUnits: prop.total_units, occupiedUnits: 0, vacantUnits: prop.total_units, occupancyRate: 0, expectedRent: 0, collectedRent: 0, collectionRate: 0, unmatchedPayments: 0 };
+  DEMO.monthlyCollections[prop.id] = [];
+  DEMO.maintenance[prop.id] = [];
+  state.properties = DEMO.properties;
+  populatePropertySelect();
+  hideModal(); toast('Property created!');
+  renderProperties();
 }
 
-async function viewProperty(id) {
+function viewProperty(id) {
   state.activeProperty = state.properties.find(p => p.id === id);
   document.getElementById('propertySelect').value = id;
   state.activeTab = 'overview';
@@ -390,31 +456,28 @@ async function viewProperty(id) {
 }
 // ═══════ PAYMENTS ═══════
 let paymentFilter = 'all';
-async function renderPayments() {
+function renderPayments() {
   const c = document.getElementById('tabContent');
   if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
-  try {
-    const filters = {};
-    if (paymentFilter !== 'all') filters.status = paymentFilter;
-    const payments = await getPayments(state.activeProperty.id, filters);
-    c.innerHTML = '<div class="tab-content">' +
-      '<div class="filters">' +
-        ['all','MATCHED','UNMATCHED','PARTIAL','MANUALLY_MATCHED'].map(f =>
-          '<button class="filter-btn ' + (paymentFilter===f?'active':'') + '" onclick="paymentFilter=\'' + f + '\';renderPayments()">' + (f==='all'?'All':f.replace('_',' ').toLowerCase()) + '</button>'
-        ).join('') +
-      '</div>' +
-      '<div class="card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Tenant</th><th>Unit</th><th>Amount</th><th>M-Pesa Ref</th><th>Status</th></tr></thead><tbody>' +
-      payments.map(p => {
-        const name = p.tenancy?.tenant?.name || p.mpesa_name || 'Unknown';
-        const unit = p.unit?.unit_number || '-';
-        const date = new Date(p.paid_at).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
-        const badge = statusBadge(p.status);
-        return '<tr><td>' + date + '</td><td>' + name + '</td><td>' + unit + '</td><td style="font-weight:600">KES ' + (p.amount||0).toLocaleString() + '</td><td style="font-size:0.75rem;color:var(--gray)">' + (p.mpesa_ref||'-') + '</td><td>' + badge + '</td></tr>';
-      }).join('') +
-      '</tbody></table></div></div>' +
-      '<div style="margin-top:1rem;text-align:right"><button class="btn btn-outline" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showManualPayment()">+ Manual Entry</button></div>' +
-    '</div>';
-  } catch (e) { c.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
+  const allPayments = DEMO.payments[state.activeProperty.id] || [];
+  const payments = paymentFilter === 'all' ? allPayments : allPayments.filter(p => p.status === paymentFilter);
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="filters">' +
+      ['all','MATCHED','UNMATCHED','PARTIAL','MANUALLY_MATCHED'].map(f =>
+        '<button class="filter-btn ' + (paymentFilter===f?'active':'') + '" onclick="paymentFilter=\'' + f + '\';renderPayments()">' + (f==='all'?'All':f.replace('_',' ').toLowerCase()) + '</button>'
+      ).join('') +
+    '</div>' +
+    '<div class="card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Tenant</th><th>Unit</th><th>Amount</th><th>M-Pesa Ref</th><th>Status</th></tr></thead><tbody>' +
+    payments.map(p => {
+      const name = p.tenancy?.tenant?.name || p.mpesa_name || 'Unknown';
+      const unit = p.unit?.unit_number || '-';
+      const date = new Date(p.paid_at).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
+      const badge = statusBadge(p.status);
+      return '<tr><td>' + date + '</td><td>' + name + '</td><td>' + unit + '</td><td style="font-weight:600">KES ' + (p.amount||0).toLocaleString() + '</td><td style="font-size:0.75rem;color:var(--gray)">' + (p.mpesa_ref||'-') + '</td><td>' + badge + '</td></tr>';
+    }).join('') +
+    '</tbody></table></div></div>' +
+    '<div style="margin-top:1rem;text-align:right"><button class="btn btn-outline" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showManualPayment()">+ Manual Entry</button></div>' +
+  '</div>';
 }
 
 function statusBadge(s) {
@@ -431,48 +494,48 @@ function showManualPayment() {
     '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="addManualPayment()">Record</button></div>');
 }
 
-async function addManualPayment() {
-  try {
-    const now = new Date();
-    const { error } = await supabase.from('payments').insert({
-      property_id: state.activeProperty.id,
-      amount: parseInt(document.getElementById('manAmount').value),
-      mpesa_ref: document.getElementById('manRef').value || null,
-      month: document.getElementById('manMonth').value || now.toISOString().slice(0,7),
-      notes: document.getElementById('manNotes').value || null,
-      source: 'MANUAL_ENTRY',
-      paid_at: now.toISOString()
-    });
-    if (error) throw error;
-    hideModal(); toast('Payment recorded!'); renderPayments();
-  } catch (e) { toast(e.message, 'error'); }
+function addManualPayment() {
+  const pid = state.activeProperty.id;
+  const now = new Date();
+  const pay = {
+    id: 'pay' + Date.now(),
+    property_id: pid,
+    amount: parseInt(document.getElementById('manAmount').value),
+    mpesa_ref: document.getElementById('manRef').value || null,
+    mpesa_name: 'MANUAL ENTRY',
+    month: document.getElementById('manMonth').value || now.toISOString().slice(0,7),
+    paid_at: now.toISOString(),
+    status: 'UNMATCHED',
+    unit: null,
+    tenancy: null
+  };
+  if (!DEMO.payments[pid]) DEMO.payments[pid] = [];
+  DEMO.payments[pid].unshift(pay);
+  hideModal(); toast('Payment recorded!'); renderPayments();
 }
 
 // ═══════ UNITS TAB ═══════
-async function renderUnits() {
+function renderUnits() {
   const c = document.getElementById('tabContent');
   if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
-  try {
-    const units = await getUnits(state.activeProperty.id);
-    const statusColors = { OCCUPIED: 'green', VACANT: 'yellow', NOTICE_GIVEN: 'yellow', MAINTENANCE: 'red' };
-    c.innerHTML = '<div class="tab-content">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
-        '<div style="font-size:0.85rem;color:var(--gray)">' + units.length + ' units</div>' +
-        '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showAddUnit()">+ Add Unit</button>' +
-      '</div>' +
-      '<div class="card"><div class="table-wrap"><table><thead><tr>' +
-        '<th>Unit</th><th>Floor</th><th>Beds</th><th>Rent (KES)</th><th>Status</th><th>Actions</th>' +
-      '</tr></thead><tbody>' +
-      units.map(u => '<tr>' +
-        '<td><strong>' + u.unit_number + '</strong></td>' +
-        '<td>' + (u.floor ?? '-') + '</td>' +
-        '<td>' + (u.bedrooms ?? '-') + '</td>' +
-        '<td>' + u.rent_amount.toLocaleString() + '</td>' +
-        '<td>' + statusBadge(u.status) + '</td>' +
-        '<td><button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem" onclick="editUnit(\'' + u.id + '\')">Edit</button></td>' +
-      '</tr>').join('') +
-      '</tbody></table></div></div></div>';
-  } catch (e) { c.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
+  const units = DEMO.units[state.activeProperty.id] || [];
+  c.innerHTML = '<div class="tab-content">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
+      '<div style="font-size:0.85rem;color:var(--gray)">' + units.length + ' units</div>' +
+      '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showAddUnit()">+ Add Unit</button>' +
+    '</div>' +
+    '<div class="card"><div class="table-wrap"><table><thead><tr>' +
+      '<th>Unit</th><th>Floor</th><th>Beds</th><th>Rent (KES)</th><th>Status</th><th>Actions</th>' +
+    '</tr></thead><tbody>' +
+    units.map(u => '<tr>' +
+      '<td><strong>' + u.unit_number + '</strong></td>' +
+      '<td>' + (u.floor ?? '-') + '</td>' +
+      '<td>' + (u.bedrooms ?? '-') + '</td>' +
+      '<td>' + u.rent_amount.toLocaleString() + '</td>' +
+      '<td>' + statusBadge(u.status) + '</td>' +
+      '<td><button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem" onclick="editUnit(\'' + u.id + '\')">Edit</button></td>' +
+    '</tr>').join('') +
+    '</tbody></table></div></div></div>';
 }
 
 function showAddUnit() {
@@ -485,22 +548,25 @@ function showAddUnit() {
     '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="addUnit()">Add</button></div>');
 }
 
-async function addUnit() {
-  try {
-    await createUnit({
-      property_id: state.activeProperty.id,
-      unit_number: document.getElementById('uNum').value,
-      floor: parseInt(document.getElementById('uFloor').value) || null,
-      bedrooms: parseInt(document.getElementById('uBeds').value) || null,
-      rent_amount: parseInt(document.getElementById('uRent').value),
-      deposit_amount: parseInt(document.getElementById('uDeposit').value) || null
-    });
-    hideModal(); toast('Unit added!'); renderUnits();
-  } catch (e) { toast(e.message, 'error'); }
+function addUnit() {
+  const pid = state.activeProperty.id;
+  const unit = {
+    id: 'un' + Date.now(),
+    property_id: pid,
+    unit_number: document.getElementById('uNum').value,
+    floor: parseInt(document.getElementById('uFloor').value) || null,
+    bedrooms: parseInt(document.getElementById('uBeds').value) || null,
+    rent_amount: parseInt(document.getElementById('uRent').value),
+    deposit_amount: parseInt(document.getElementById('uDeposit').value) || null,
+    status: 'VACANT'
+  };
+  if (!DEMO.units[pid]) DEMO.units[pid] = [];
+  DEMO.units[pid].push(unit);
+  hideModal(); toast('Unit added!'); renderUnits();
 }
 
-async function editUnit(id) {
-  const units = await getUnits(state.activeProperty.id);
+function editUnit(id) {
+  const units = DEMO.units[state.activeProperty.id] || [];
   const u = units.find(x => x.id === id);
   if (!u) return;
   showModal('<h3>Edit Unit ' + u.unit_number + '</h3>' +
@@ -514,45 +580,43 @@ async function editUnit(id) {
     '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="handleUpdateUnit(\'' + id + '\')">Save</button></div>');
 }
 
-async function handleUpdateUnit(id) {
-  try {
-    await updateUnit(id, {
-      rent_amount: parseInt(document.getElementById('euRent').value),
-      status: document.getElementById('euStatus').value
-    });
-    hideModal(); toast('Unit updated!'); renderUnits();
-  } catch (e) { toast(e.message, 'error'); }
+function handleUpdateUnit(id) {
+  const units = DEMO.units[state.activeProperty.id] || [];
+  const u = units.find(x => x.id === id);
+  if (u) {
+    u.rent_amount = parseInt(document.getElementById('euRent').value);
+    u.status = document.getElementById('euStatus').value;
+  }
+  hideModal(); toast('Unit updated!'); renderUnits();
 }
 
 // ═══════ TENANTS TAB ═══════
-async function renderTenants() {
+function renderTenants() {
   const c = document.getElementById('tabContent');
   if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
-  try {
-    const tenants = await getTenancies(state.activeProperty.id);
-    c.innerHTML = '<div class="tab-content">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
-        '<div style="font-size:0.85rem;color:var(--gray)">' + tenants.length + ' active tenancies</div>' +
-        '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showAssignTenant()">+ Assign Tenant</button>' +
-      '</div>' +
-      '<div class="card"><div class="table-wrap"><table><thead><tr>' +
-        '<th>Tenant</th><th>Phone</th><th>Unit</th><th>Rent</th><th>Status</th><th>Since</th><th>Actions</th>' +
-      '</tr></thead><tbody>' +
-      tenants.map(t => '<tr>' +
-        '<td><strong>' + (t.tenant?.name || '-') + '</strong></td>' +
-        '<td>' + (t.tenant?.phone || '-') + '</td>' +
-        '<td>' + (t.unit?.unit_number || '-') + '</td>' +
-        '<td>KES ' + t.rent_amount.toLocaleString() + '</td>' +
-        '<td>' + statusBadge(t.status) + '</td>' +
-        '<td>' + new Date(t.start_date).toLocaleDateString() + '</td>' +
-        '<td>' + (t.status === 'ACTIVE'
-          ? '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;margin-right:0.3rem" onclick="handleGiveNotice(\'' + t.id + '\')">Notice</button>' +
-            '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;color:#ef4444" onclick="handleMoveOut(\'' + t.id + '\')">Move Out</button>'
-          : '-') +
-        '</td>' +
-      '</tr>').join('') +
-      '</tbody></table></div></div></div>';
-  } catch (e) { c.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
+  const tenants = DEMO.tenancies[state.activeProperty.id] || [];
+  c.innerHTML = '<div class="tab-content">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
+      '<div style="font-size:0.85rem;color:var(--gray)">' + tenants.length + ' active tenancies</div>' +
+      '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showAssignTenant()">+ Assign Tenant</button>' +
+    '</div>' +
+    '<div class="card"><div class="table-wrap"><table><thead><tr>' +
+      '<th>Tenant</th><th>Phone</th><th>Unit</th><th>Rent</th><th>Status</th><th>Since</th><th>Actions</th>' +
+    '</tr></thead><tbody>' +
+    tenants.map(t => '<tr>' +
+      '<td><strong>' + (t.tenant?.name || '-') + '</strong></td>' +
+      '<td>' + (t.tenant?.phone || '-') + '</td>' +
+      '<td>' + (t.unit?.unit_number || '-') + '</td>' +
+      '<td>KES ' + t.rent_amount.toLocaleString() + '</td>' +
+      '<td>' + statusBadge(t.status) + '</td>' +
+      '<td>' + new Date(t.start_date).toLocaleDateString() + '</td>' +
+      '<td>' + (t.status === 'ACTIVE'
+        ? '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;margin-right:0.3rem" onclick="handleGiveNotice(\'' + t.id + '\')">Notice</button>' +
+          '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;color:#ef4444" onclick="handleMoveOut(\'' + t.id + '\')">Move Out</button>'
+        : '-') +
+      '</td>' +
+    '</tr>').join('') +
+    '</tbody></table></div></div></div>';
 }
 
 function showAssignTenant() {
@@ -565,59 +629,59 @@ function showAssignTenant() {
     '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="handleAssignTenant()">Assign</button></div>');
 }
 
-async function handleAssignTenant() {
-  try {
-    const units = await getUnits(state.activeProperty.id);
-    const unitNum = document.getElementById('tUnit').value.trim();
-    const unit = units.find(u => u.unit_number === unitNum);
-    if (!unit) { toast('Unit not found', 'error'); return; }
-
-    const phone = normalizePhone(document.getElementById('tPhone').value);
-    const tenantName = document.getElementById('tName').value.trim();
-    const rentAmount = parseInt(document.getElementById('tRent').value);
-    const depositPaid = parseInt(document.getElementById('tDeposit').value) || 0;
-
-    // Look up existing profile by phone, or create via Supabase auth invite
-    let { data: profile } = await supabase.from('profiles').select('id').eq('phone', phone).single();
-    if (!profile) {
-      // Sign up the tenant so a profile is auto-created by the trigger
-      const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
-        phone: phone,
-        user_metadata: { name: tenantName, role: 'TENANT' }
-      });
-      if (authErr) throw authErr;
-      profile = { id: authData.user.id };
-    }
-
-    await assignTenant(unit.id, profile.id, rentAmount, depositPaid);
-    hideModal(); toast('Tenant assigned!'); renderTenants();
-  } catch (e) { toast(e.message, 'error'); }
+function handleAssignTenant() {
+  const pid = state.activeProperty.id;
+  const units = DEMO.units[pid] || [];
+  const unitNum = document.getElementById('tUnit').value.trim();
+  const unit = units.find(u => u.unit_number === unitNum);
+  if (!unit) { toast('Unit not found', 'error'); return; }
+  const tenantName = document.getElementById('tName').value.trim();
+  const phone = document.getElementById('tPhone').value.trim();
+  const rentAmount = parseInt(document.getElementById('tRent').value);
+  const depositPaid = parseInt(document.getElementById('tDeposit').value) || 0;
+  const tenancy = {
+    id: 't' + Date.now(),
+    unit_id: unit.id,
+    tenant_id: 'ten' + Date.now(),
+    rent_amount: rentAmount,
+    deposit_paid: depositPaid,
+    start_date: new Date().toISOString().split('T')[0],
+    status: 'ACTIVE',
+    tenant: { id: 'ten' + Date.now(), name: tenantName, phone: phone, id_verified: false },
+    unit: { id: unit.id, unit_number: unit.unit_number, rent_amount: rentAmount }
+  };
+  if (!DEMO.tenancies[pid]) DEMO.tenancies[pid] = [];
+  DEMO.tenancies[pid].push(tenancy);
+  unit.status = 'OCCUPIED';
+  hideModal(); toast('Tenant assigned!'); renderTenants();
 }
 
-async function handleGiveNotice(tenancyId) {
+function handleGiveNotice(tenancyId) {
   if (!confirm('Mark tenant as notice given?')) return;
-  try {
-    await giveNotice(tenancyId);
-    toast('Notice recorded'); renderTenants();
-  } catch (e) { toast(e.message, 'error'); }
+  const pid = state.activeProperty.id;
+  const t = (DEMO.tenancies[pid] || []).find(x => x.id === tenancyId);
+  if (t) { t.status = 'NOTICE_GIVEN'; }
+  toast('Notice recorded'); renderTenants();
 }
 
-async function handleMoveOut(tenancyId) {
+function handleMoveOut(tenancyId) {
   if (!confirm('Move out this tenant? This will end their tenancy.')) return;
-  try {
-    await moveOut(tenancyId);
-    toast('Tenant moved out'); renderTenants();
-  } catch (e) { toast(e.message, 'error'); }
+  const pid = state.activeProperty.id;
+  const idx = (DEMO.tenancies[pid] || []).findIndex(x => x.id === tenancyId);
+  if (idx >= 0) {
+    const t = DEMO.tenancies[pid][idx];
+    const unit = (DEMO.units[pid] || []).find(u => u.id === t.unit_id);
+    if (unit) unit.status = 'VACANT';
+    DEMO.tenancies[pid].splice(idx, 1);
+  }
+  toast('Tenant moved out'); renderTenants();
 }
 
 // ═══════ MAINTENANCE TAB ═══════
-async function renderMaintenance() {
+function renderMaintenance() {
   const c = document.getElementById('tabContent');
   if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
-  let allReqs = [];
-  try {
-    allReqs = await getMaintenanceRequests(state.activeProperty.id);
-  } catch(e) {}
+  const allReqs = DEMO.maintenance[state.activeProperty.id] || [];
   c.innerHTML = '<div class="tab-content">' +
     '<div style="margin-bottom:1.5rem;font-size:0.85rem;color:var(--gray)">' + allReqs.length + ' maintenance requests</div>' +
     (allReqs.length === 0
@@ -643,12 +707,12 @@ async function renderMaintenance() {
   '</div>';
 }
 
-async function handleUpdateMaintenance(id, status) {
+function handleUpdateMaintenance(id, status) {
   if (!status) return;
-  try {
-    await updateMaintenanceRequest(id, { status });
-    toast('Status updated'); renderMaintenance();
-  } catch (e) { toast(e.message, 'error'); }
+  const pid = state.activeProperty.id;
+  const r = (DEMO.maintenance[pid] || []).find(x => x.id === id);
+  if (r) r.status = status;
+  toast('Status updated'); renderMaintenance();
 }
 
 // ═══════ UTILITIES ═══════
@@ -673,19 +737,7 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) {
 });
 
 // ═══════ STARTUP ═══════
-(async function boot() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    initApp();
-  }
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_OUT' || !session) {
-      state.user = null;
-      document.getElementById('app').style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
-    }
-  });
-})();
+// Demo mode: just show login screen, any credentials work
 </script>
 </body>
 </html>
