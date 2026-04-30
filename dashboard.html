@@ -126,21 +126,21 @@ tr:hover td{background:rgba(0,210,106,0.02)}
 <!-- LOGIN SCREEN -->
 <div class="login-wrap" id="loginScreen">
   <div class="login-card">
-    <h1>ke<span>ja</span></h1>
+    <h1>Ba<span>se</span></h1>
     <p>Sign in to your dashboard</p>
     <div id="phoneStep">
       <div class="form-group">
         <label>Phone number</label>
         <input type="tel" id="phoneInput" placeholder="0712 345 678">
       </div>
-      <button class="btn btn-green" onclick="requestOtp()">Send verification code</button>
+      <button class="btn btn-green" onclick="handleRequestOtp()">Send verification code</button>
     </div>
     <div id="otpStep" style="display:none">
       <div class="form-group">
         <label>Verification code</label>
         <input type="text" id="otpInput" placeholder="123456" maxlength="6">
       </div>
-      <button class="btn btn-green" onclick="verifyOtp()">Verify & sign in</button>
+      <button class="btn btn-green" onclick="handleVerifyOtp()">Verify & sign in</button>
       <button class="btn btn-outline" onclick="document.getElementById('otpStep').style.display='none';document.getElementById('phoneStep').style.display='block'">Back</button>
     </div>
     <div class="login-error" id="loginError"></div>
@@ -151,7 +151,7 @@ tr:hover td{background:rgba(0,210,106,0.02)}
 <div class="app" id="app">
   <!-- Sidebar -->
   <nav class="sidebar">
-    <div class="sidebar-logo">ke<span>ja</span></div>
+    <div class="sidebar-logo">Ba<span>se</span></div>
     <ul class="sidebar-nav" id="sidebarNav">
       <li class="active" data-tab="overview"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>Overview</li>
       <li data-tab="properties"><svg viewBox="0 0 20 20" fill="none"><path d="M3 15V8l7-5 7 5v7a1 1 0 01-1 1H4a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.5"/></svg>Properties</li>
@@ -163,7 +163,7 @@ tr:hover td{background:rgba(0,210,106,0.02)}
     <div class="sidebar-user">
       <div class="sidebar-user-name" id="userName">-</div>
       <div class="sidebar-user-phone" id="userPhone">-</div>
-      <div class="sidebar-logout" onclick="logout()">Sign out</div>
+      <div class="sidebar-logout" onclick="handleLogout()">Sign out</div>
     </div>
   </nav>
 
@@ -183,48 +183,37 @@ tr:hover td{background:rgba(0,210,106,0.02)}
 <div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalBody"></div></div>
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase/05_client.js"></script>
 <script>
-const API = '/api';
-let state = { token: localStorage.getItem('base_token'), user: null, properties: [], activeProperty: null, activeTab: 'overview' };
+let state = { user: null, properties: [], activeProperty: null, activeTab: 'overview', realtimeChannel: null };
 
 // ═══════ AUTH ═══════
-async function api(path, opts = {}) {
-  const headers = { 'Content-Type': 'application/json', ...opts.headers };
-  if (state.token) headers['Authorization'] = 'Bearer ' + state.token;
-  const res = await fetch(API + path, { ...opts, headers });
-  if (res.status === 401) { logout(); throw new Error('Session expired'); }
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Request failed');
-  return data;
-}
-
-async function requestOtp() {
+async function handleRequestOtp() {
   const phone = document.getElementById('phoneInput').value.trim();
   if (!phone) return showError('Enter your phone number');
   try {
-    await api('/auth/request-otp', { method: 'POST', body: JSON.stringify({ phone }) });
+    await requestOtp(phone);
     document.getElementById('phoneStep').style.display = 'none';
     document.getElementById('otpStep').style.display = 'block';
     hideError();
   } catch (e) { showError(e.message); }
 }
 
-async function verifyOtp() {
+async function handleVerifyOtp() {
   const phone = document.getElementById('phoneInput').value.trim();
   const code = document.getElementById('otpInput').value.trim();
   if (!code) return showError('Enter the code');
   try {
-    const data = await api('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ phone, code }) });
-    state.token = data.token;
-    state.user = data.user;
-    localStorage.setItem('base_token', data.token);
+    await verifyOtp(phone, code);
     initApp();
   } catch (e) { showError(e.message); }
 }
 
-function logout() {
-  state.token = null; state.user = null;
-  localStorage.removeItem('base_token');
+async function handleLogout() {
+  try { await signOut(); } catch(e) {}
+  state.user = null;
+  if (state.realtimeChannel) { supabase.removeChannel(state.realtimeChannel); state.realtimeChannel = null; }
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
 }
@@ -237,11 +226,11 @@ async function initApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   try {
-    if (!state.user) { const d = await api('/auth/me'); state.user = d.user; }
+    if (!state.user) { state.user = await getUser(); }
+    if (!state.user) { handleLogout(); return; }
     document.getElementById('userName').textContent = state.user.name || 'User';
     document.getElementById('userPhone').textContent = state.user.phone;
-    const d = await api('/properties');
-    state.properties = [...d.owned, ...d.managed];
+    state.properties = await getProperties();
     populatePropertySelect();
     if (state.properties.length > 0) { state.activeProperty = state.properties[0]; }
     renderTab();
@@ -257,6 +246,13 @@ function populatePropertySelect() {
 function switchProperty() {
   const id = document.getElementById('propertySelect').value;
   state.activeProperty = state.properties.find(p => p.id === id);
+  if (state.realtimeChannel) { supabase.removeChannel(state.realtimeChannel); }
+  if (state.activeProperty) {
+    state.realtimeChannel = subscribeToPayments(state.activeProperty.id, () => {
+      if (state.activeTab === 'overview') renderOverview();
+      if (state.activeTab === 'payments') renderPayments();
+    });
+  }
   renderTab();
 }
 // ═══════ NAVIGATION ═══════
@@ -288,8 +284,12 @@ async function renderOverview() {
   const c = document.getElementById('tabContent');
   if (!state.activeProperty) { c.innerHTML = '<div class="empty"><div class="empty-icon">🏠</div><p>Add a property to get started</p></div>'; return; }
   try {
-    const d = await api('/dashboard/' + state.activeProperty.id);
-    const o = d.overview;
+    const pid = state.activeProperty.id;
+    const [o, monthlyCollections, recentPayments] = await Promise.all([
+      getDashboardStats(pid),
+      getMonthlyCollections(pid),
+      getPayments(pid, { limit: 8 })
+    ]);
     c.innerHTML = '<div class="tab-content">' +
       '<div class="kpi-row">' +
         kpiCard('Collected', 'KES ' + (o.collectedRent || 0).toLocaleString(), o.collectionRate + '% of target') +
@@ -302,19 +302,18 @@ async function renderOverview() {
         '<div class="card"><div class="card-title">Recent Payments</div><div id="feedList"></div></div>' +
       '</div>' +
     '</div>';
-    // Render chart
     const bars = document.getElementById('chartBars');
-    const maxVal = Math.max(...d.monthlyCollections.map(m => m.total), 1);
-    bars.innerHTML = d.monthlyCollections.map(m => {
+    const collections = monthlyCollections || [];
+    const maxVal = Math.max(...collections.map(m => m.total), 1);
+    bars.innerHTML = collections.map(m => {
       const pct = Math.round((m.total / maxVal) * 100);
       const label = m.month.split('-')[1];
       const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       return '<div class="chart-bar"><div class="chart-bar-fill" style="height:' + pct + '%"></div><div class="chart-bar-lbl">' + months[parseInt(label)] + '</div></div>';
     }).join('');
-    // Render feed
     const feed = document.getElementById('feedList');
-    if (d.recentPayments.length === 0) { feed.innerHTML = '<div class="empty"><p>No payments yet</p></div>'; }
-    else { feed.innerHTML = d.recentPayments.slice(0, 8).map(p => feedItem(p)).join(''); }
+    if (recentPayments.length === 0) { feed.innerHTML = '<div class="empty"><p>No payments yet</p></div>'; }
+    else { feed.innerHTML = recentPayments.slice(0, 8).map(p => feedItem(p)).join(''); }
   } catch (e) { c.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
 }
 
@@ -322,17 +321,16 @@ function kpiCard(label, value, change) {
   return '<div class="kpi-card"><div class="kpi-label">' + label + '</div><div class="kpi-value">' + value + '</div><div class="kpi-change">' + change + '</div></div>';
 }
 function feedItem(p) {
-  const name = p.tenancy?.tenant?.name || p.mpesaName || 'Unknown';
+  const name = p.tenancy?.tenant?.name || p.mpesa_name || 'Unknown';
   const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  const unit = p.unit?.unitNumber || '?';
+  const unit = p.unit?.unit_number || '?';
   return '<div class="feed-item"><div class="feed-avatar">' + initials + '</div><div class="feed-info"><div class="feed-name">' + name + '</div><div class="feed-sub">Unit ' + unit + '</div></div><div class="feed-amount">KES ' + (p.amount||0).toLocaleString() + '</div></div>';
 }
 // ═══════ PROPERTIES ═══════
 async function renderProperties() {
   const c = document.getElementById('tabContent');
   try {
-    const d = await api('/properties');
-    const all = [...d.owned, ...d.managed];
+    const all = await getProperties();
     c.innerHTML = '<div class="tab-content">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
         '<div style="font-size:0.85rem;color:var(--gray)">' + all.length + ' properties</div>' +
@@ -343,8 +341,7 @@ async function renderProperties() {
           '<div style="font-weight:700;font-size:1rem;margin-bottom:0.3rem">' + p.name + '</div>' +
           '<div style="font-size:0.78rem;color:var(--gray);margin-bottom:1rem">' + p.address + ', ' + p.county + '</div>' +
           '<div style="display:flex;gap:1.5rem">' +
-            '<div><div style="font-size:1.2rem;font-weight:700">' + (p._count?.units||0) + '</div><div style="font-size:0.65rem;color:var(--gray)">Units</div></div>' +
-            '<div><div style="font-size:1.2rem;font-weight:700">' + (p._count?.payments||0) + '</div><div style="font-size:0.65rem;color:var(--gray)">Payments</div></div>' +
+            '<div><div style="font-size:1.2rem;font-weight:700">' + (p.total_units||0) + '</div><div style="font-size:0.65rem;color:var(--gray)">Units</div></div>' +
           '</div>' +
         '</div>').join('') +
       '</div>' +
@@ -366,18 +363,17 @@ function showAddProperty() {
 
 async function addProperty() {
   try {
-    await api('/properties', { method: 'POST', body: JSON.stringify({
+    await createProperty({
       name: document.getElementById('propName').value,
       type: document.getElementById('propType').value,
       address: document.getElementById('propAddr').value,
       county: document.getElementById('propCounty').value,
       town: document.getElementById('propTown').value,
-      totalUnits: parseInt(document.getElementById('propUnits').value),
-      paybillNumber: document.getElementById('propPaybill').value || null
-    })});
-    hideModal(); toast('Property created!'); 
-    const d = await api('/properties');
-    state.properties = [...d.owned, ...d.managed];
+      total_units: parseInt(document.getElementById('propUnits').value),
+      paybill_number: document.getElementById('propPaybill').value || null
+    });
+    hideModal(); toast('Property created!');
+    state.properties = await getProperties();
     populatePropertySelect();
     renderProperties();
   } catch (e) { toast(e.message, 'error'); }
@@ -398,8 +394,9 @@ async function renderPayments() {
   const c = document.getElementById('tabContent');
   if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
   try {
-    const params = paymentFilter !== 'all' ? '?status=' + paymentFilter : '';
-    const d = await api('/payments/property/' + state.activeProperty.id + params);
+    const filters = {};
+    if (paymentFilter !== 'all') filters.status = paymentFilter;
+    const payments = await getPayments(state.activeProperty.id, filters);
     c.innerHTML = '<div class="tab-content">' +
       '<div class="filters">' +
         ['all','MATCHED','UNMATCHED','PARTIAL','MANUALLY_MATCHED'].map(f =>
@@ -407,12 +404,12 @@ async function renderPayments() {
         ).join('') +
       '</div>' +
       '<div class="card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Tenant</th><th>Unit</th><th>Amount</th><th>M-Pesa Ref</th><th>Status</th></tr></thead><tbody>' +
-      d.payments.map(p => {
-        const name = p.tenancy?.tenant?.name || p.mpesaName || 'Unknown';
-        const unit = p.unit?.unitNumber || '-';
-        const date = new Date(p.paidAt).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
+      payments.map(p => {
+        const name = p.tenancy?.tenant?.name || p.mpesa_name || 'Unknown';
+        const unit = p.unit?.unit_number || '-';
+        const date = new Date(p.paid_at).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
         const badge = statusBadge(p.status);
-        return '<tr><td>' + date + '</td><td>' + name + '</td><td>' + unit + '</td><td style="font-weight:600">KES ' + (p.amount||0).toLocaleString() + '</td><td style="font-size:0.75rem;color:var(--gray)">' + (p.mpesaRef||'-') + '</td><td>' + badge + '</td></tr>';
+        return '<tr><td>' + date + '</td><td>' + name + '</td><td>' + unit + '</td><td style="font-weight:600">KES ' + (p.amount||0).toLocaleString() + '</td><td style="font-size:0.75rem;color:var(--gray)">' + (p.mpesa_ref||'-') + '</td><td>' + badge + '</td></tr>';
       }).join('') +
       '</tbody></table></div></div>' +
       '<div style="margin-top:1rem;text-align:right"><button class="btn btn-outline" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showManualPayment()">+ Manual Entry</button></div>' +
@@ -436,37 +433,46 @@ function showManualPayment() {
 
 async function addManualPayment() {
   try {
-    await api('/payments/manual', { method: 'POST', body: JSON.stringify({
-      propertyId: state.activeProperty.id,
+    const now = new Date();
+    const { error } = await supabase.from('payments').insert({
+      property_id: state.activeProperty.id,
       amount: parseInt(document.getElementById('manAmount').value),
-      mpesaRef: document.getElementById('manRef').value || null,
-      month: document.getElementById('manMonth').value || null,
-      notes: document.getElementById('manNotes').value || null
-    })});
+      mpesa_ref: document.getElementById('manRef').value || null,
+      month: document.getElementById('manMonth').value || now.toISOString().slice(0,7),
+      notes: document.getElementById('manNotes').value || null,
+      source: 'MANUAL_ENTRY',
+      paid_at: now.toISOString()
+    });
+    if (error) throw error;
     hideModal(); toast('Payment recorded!'); renderPayments();
   } catch (e) { toast(e.message, 'error'); }
 }
 
 // ═══════ UNITS TAB ═══════
 async function renderUnits() {
-  if (!state.activeProperty) { content.innerHTML = '<p>Select a property first.</p>'; return; }
-  const units = await api(`/units/${state.activeProperty.id}`);
-  const statusColors = { OCCUPIED: 'green', VACANT: 'amber', NOTICE_GIVEN: 'amber', MAINTENANCE: 'red' };
-  content.innerHTML = `
-    <div class="tab-header"><h2>Units — ${state.activeProperty.name}</h2>
-    <button class="btn btn-green" onclick="showAddUnit()">+ Add Unit</button></div>
-    <table class="data-table"><thead><tr>
-      <th>Unit</th><th>Floor</th><th>Beds</th><th>Rent (KES)</th><th>Status</th><th>Actions</th>
-    </tr></thead><tbody>
-    ${units.map(u => `<tr>
-      <td><strong>${u.unitNumber}</strong></td>
-      <td>${u.floor ?? '-'}</td>
-      <td>${u.bedrooms ?? '-'}</td>
-      <td>${u.rentAmount.toLocaleString()}</td>
-      <td><span class="badge badge-${statusColors[u.status] || 'amber'}">${u.status.replace('_',' ')}</span></td>
-      <td><button class="btn btn-outline btn-sm" onclick="editUnit('${u.id}')">Edit</button></td>
-    </tr>`).join('')}
-    </tbody></table>`;
+  const c = document.getElementById('tabContent');
+  if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
+  try {
+    const units = await getUnits(state.activeProperty.id);
+    const statusColors = { OCCUPIED: 'green', VACANT: 'yellow', NOTICE_GIVEN: 'yellow', MAINTENANCE: 'red' };
+    c.innerHTML = '<div class="tab-content">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
+        '<div style="font-size:0.85rem;color:var(--gray)">' + units.length + ' units</div>' +
+        '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showAddUnit()">+ Add Unit</button>' +
+      '</div>' +
+      '<div class="card"><div class="table-wrap"><table><thead><tr>' +
+        '<th>Unit</th><th>Floor</th><th>Beds</th><th>Rent (KES)</th><th>Status</th><th>Actions</th>' +
+      '</tr></thead><tbody>' +
+      units.map(u => '<tr>' +
+        '<td><strong>' + u.unit_number + '</strong></td>' +
+        '<td>' + (u.floor ?? '-') + '</td>' +
+        '<td>' + (u.bedrooms ?? '-') + '</td>' +
+        '<td>' + u.rent_amount.toLocaleString() + '</td>' +
+        '<td>' + statusBadge(u.status) + '</td>' +
+        '<td><button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem" onclick="editUnit(\'' + u.id + '\')">Edit</button></td>' +
+      '</tr>').join('') +
+      '</tbody></table></div></div></div>';
+  } catch (e) { c.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
 }
 
 function showAddUnit() {
@@ -481,67 +487,72 @@ function showAddUnit() {
 
 async function addUnit() {
   try {
-    await api(`/units/${state.activeProperty.id}`, { method: 'POST', body: JSON.stringify({
-      unitNumber: document.getElementById('uNum').value,
+    await createUnit({
+      property_id: state.activeProperty.id,
+      unit_number: document.getElementById('uNum').value,
       floor: parseInt(document.getElementById('uFloor').value) || null,
       bedrooms: parseInt(document.getElementById('uBeds').value) || null,
-      rentAmount: parseInt(document.getElementById('uRent').value),
-      depositAmount: parseInt(document.getElementById('uDeposit').value) || null
-    })});
+      rent_amount: parseInt(document.getElementById('uRent').value),
+      deposit_amount: parseInt(document.getElementById('uDeposit').value) || null
+    });
     hideModal(); toast('Unit added!'); renderUnits();
   } catch (e) { toast(e.message, 'error'); }
 }
 
 async function editUnit(id) {
-  const units = await api(`/units/${state.activeProperty.id}`);
+  const units = await getUnits(state.activeProperty.id);
   const u = units.find(x => x.id === id);
   if (!u) return;
-  showModal('<h3>Edit Unit ' + u.unitNumber + '</h3>' +
-    `<div class="form-group"><label>Rent (KES)</label><input id="euRent" type="number" value="${u.rentAmount}"></div>` +
-    `<div class="form-group"><label>Status</label><select id="euStatus">
-      <option ${u.status==='OCCUPIED'?'selected':''}>OCCUPIED</option>
-      <option ${u.status==='VACANT'?'selected':''}>VACANT</option>
-      <option ${u.status==='NOTICE_GIVEN'?'selected':''}>NOTICE_GIVEN</option>
-      <option ${u.status==='MAINTENANCE'?'selected':''}>MAINTENANCE</option>
-    </select></div>` +
-    `<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="updateUnit('${id}')">Save</button></div>`);
+  showModal('<h3>Edit Unit ' + u.unit_number + '</h3>' +
+    '<div class="form-group"><label>Rent (KES)</label><input id="euRent" type="number" value="' + u.rent_amount + '"></div>' +
+    '<div class="form-group"><label>Status</label><select id="euStatus">' +
+      '<option ' + (u.status==='OCCUPIED'?'selected':'') + '>OCCUPIED</option>' +
+      '<option ' + (u.status==='VACANT'?'selected':'') + '>VACANT</option>' +
+      '<option ' + (u.status==='NOTICE_GIVEN'?'selected':'') + '>NOTICE_GIVEN</option>' +
+      '<option ' + (u.status==='MAINTENANCE'?'selected':'') + '>MAINTENANCE</option>' +
+    '</select></div>' +
+    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="handleUpdateUnit(\'' + id + '\')">Save</button></div>');
 }
 
-async function updateUnit(id) {
+async function handleUpdateUnit(id) {
   try {
-    await api(`/units/unit/${id}`, { method: 'PUT', body: JSON.stringify({
-      rentAmount: parseInt(document.getElementById('euRent').value),
+    await updateUnit(id, {
+      rent_amount: parseInt(document.getElementById('euRent').value),
       status: document.getElementById('euStatus').value
-    })});
+    });
     hideModal(); toast('Unit updated!'); renderUnits();
   } catch (e) { toast(e.message, 'error'); }
 }
 
 // ═══════ TENANTS TAB ═══════
 async function renderTenants() {
-  if (!state.activeProperty) { content.innerHTML = '<p>Select a property first.</p>'; return; }
-  const data = await api(`/tenants/property/${state.activeProperty.id}`);
-  const tenants = data.tenancies || [];
-  const statusColors = { ACTIVE: 'green', NOTICE_GIVEN: 'amber', ENDED: 'red' };
-  content.innerHTML = `
-    <div class="tab-header"><h2>Tenants — ${state.activeProperty.name}</h2>
-    <button class="btn btn-green" onclick="showAssignTenant()">+ Assign Tenant</button></div>
-    <table class="data-table"><thead><tr>
-      <th>Tenant</th><th>Phone</th><th>Unit</th><th>Rent</th><th>Status</th><th>Since</th><th>Actions</th>
-    </tr></thead><tbody>
-    ${tenants.map(t => `<tr>
-      <td><strong>${t.tenant?.name || '-'}</strong></td>
-      <td>${t.tenant?.phone || '-'}</td>
-      <td>${t.unit?.unitNumber || '-'}</td>
-      <td>KES ${t.rentAmount.toLocaleString()}</td>
-      <td><span class="badge badge-${statusColors[t.status]}">${t.status.replace('_',' ')}</span></td>
-      <td>${new Date(t.startDate).toLocaleDateString()}</td>
-      <td>
-        ${t.status === 'ACTIVE' ? `<button class="btn btn-outline btn-sm" onclick="giveNotice('${t.id}')">Notice</button>
-        <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="moveOut('${t.id}')">Move Out</button>` : '-'}
-      </td>
-    </tr>`).join('')}
-    </tbody></table>`;
+  const c = document.getElementById('tabContent');
+  if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
+  try {
+    const tenants = await getTenancies(state.activeProperty.id);
+    c.innerHTML = '<div class="tab-content">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
+        '<div style="font-size:0.85rem;color:var(--gray)">' + tenants.length + ' active tenancies</div>' +
+        '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showAssignTenant()">+ Assign Tenant</button>' +
+      '</div>' +
+      '<div class="card"><div class="table-wrap"><table><thead><tr>' +
+        '<th>Tenant</th><th>Phone</th><th>Unit</th><th>Rent</th><th>Status</th><th>Since</th><th>Actions</th>' +
+      '</tr></thead><tbody>' +
+      tenants.map(t => '<tr>' +
+        '<td><strong>' + (t.tenant?.name || '-') + '</strong></td>' +
+        '<td>' + (t.tenant?.phone || '-') + '</td>' +
+        '<td>' + (t.unit?.unit_number || '-') + '</td>' +
+        '<td>KES ' + t.rent_amount.toLocaleString() + '</td>' +
+        '<td>' + statusBadge(t.status) + '</td>' +
+        '<td>' + new Date(t.start_date).toLocaleDateString() + '</td>' +
+        '<td>' + (t.status === 'ACTIVE'
+          ? '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;margin-right:0.3rem" onclick="handleGiveNotice(\'' + t.id + '\')">Notice</button>' +
+            '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;color:#ef4444" onclick="handleMoveOut(\'' + t.id + '\')">Move Out</button>'
+          : '-') +
+        '</td>' +
+      '</tr>').join('') +
+      '</tbody></table></div></div></div>';
+  } catch (e) { c.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
 }
 
 function showAssignTenant() {
@@ -551,79 +562,91 @@ function showAssignTenant() {
     '<div class="form-group"><label>Unit Number</label><input id="tUnit" placeholder="4B"></div>' +
     '<div class="form-group"><label>Rent (KES)</label><input id="tRent" type="number" placeholder="15000"></div>' +
     '<div class="form-group"><label>Deposit Paid</label><input id="tDeposit" type="number" placeholder="0"></div>' +
-    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="assignTenant()">Assign</button></div>');
+    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="handleAssignTenant()">Assign</button></div>');
 }
 
-async function assignTenant() {
+async function handleAssignTenant() {
   try {
-    // Find unit by number to get unitId
-    const units = await api(`/units/${state.activeProperty.id}`);
+    const units = await getUnits(state.activeProperty.id);
     const unitNum = document.getElementById('tUnit').value.trim();
-    const unit = units.find(u => u.unitNumber === unitNum);
+    const unit = units.find(u => u.unit_number === unitNum);
     if (!unit) { toast('Unit not found', 'error'); return; }
-    await api('/tenants/assign', { method: 'POST', body: JSON.stringify({
-      unitId: unit.id,
-      tenantPhone: document.getElementById('tPhone').value,
-      tenantName: document.getElementById('tName').value,
-      rentAmount: parseInt(document.getElementById('tRent').value),
-      depositPaid: parseInt(document.getElementById('tDeposit').value) || 0
-    })});
+
+    const phone = normalizePhone(document.getElementById('tPhone').value);
+    const tenantName = document.getElementById('tName').value.trim();
+    const rentAmount = parseInt(document.getElementById('tRent').value);
+    const depositPaid = parseInt(document.getElementById('tDeposit').value) || 0;
+
+    // Look up existing profile by phone, or create via Supabase auth invite
+    let { data: profile } = await supabase.from('profiles').select('id').eq('phone', phone).single();
+    if (!profile) {
+      // Sign up the tenant so a profile is auto-created by the trigger
+      const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
+        phone: phone,
+        user_metadata: { name: tenantName, role: 'TENANT' }
+      });
+      if (authErr) throw authErr;
+      profile = { id: authData.user.id };
+    }
+
+    await assignTenant(unit.id, profile.id, rentAmount, depositPaid);
     hideModal(); toast('Tenant assigned!'); renderTenants();
   } catch (e) { toast(e.message, 'error'); }
 }
 
-async function giveNotice(tenancyId) {
+async function handleGiveNotice(tenancyId) {
   if (!confirm('Mark tenant as notice given?')) return;
   try {
-    await api('/tenants/give-notice', { method: 'POST', body: JSON.stringify({ tenancyId }) });
+    await giveNotice(tenancyId);
     toast('Notice recorded'); renderTenants();
   } catch (e) { toast(e.message, 'error'); }
 }
 
-async function moveOut(tenancyId) {
+async function handleMoveOut(tenancyId) {
   if (!confirm('Move out this tenant? This will end their tenancy.')) return;
   try {
-    await api('/tenants/move-out', { method: 'POST', body: JSON.stringify({ tenancyId }) });
+    await moveOut(tenancyId);
     toast('Tenant moved out'); renderTenants();
   } catch (e) { toast(e.message, 'error'); }
 }
 
 // ═══════ MAINTENANCE TAB ═══════
 async function renderMaintenance() {
-  if (!state.activeProperty) { content.innerHTML = '<p>Select a property first.</p>'; return; }
+  const c = document.getElementById('tabContent');
+  if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
   let allReqs = [];
   try {
-    const data = await api(`/maintenance/property/${state.activeProperty.id}`);
-    allReqs = data.requests || [];
+    allReqs = await getMaintenanceRequests(state.activeProperty.id);
   } catch(e) {}
-  const statusColors = { SUBMITTED: 'amber', ASSIGNED: 'blue', IN_PROGRESS: 'blue', COMPLETED: 'green', CANCELLED: 'red' };
-  content.innerHTML = `
-    <div class="tab-header"><h2>Maintenance — ${state.activeProperty.name}</h2></div>
-    ${allReqs.length === 0 ? '<p style="color:var(--muted);padding:2rem">No maintenance requests yet.</p>' : `
-    <table class="data-table"><thead><tr>
-      <th>Unit</th><th>Category</th><th>Description</th><th>Status</th><th>Submitted</th><th>Actions</th>
-    </tr></thead><tbody>
-    ${allReqs.map(r => `<tr>
-      <td>${r.unit?.unitNumber || '-'}</td>
-      <td>${r.category}</td>
-      <td>${r.description.substring(0, 60)}${r.description.length > 60 ? '...' : ''}</td>
-      <td><span class="badge badge-${statusColors[r.status] || 'amber'}">${r.status.replace('_',' ')}</span></td>
-      <td>${new Date(r.createdAt).toLocaleDateString()}</td>
-      <td><select onchange="updateMaintenance('${r.id}', this.value)">
-        <option value="">Change...</option>
-        <option value="ASSIGNED">Assign</option>
-        <option value="IN_PROGRESS">In Progress</option>
-        <option value="COMPLETED">Complete</option>
-        <option value="CANCELLED">Cancel</option>
-      </select></td>
-    </tr>`).join('')}
-    </tbody></table>`}`;
+  c.innerHTML = '<div class="tab-content">' +
+    '<div style="margin-bottom:1.5rem;font-size:0.85rem;color:var(--gray)">' + allReqs.length + ' maintenance requests</div>' +
+    (allReqs.length === 0
+      ? '<div class="empty"><p>No maintenance requests yet.</p></div>'
+      : '<div class="card"><div class="table-wrap"><table><thead><tr>' +
+          '<th>Unit</th><th>Category</th><th>Description</th><th>Status</th><th>Submitted</th><th>Actions</th>' +
+        '</tr></thead><tbody>' +
+        allReqs.map(r => '<tr>' +
+          '<td>' + (r.unit?.unit_number || '-') + '</td>' +
+          '<td>' + r.category + '</td>' +
+          '<td>' + r.description.substring(0, 60) + (r.description.length > 60 ? '...' : '') + '</td>' +
+          '<td>' + statusBadge(r.status) + '</td>' +
+          '<td>' + new Date(r.created_at).toLocaleDateString() + '</td>' +
+          '<td><select onchange="handleUpdateMaintenance(\'' + r.id + '\', this.value)">' +
+            '<option value="">Change...</option>' +
+            '<option value="ASSIGNED">Assign</option>' +
+            '<option value="IN_PROGRESS">In Progress</option>' +
+            '<option value="COMPLETED">Complete</option>' +
+            '<option value="CANCELLED">Cancel</option>' +
+          '</select></td>' +
+        '</tr>').join('') +
+        '</tbody></table></div></div>') +
+  '</div>';
 }
 
-async function updateMaintenance(id, status) {
+async function handleUpdateMaintenance(id, status) {
   if (!status) return;
   try {
-    await api(`/maintenance/${id}`, { method: 'PUT', body: JSON.stringify({ status }) });
+    await updateMaintenanceRequest(id, { status });
     toast('Status updated'); renderMaintenance();
   } catch (e) { toast(e.message, 'error'); }
 }
@@ -650,14 +673,18 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) {
 });
 
 // ═══════ STARTUP ═══════
-(function boot() {
-  const token = localStorage.getItem('base_token');
-  if (token) {
-    state.token = token;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
+(async function boot() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
     initApp();
   }
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT' || !session) {
+      state.user = null;
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+    }
+  });
 })();
 </script>
 </body>
