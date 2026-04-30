@@ -127,6 +127,7 @@ tr:hover td{background:rgba(0,210,106,0.02)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .tab-content{animation:fadeIn 0.3s ease}
 @keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(0,210,106,0.4)}70%{box-shadow:0 0 0 8px rgba(0,210,106,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse-green 2s infinite;margin-right:0.4rem}
 /* RESPONSIVE */
 @media(max-width:768px){
@@ -369,19 +370,36 @@ function renderPay() {
 
   c.innerHTML = '<div class="tab-content">' +
     '<div class="grid-2">' +
-      // Payment instructions
-      '<div class="card">' +
-        '<div class="card-title">M-Pesa Payment Instructions</div>' +
-        '<div style="background:var(--green-tint);border-radius:12px;padding:1.5rem;margin-bottom:1.2rem">' +
-          '<div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.3rem">Step 1</div>' +
-          '<div style="font-size:0.9rem;font-weight:600;margin-bottom:1rem">Go to M-Pesa &gt; Lipa na M-Pesa &gt; Pay Bill</div>' +
-          '<div class="stat-row"><span class="stat-row-label">Business Number</span><span class="stat-row-value" style="font-size:1.1rem">123456</span></div>' +
-          '<div class="stat-row"><span class="stat-row-label">Account Number</span><span class="stat-row-value" style="font-size:1.1rem;color:var(--green)">' + T.unit.number + '</span></div>' +
-          '<div class="stat-row"><span class="stat-row-label">Amount</span><span class="stat-row-value" style="font-size:1.1rem">KES ' + b.totalDue.toLocaleString() + '</span></div>' +
+      // STK Push + Paybill
+      '<div>' +
+        // STK Push card
+        '<div class="card" style="margin-bottom:1rem;border:2px solid var(--green)">' +
+          '<div class="card-title" style="color:var(--green)">Pay Instantly via M-Pesa</div>' +
+          '<div style="font-size:0.82rem;color:var(--gray);margin-bottom:1rem">Enter amount and tap Pay — you\'ll receive the M-Pesa PIN prompt on your phone.</div>' +
+          '<div class="form-group" style="margin-bottom:0.8rem">' +
+            '<label>Amount (KES)</label>' +
+            '<input type="number" id="stkAmount" value="' + b.totalDue + '" min="1" style="font-size:1.1rem;font-weight:700">' +
+          '</div>' +
+          '<div class="form-group" style="margin-bottom:1rem">' +
+            '<label>M-Pesa Phone Number</label>' +
+            '<input type="tel" id="stkPhone" value="' + T.tenant.phone + '" placeholder="0722111222">' +
+          '</div>' +
+          '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">' +
+            '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.72rem" onclick="document.getElementById(\'stkAmount\').value=' + b.rent + '">Rent only — KES ' + b.rent.toLocaleString() + '</button>' +
+            '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.72rem" onclick="document.getElementById(\'stkAmount\').value=' + b.totalDue + '">Rent + utilities — KES ' + b.totalDue.toLocaleString() + '</button>' +
+          '</div>' +
+          '<button class="btn btn-green" id="stkPayBtn" onclick="initiateSTKPush()" style="font-size:1rem;padding:1rem">Pay via M-Pesa</button>' +
+          '<div id="stkStatus" style="margin-top:1rem;display:none"></div>' +
         '</div>' +
-        '<div style="font-size:0.78rem;color:var(--gray);line-height:1.5">' +
-          '<strong>Important:</strong> Use your unit number <strong>' + T.unit.number + '</strong> as the account reference. ' +
-          'Your payment will be automatically matched and a receipt sent via SMS within minutes.' +
+        // Manual paybill instructions
+        '<div class="card">' +
+          '<div class="card-title">Or Pay Manually via Paybill</div>' +
+          '<div style="background:var(--green-tint);border-radius:10px;padding:1.2rem">' +
+            '<div style="font-size:0.82rem;font-weight:600;margin-bottom:0.8rem">M-Pesa &gt; Lipa na M-Pesa &gt; Pay Bill</div>' +
+            '<div class="stat-row"><span class="stat-row-label">Business Number</span><span class="stat-row-value" style="font-size:1rem">123456</span></div>' +
+            '<div class="stat-row"><span class="stat-row-label">Account Number</span><span class="stat-row-value" style="font-size:1rem;color:var(--green)">' + T.unit.number + '</span></div>' +
+            '<div class="stat-row"><span class="stat-row-label">Amount</span><span class="stat-row-value" style="font-size:1rem">KES ' + b.totalDue.toLocaleString() + '</span></div>' +
+          '</div>' +
         '</div>' +
       '</div>' +
       // Balance summary
@@ -393,16 +411,70 @@ function renderPay() {
           '<div class="stat-row" style="border-top:2px solid #e5e7eb;padding-top:0.8rem;margin-top:0.3rem"><span class="stat-row-label" style="font-weight:700;color:var(--black)">Total Due</span><span class="stat-row-value" style="font-size:1.2rem;color:var(--green)">KES ' + b.totalDue.toLocaleString() + '</span></div>' +
           '<div style="font-size:0.72rem;color:var(--gray);margin-top:0.5rem">Due by ' + new Date(b.dueDate).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}) + '</div>' +
         '</div>' +
-        '<div class="card">' +
+        '<div class="card" style="margin-bottom:1rem">' +
           '<div class="card-title">Payment Confirmation</div>' +
           '<div style="font-size:0.82rem;color:var(--gray);line-height:1.5">' +
-            '<span class="live-dot"></span>Payments are tracked in real time. Once you send via M-Pesa, it will appear in your history within 1-2 minutes. ' +
+            '<span class="live-dot"></span>Payments are tracked in real time. Once confirmed, it appears in your history within 1-2 minutes. ' +
             'An SMS receipt will be sent to <strong>' + T.tenant.phone + '</strong>.' +
           '</div>' +
+        '</div>' +
+        '<div class="card">' +
+          '<div class="card-title">Recent Payments</div>' +
+          T.payments.slice(0, 3).map(p =>
+            '<div class="stat-row"><span class="stat-row-label">' + p.month + '</span><span class="stat-row-value">KES ' + p.amount.toLocaleString() + ' ' + statusBadge(p.status) + '</span></div>'
+          ).join('') +
         '</div>' +
       '</div>' +
     '</div>' +
   '</div>';
+}
+
+// ═══════ STK PUSH ═══════
+function initiateSTKPush() {
+  const amount = parseInt(document.getElementById('stkAmount').value);
+  const phone = document.getElementById('stkPhone').value.trim();
+  if (!amount || amount < 1) { toast('Enter a valid amount', 'error'); return; }
+  if (!phone) { toast('Enter your M-Pesa phone number', 'error'); return; }
+
+  const btn = document.getElementById('stkPayBtn');
+  const statusDiv = document.getElementById('stkStatus');
+  btn.disabled = true;
+  btn.textContent = 'Sending request...';
+  btn.style.opacity = '0.6';
+  statusDiv.style.display = 'block';
+  statusDiv.innerHTML = '<div style="text-align:center;padding:1rem"><div class="live-dot" style="width:12px;height:12px;margin:0 auto 0.5rem"></div><div style="font-size:0.85rem;font-weight:600">Sending M-Pesa prompt to ' + phone + '...</div><div style="font-size:0.75rem;color:var(--gray);margin-top:0.3rem">Check your phone and enter your M-Pesa PIN</div></div>';
+
+  // Demo mode: simulate STK Push flow
+  setTimeout(function() {
+    btn.textContent = 'Waiting for confirmation...';
+    statusDiv.innerHTML = '<div style="text-align:center;padding:1rem"><div style="width:40px;height:40px;border:3px solid #f3f4f6;border-top-color:var(--green);border-radius:50%;margin:0 auto 0.8rem;animation:spin 1s linear infinite"></div><div style="font-size:0.85rem;font-weight:600">Waiting for M-Pesa confirmation...</div><div style="font-size:0.75rem;color:var(--gray);margin-top:0.3rem">Enter your PIN on your phone to complete the payment</div></div>';
+
+    setTimeout(function() {
+      // Simulate successful payment
+      const ref = 'STK' + Math.random().toString(36).substring(2, 10).toUpperCase();
+      const receipt = 'BK-2026-' + String(T.payments.length + 1).padStart(5, '0');
+      const now = new Date().toISOString();
+      T.payments.unshift({
+        id: 'p' + Date.now(), amount: amount, ref: ref, date: now,
+        month: 'May 2026', status: 'MATCHED', receipt: receipt
+      });
+      T.balance.totalDue = Math.max(0, T.balance.totalDue - amount);
+      T.balance.lastPaid = now;
+
+      btn.disabled = false;
+      btn.textContent = 'Pay via M-Pesa';
+      btn.style.opacity = '1';
+      statusDiv.innerHTML = '<div style="background:#dcfce7;border-radius:10px;padding:1.2rem;text-align:center">' +
+        '<div style="font-size:1.5rem;margin-bottom:0.4rem">&#10003;</div>' +
+        '<div style="font-size:0.95rem;font-weight:700;color:#16a34a">Payment Confirmed!</div>' +
+        '<div style="font-size:0.82rem;color:var(--gray);margin-top:0.3rem">KES ' + amount.toLocaleString() + ' received</div>' +
+        '<div style="font-size:0.72rem;color:var(--gray);margin-top:0.2rem">M-Pesa Ref: ' + ref + '</div>' +
+        '<div style="font-size:0.72rem;color:var(--gray)">Receipt: ' + receipt + '</div>' +
+        '<div style="font-size:0.72rem;color:var(--gray);margin-top:0.5rem">SMS receipt sent to ' + T.tenant.phone + '</div>' +
+      '</div>';
+      toast('Payment of KES ' + amount.toLocaleString() + ' confirmed!');
+    }, 4000);
+  }, 2000);
 }
 
 // ═══════ PAYMENT HISTORY ═══════

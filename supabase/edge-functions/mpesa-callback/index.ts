@@ -1,9 +1,9 @@
 // ============================================================
-// Base.ke — M-Pesa C2B Callback Edge Function
+// Base.ke — M-Pesa Callback Edge Function (C2B + STK Push)
 //
 // Deploy: paste into Supabase Dashboard → Edge Functions → New Function
 // Name: mpesa-callback
-// This receives M-Pesa C2B payment notifications
+// Receives both C2B paybill and STK Push payment notifications
 // ============================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -20,35 +20,69 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json()
 
-    // Safaricom C2B callback format
-    const result = body?.Body?.stkCallback || body?.TransactionType ? body : null
-    if (!result) {
+    // Determine callback type: STK Push or C2B
+    const stkCallback = body?.Body?.stkCallback
+    const isC2B = body?.TransactionType ? true : false
+
+    if (!stkCallback && !isC2B) {
       return new Response(JSON.stringify({ ResultCode: 0, ResultDesc: 'Accepted' }), {
         headers: { 'Content-Type': 'application/json' },
       })
     }
 
-    // Extract C2B fields
-    const transId = result.TransID || result.TransactionId
-    const amount = parseInt(result.TransAmount || result.Amount || '0')
-    const phone = result.MSISDN || result.PhoneNumber || ''
-    const name = result.FirstName
-      ? `${result.FirstName} ${result.MiddleName || ''} ${result.LastName || ''}`.trim()
-      : result.BillRefNumber || ''
-    const accountRef = result.BillRefNumber || result.AccountReference || ''
-    const shortcode = result.BusinessShortCode || result.ReceivedFrom || ''
-    const transTime = result.TransTime || ''
+    let transId: string, amount: number, phone: string, name: string, accountRef: string, shortcode: string, paidAt: Date, source: string
 
-    // Parse transaction time (format: YYYYMMDDHHmmss)
-    let paidAt = new Date()
-    if (transTime && transTime.length >= 14) {
-      const y = transTime.substring(0, 4)
-      const m = transTime.substring(4, 6)
-      const d = transTime.substring(6, 8)
-      const h = transTime.substring(8, 10)
-      const min = transTime.substring(10, 12)
-      const s = transTime.substring(12, 14)
-      paidAt = new Date(`${y}-${m}-${d}T${h}:${min}:${s}+03:00`)
+    if (stkCallback) {
+      // ── STK Push callback ──
+      if (stkCallback.ResultCode !== 0) {
+        console.log(`STK Push cancelled/failed: ${stkCallback.ResultDesc}`)
+        return new Response(JSON.stringify({ ResultCode: 0, ResultDesc: 'Accepted' }), {
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      const items = stkCallback.CallbackMetadata?.Item || []
+      const get = (key: string) => items.find((i: any) => i.Name === key)?.Value
+      transId = String(get('MpesaReceiptNumber') || '')
+      amount = parseInt(String(get('Amount') || '0'))
+      phone = String(get('PhoneNumber') || '')
+      const transDate = String(get('TransactionDate') || '')
+      accountRef = body._accountReference || ''
+      shortcode = body._shortcode || ''
+      name = ''
+      source = 'MPESA_STK'
+      paidAt = new Date()
+      if (transDate.length >= 14) {
+        const y = transDate.substring(0, 4)
+        const m = transDate.substring(4, 6)
+        const d = transDate.substring(6, 8)
+        const h = transDate.substring(8, 10)
+        const min = transDate.substring(10, 12)
+        const s = transDate.substring(12, 14)
+        paidAt = new Date(`${y}-${m}-${d}T${h}:${min}:${s}+03:00`)
+      }
+    } else {
+      // ── C2B callback ──
+      const result = body
+      transId = result.TransID || result.TransactionId
+      amount = parseInt(result.TransAmount || result.Amount || '0')
+      phone = result.MSISDN || result.PhoneNumber || ''
+      name = result.FirstName
+        ? `${result.FirstName} ${result.MiddleName || ''} ${result.LastName || ''}`.trim()
+        : result.BillRefNumber || ''
+      accountRef = result.BillRefNumber || result.AccountReference || ''
+      shortcode = result.BusinessShortCode || result.ReceivedFrom || ''
+      source = 'MPESA_C2B'
+      const transTime = result.TransTime || ''
+      paidAt = new Date()
+      if (transTime && transTime.length >= 14) {
+        const y = transTime.substring(0, 4)
+        const m = transTime.substring(4, 6)
+        const d = transTime.substring(6, 8)
+        const h = transTime.substring(8, 10)
+        const min = transTime.substring(10, 12)
+        const s = transTime.substring(12, 14)
+        paidAt = new Date(`${y}-${m}-${d}T${h}:${min}:${s}+03:00`)
+      }
     }
 
     const month = `${paidAt.getFullYear()}-${String(paidAt.getMonth() + 1).padStart(2, '0')}`
@@ -94,7 +128,7 @@ Deno.serve(async (req) => {
         mpesa_phone: normalizedPhone,
         mpesa_name: name,
         account_reference: accountRef,
-        source: 'MPESA_C2B',
+        source,
         status: 'UNMATCHED',
         paid_at: paidAt.toISOString(),
         month,
