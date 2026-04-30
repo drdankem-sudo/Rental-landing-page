@@ -654,16 +654,19 @@ function renderPayments() {
         '<button class="filter-btn ' + (paymentFilter===f?'active':'') + '" onclick="paymentFilter=\'' + f + '\';renderPayments()">' + (f==='all'?'All':f.replace('_',' ').toLowerCase()) + '</button>'
       ).join('') +
     '</div>' +
-    '<div class="card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Tenant</th><th>Unit</th><th>Amount</th><th>M-Pesa Ref</th><th>Status</th></tr></thead><tbody>' +
+    '<div class="card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Tenant</th><th>Unit</th><th>Amount</th><th>Source</th><th>Reference</th><th>Status</th></tr></thead><tbody>' +
     payments.map(p => {
       const name = p.tenancy?.tenant?.name || p.mpesa_name || 'Unknown';
       const unit = p.unit?.unit_number || '-';
       const date = new Date(p.paid_at).toLocaleDateString('en-KE',{day:'numeric',month:'short'});
       const badge = statusBadge(p.status);
-      return '<tr><td>' + date + '</td><td>' + name + '</td><td>' + unit + '</td><td style="font-weight:600">KES ' + (p.amount||0).toLocaleString() + '</td><td style="font-size:0.75rem;color:var(--gray)">' + (p.mpesa_ref||'-') + '</td><td>' + badge + '</td></tr>';
+      const sourceLabels = { MPESA_C2B:'M-Pesa', MPESA_STK:'M-Pesa STK', CASH:'Cash', BANK_DEPOSIT:'Bank Deposit', EFT:'EFT', PESALINK:'PesaLink', CHEQUE:'Cheque', MANUAL_ENTRY:'Manual' };
+      const src = sourceLabels[p.source] || 'M-Pesa';
+      const ref = p.mpesa_ref || p.bank_ref || '-';
+      return '<tr><td>' + date + '</td><td>' + name + '</td><td>' + unit + '</td><td style="font-weight:600">KES ' + (p.amount||0).toLocaleString() + '</td><td><span class="badge ' + (p.source==='CASH'?'badge-yellow':p.source==='MPESA_C2B'||p.source==='MPESA_STK'?'badge-green':'badge-blue') + '">' + src + '</span></td><td style="font-size:0.75rem;color:var(--gray)">' + ref + '</td><td>' + badge + '</td></tr>';
     }).join('') +
     '</tbody></table></div></div>' +
-    '<div style="margin-top:1rem;text-align:right"><button class="btn btn-outline" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showManualPayment()">+ Manual Entry</button></div>' +
+    '<div style="margin-top:1rem;text-align:right"><button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showManualPayment()">+ Record Payment</button></div>' +
   '</div>';
 }
 
@@ -673,32 +676,72 @@ function statusBadge(s) {
 }
 
 function showManualPayment() {
+  const pid = state.activeProperty.id;
+  var tenancies = DEMO.tenancies[pid] || [];
   showModal('<h3>Record Payment</h3>' +
+    '<div class="form-group"><label>Payment Source</label><select id="manSource" onchange="togglePaymentFields()">' +
+      '<option value="CASH">Cash</option>' +
+      '<option value="BANK_DEPOSIT">Bank Deposit (branch/agent)</option>' +
+      '<option value="EFT">EFT Transfer</option>' +
+      '<option value="PESALINK">PesaLink</option>' +
+      '<option value="CHEQUE">Cheque</option>' +
+      '<option value="MPESA_C2B">M-Pesa (manual entry)</option>' +
+    '</select></div>' +
     '<div class="form-group"><label>Amount (KES)</label><input id="manAmount" type="number" placeholder="15000"></div>' +
-    '<div class="form-group"><label>M-Pesa Reference</label><input id="manRef" placeholder="Optional"></div>' +
-    '<div class="form-group"><label>Month</label><input id="manMonth" type="month"></div>' +
-    '<div class="form-group"><label>Notes</label><input id="manNotes" placeholder="Optional"></div>' +
-    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="addManualPayment()">Record</button></div>');
+    '<div class="form-group"><label>Tenant</label><select id="manTenant"><option value="">— Select tenant —</option>' +
+      tenancies.map(function(t) { return '<option value="' + t.id + '" data-unit="' + (t.unit?t.unit.unit_number:'') + '" data-name="' + t.tenant.name + '" data-phone="' + t.tenant.phone + '">' + t.tenant.name + ' (Unit ' + (t.unit?t.unit.unit_number:'-') + ')</option>'; }).join('') +
+    '</select></div>' +
+    '<div class="form-group" id="refGroup"><label id="refLabel">Reference Number</label><input id="manRef" placeholder="Transaction or receipt reference"></div>' +
+    '<div class="form-group"><label>Date Paid</label><input id="manDate" type="date" value="' + new Date().toISOString().slice(0,10) + '"></div>' +
+    '<div class="form-group"><label>Month For</label><input id="manMonth" type="month" value="' + new Date().toISOString().slice(0,7) + '"></div>' +
+    '<div class="form-group"><label>Notes</label><input id="manNotes" placeholder="e.g. Received by caretaker Peter"></div>' +
+    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="addManualPayment()">Record Payment</button></div>');
+}
+
+function togglePaymentFields() {
+  var source = document.getElementById('manSource').value;
+  var refLabel = document.getElementById('refLabel');
+  var refInput = document.getElementById('manRef');
+  var labels = { CASH:'Receipt Number', BANK_DEPOSIT:'Bank Slip / Deposit Ref', EFT:'EFT Reference', PESALINK:'PesaLink Ref', CHEQUE:'Cheque Number', MPESA_C2B:'M-Pesa Ref' };
+  var placeholders = { CASH:'Optional — manual receipt', BANK_DEPOSIT:'Bank deposit slip number', EFT:'EFT transaction reference', PESALINK:'PesaLink transaction ID', CHEQUE:'Cheque number', MPESA_C2B:'e.g. SLK3A7B9XQ' };
+  refLabel.textContent = labels[source] || 'Reference';
+  refInput.placeholder = placeholders[source] || 'Reference number';
 }
 
 function addManualPayment() {
-  const pid = state.activeProperty.id;
-  const now = new Date();
-  const pay = {
+  var pid = state.activeProperty.id;
+  var amount = parseInt(document.getElementById('manAmount').value);
+  if (!amount || amount < 1) { toast('Enter a valid amount', 'toast-error'); return; }
+  var source = document.getElementById('manSource').value;
+  var tenantId = document.getElementById('manTenant').value;
+  var ref = document.getElementById('manRef').value.trim();
+  var paidDate = document.getElementById('manDate').value;
+  var month = document.getElementById('manMonth').value;
+  var notes = document.getElementById('manNotes').value.trim();
+
+  var tenancy = tenantId ? (DEMO.tenancies[pid] || []).find(function(t) { return t.id === tenantId; }) : null;
+  var sourceLabels = { CASH:'Cash', BANK_DEPOSIT:'Bank deposit', EFT:'EFT', PESALINK:'PesaLink', CHEQUE:'Cheque', MPESA_C2B:'M-Pesa' };
+
+  var pay = {
     id: 'pay' + Date.now(),
     property_id: pid,
-    amount: parseInt(document.getElementById('manAmount').value),
-    mpesa_ref: document.getElementById('manRef').value || null,
-    mpesa_name: 'MANUAL ENTRY',
-    month: document.getElementById('manMonth').value || now.toISOString().slice(0,7),
-    paid_at: now.toISOString(),
-    status: 'UNMATCHED',
-    unit: null,
-    tenancy: null
+    amount: amount,
+    mpesa_ref: source === 'MPESA_C2B' ? ref : null,
+    bank_ref: source !== 'MPESA_C2B' ? ref : null,
+    mpesa_name: tenancy ? tenancy.tenant.name.toUpperCase() : (sourceLabels[source] || 'MANUAL'),
+    source: source,
+    month: month || new Date().toISOString().slice(0,7),
+    paid_at: paidDate ? new Date(paidDate).toISOString() : new Date().toISOString(),
+    status: tenancy ? 'MATCHED' : 'UNMATCHED',
+    notes: notes || null,
+    unit: tenancy ? { unit_number: tenancy.unit.unit_number } : null,
+    tenancy: tenancy ? { tenant: { name: tenancy.tenant.name, phone: tenancy.tenant.phone } } : null
   };
   if (!DEMO.payments[pid]) DEMO.payments[pid] = [];
   DEMO.payments[pid].unshift(pay);
-  hideModal(); toast('Payment recorded!'); renderPayments();
+  hideModal();
+  toast((sourceLabels[source] || 'Payment') + ' of KES ' + amount.toLocaleString() + ' recorded' + (tenancy ? ' for ' + tenancy.tenant.name : ''));
+  renderPayments();
 }
 
 // ═══════ UNITS TAB ═══════

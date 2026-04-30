@@ -392,7 +392,7 @@ function renderPay() {
           '<div id="stkStatus" style="margin-top:1rem;display:none"></div>' +
         '</div>' +
         // Manual paybill instructions
-        '<div class="card">' +
+        '<div class="card" style="margin-bottom:1rem">' +
           '<div class="card-title">Or Pay Manually via Paybill</div>' +
           '<div style="background:var(--green-tint);border-radius:10px;padding:1.2rem">' +
             '<div style="font-size:0.82rem;font-weight:600;margin-bottom:0.8rem">M-Pesa &gt; Lipa na M-Pesa &gt; Pay Bill</div>' +
@@ -400,6 +400,12 @@ function renderPay() {
             '<div class="stat-row"><span class="stat-row-label">Account Number</span><span class="stat-row-value" style="font-size:1rem;color:var(--green)">' + T.unit.number + '</span></div>' +
             '<div class="stat-row"><span class="stat-row-label">Amount</span><span class="stat-row-value" style="font-size:1rem">KES ' + b.totalDue.toLocaleString() + '</span></div>' +
           '</div>' +
+        '</div>' +
+        // Already paid via other method
+        '<div class="card">' +
+          '<div class="card-title">Paid via Bank / Cash / EFT?</div>' +
+          '<div style="font-size:0.82rem;color:var(--gray);margin-bottom:1rem">If you\'ve already paid via bank deposit, EFT, PesaLink, or cash, submit your payment details so your landlord can confirm.</div>' +
+          '<button class="btn btn-outline" style="font-size:0.85rem" onclick="showPaymentProof()">I\'ve Already Paid</button>' +
         '</div>' +
       '</div>' +
       // Balance summary
@@ -477,6 +483,75 @@ function initiateSTKPush() {
   }, 2000);
 }
 
+// ═══════ PAYMENT PROOF (Bank/Cash/EFT) ═══════
+function showPaymentProof() {
+  showModal('<h3>Submit Payment Details</h3>' +
+    '<div style="font-size:0.82rem;color:var(--gray);margin-bottom:1.2rem">Your landlord will verify and confirm the payment.</div>' +
+    '<div class="form-group"><label>Payment Method</label><select id="proofMethod" onchange="updateProofFields()">' +
+      '<option value="BANK_DEPOSIT">Bank Deposit (branch/agent)</option>' +
+      '<option value="EFT">EFT Transfer</option>' +
+      '<option value="PESALINK">PesaLink</option>' +
+      '<option value="CASH">Cash (to caretaker/landlord)</option>' +
+      '<option value="CHEQUE">Cheque</option>' +
+    '</select></div>' +
+    '<div class="form-group"><label>Amount Paid (KES)</label><input id="proofAmount" type="number" value="' + T.balance.totalDue + '"></div>' +
+    '<div class="form-group"><label id="proofRefLabel">Bank Reference / Slip Number</label><input id="proofRef" placeholder="Transaction reference from your bank"></div>' +
+    '<div class="form-group"><label>Date Paid</label><input id="proofDate" type="date" value="' + new Date().toISOString().slice(0,10) + '"></div>' +
+    '<div class="form-group" id="proofFileGroup">' +
+      '<label>Upload Proof (bank slip / screenshot)</label>' +
+      '<input type="file" id="proofFile" accept="image/*,.pdf" style="font-size:0.82rem">' +
+      '<div style="font-size:0.68rem;color:var(--gray);margin-top:0.3rem">JPG, PNG, or PDF — max 5MB. Stored securely, only visible to your landlord.</div>' +
+    '</div>' +
+    '<div class="form-group"><label>Notes (optional)</label><input id="proofNotes" placeholder="e.g. Paid at KCB Westlands branch"></div>' +
+    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="submitPaymentProof()">Submit for Confirmation</button></div>');
+}
+
+function updateProofFields() {
+  var method = document.getElementById('proofMethod').value;
+  var refLabel = document.getElementById('proofRefLabel');
+  var refInput = document.getElementById('proofRef');
+  var fileGroup = document.getElementById('proofFileGroup');
+  var labels = { BANK_DEPOSIT:'Bank Slip / Deposit Reference', EFT:'EFT Transaction Reference', PESALINK:'PesaLink Transaction ID', CASH:'Receipt Number (if any)', CHEQUE:'Cheque Number' };
+  var placeholders = { BANK_DEPOSIT:'Reference from bank deposit slip', EFT:'EFT reference from your bank', PESALINK:'PesaLink transaction ID', CASH:'Optional — if given a receipt', CHEQUE:'Cheque number' };
+  refLabel.textContent = labels[method] || 'Reference';
+  refInput.placeholder = placeholders[method] || 'Reference number';
+  fileGroup.style.display = method === 'CASH' ? 'none' : 'block';
+}
+
+function submitPaymentProof() {
+  var method = document.getElementById('proofMethod').value;
+  var amount = parseInt(document.getElementById('proofAmount').value);
+  var ref = document.getElementById('proofRef').value.trim();
+  var date = document.getElementById('proofDate').value;
+  var notes = document.getElementById('proofNotes').value.trim();
+  var fileInput = document.getElementById('proofFile');
+  var hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+  if (!amount || amount < 1) { toast('Enter the amount you paid', 'error'); return; }
+  if (method !== 'CASH' && !ref) { toast('Enter the transaction reference', 'error'); return; }
+
+  var sourceLabels = { BANK_DEPOSIT:'Bank deposit', EFT:'EFT transfer', PESALINK:'PesaLink', CASH:'Cash payment', CHEQUE:'Cheque' };
+  var fileName = hasFile ? fileInput.files[0].name : null;
+
+  // Demo: add to payments as pending confirmation
+  T.payments.unshift({
+    id: 'p' + Date.now(),
+    amount: amount,
+    ref: ref || 'CASH-' + Date.now().toString(36).toUpperCase(),
+    date: date ? new Date(date).toISOString() : new Date().toISOString(),
+    month: 'May 2026',
+    status: 'UNMATCHED',
+    receipt: null,
+    source: method,
+    proof: fileName,
+    notes: notes
+  });
+
+  hideModal();
+  toast(sourceLabels[method] + ' of KES ' + amount.toLocaleString() + ' submitted — awaiting landlord confirmation');
+  renderPay();
+}
+
 // ═══════ PAYMENT HISTORY ═══════
 function renderHistory() {
   const c = document.getElementById('tabContent');
@@ -490,18 +565,22 @@ function renderHistory() {
       '<div class="kpi-card"><div class="kpi-value">' + T.payments.length + '</div><div class="kpi-label">Transactions</div></div>' +
     '</div>' +
     '<div class="card"><div class="table-wrap"><table><thead><tr>' +
-      '<th>Month</th><th>Date</th><th>Amount</th><th>M-Pesa Ref</th><th>Status</th><th>Receipt</th>' +
+      '<th>Month</th><th>Date</th><th>Amount</th><th>Source</th><th>Reference</th><th>Status</th><th>Receipt</th>' +
     '</tr></thead><tbody>' +
-    T.payments.map(p =>
-      '<tr>' +
+    T.payments.map(p => {
+      var srcLabels = { MPESA_C2B:'M-Pesa', MPESA_STK:'M-Pesa', CASH:'Cash', BANK_DEPOSIT:'Bank', EFT:'EFT', PESALINK:'PesaLink', CHEQUE:'Cheque' };
+      var src = srcLabels[p.source] || 'M-Pesa';
+      var srcCls = p.source === 'CASH' ? 'badge-yellow' : (p.source === 'BANK_DEPOSIT' || p.source === 'EFT' || p.source === 'PESALINK' || p.source === 'CHEQUE') ? 'badge-blue' : 'badge-green';
+      return '<tr>' +
         '<td><strong>' + p.month + '</strong></td>' +
         '<td>' + new Date(p.date).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}) + '</td>' +
         '<td style="font-weight:600">KES ' + p.amount.toLocaleString() + '</td>' +
+        '<td><span class="badge ' + srcCls + '">' + src + '</span></td>' +
         '<td style="font-size:0.75rem;color:var(--gray)">' + p.ref + '</td>' +
         '<td>' + statusBadge(p.status) + '</td>' +
         '<td>' + (p.receipt ? '<button class="btn btn-outline" style="width:auto;padding:0.2rem 0.6rem;font-size:0.7rem" onclick="toast(\'Downloading ' + p.receipt + '\')">' + p.receipt + '</button>' : '<span style="font-size:0.72rem;color:var(--gray)">—</span>') + '</td>' +
-      '</tr>'
-    ).join('') +
+      '</tr>';
+    }).join('') +
     '</tbody></table></div></div></div>';
 }
 

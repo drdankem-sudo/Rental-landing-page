@@ -10,7 +10,7 @@ CREATE TYPE property_type AS ENUM ('APARTMENT', 'MAISONETTE', 'BUNGALOW', 'BEDSI
 CREATE TYPE unit_status AS ENUM ('OCCUPIED', 'VACANT', 'NOTICE_GIVEN', 'MAINTENANCE');
 CREATE TYPE tenancy_status AS ENUM ('ACTIVE', 'NOTICE_GIVEN', 'ENDED');
 CREATE TYPE payment_status AS ENUM ('MATCHED', 'UNMATCHED', 'PARTIAL', 'OVERPAYMENT', 'MANUALLY_MATCHED');
-CREATE TYPE payment_source AS ENUM ('MPESA_C2B', 'MPESA_STK', 'MANUAL_ENTRY', 'BANK_TRANSFER');
+CREATE TYPE payment_source AS ENUM ('MPESA_C2B', 'MPESA_STK', 'CASH', 'BANK_DEPOSIT', 'EFT', 'PESALINK', 'CHEQUE', 'MANUAL_ENTRY', 'BANK_TRANSFER');
 CREATE TYPE maintenance_status AS ENUM ('SUBMITTED', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED');
 CREATE TYPE maintenance_category AS ENUM ('PLUMBING', 'ELECTRICAL', 'PAINTING', 'CARPENTRY', 'GENERAL', 'SECURITY', 'CLEANING', 'OTHER');
 CREATE TYPE notification_type AS ENUM ('PAYMENT_RECEIVED', 'PAYMENT_REMINDER', 'RENT_OVERDUE', 'RECEIPT', 'LEASE_EXPIRY', 'MAINTENANCE_UPDATE', 'GENERAL');
@@ -123,6 +123,9 @@ CREATE TABLE payments (
   mpesa_phone          TEXT,
   mpesa_name           TEXT,
   account_reference    TEXT,
+  bank_ref             TEXT,
+  proof_url            TEXT,
+  recorded_by          UUID REFERENCES profiles(id),
   status               payment_status NOT NULL DEFAULT 'UNMATCHED',
   source               payment_source NOT NULL DEFAULT 'MPESA_C2B',
   paid_at              TIMESTAMPTZ NOT NULL,
@@ -247,3 +250,26 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- ═══════ SUPABASE STORAGE — PAYMENT PROOF BUCKET ═══════
+-- Run in Supabase Dashboard → SQL Editor (Storage API must be enabled)
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('payment-proofs', 'payment-proofs', false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Tenants can upload proof for their own payments
+CREATE POLICY "Tenants upload payment proof"
+  ON storage.objects FOR INSERT
+  WITH CHECK (
+    bucket_id = 'payment-proofs'
+    AND auth.uid() IS NOT NULL
+  );
+
+-- Owners/managers can view proof for their properties
+CREATE POLICY "Property staff view payment proof"
+  ON storage.objects FOR SELECT
+  USING (
+    bucket_id = 'payment-proofs'
+    AND auth.uid() IS NOT NULL
+  );
