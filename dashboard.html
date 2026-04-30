@@ -120,6 +120,74 @@ tr:hover td{background:rgba(0,210,106,0.02)}
 }
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .tab-content{animation:fadeIn 0.3s ease}
+/* DONUT CHART */
+.donut-wrap{display:flex;align-items:center;gap:1.2rem}
+.donut{position:relative;width:90px;height:90px;flex-shrink:0}
+.donut svg{transform:rotate(-90deg);width:90px;height:90px}
+.donut circle{fill:none;stroke-width:8}
+.donut .donut-bg{stroke:#f3f4f6}
+.donut .donut-fill{stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.donut .donut-fill-amber{stroke:#f59e0b}
+.donut .donut-fill-red{stroke:#ef4444}
+.donut-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700}
+.donut-label{font-size:0.82rem}
+.donut-label strong{display:block;font-size:1rem}
+.donut-label span{color:var(--gray);font-size:0.72rem}
+/* PROGRESS BAR */
+.progress-bar{height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden;margin-top:0.4rem}
+.progress-bar-fill{height:100%;border-radius:3px;background:var(--green);transition:width 0.8s ease}
+.progress-bar-fill.amber{background:#f59e0b}
+.progress-bar-fill.red{background:#ef4444}
+/* ARREARS ROW */
+.arrear-row{display:flex;align-items:center;gap:0.8rem;padding:0.65rem 0;border-bottom:1px solid #f3f4f6}
+.arrear-row:last-child{border-bottom:none}
+.arrear-name{font-size:0.82rem;font-weight:600;flex:1;min-width:0}
+.arrear-unit{font-size:0.72rem;color:var(--gray);width:50px}
+.arrear-amt{font-size:0.82rem;font-weight:700;color:#ef4444;white-space:nowrap}
+/* BASE SCORE */
+.base-score{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:100px}
+.base-score.excellent{background:#dcfce7;color:#16a34a}
+.base-score.good{background:#dbeafe;color:#2563eb}
+.base-score.fair{background:#fef9c3;color:#ca8a04}
+.base-score.poor{background:#fee2e2;color:#dc2626}
+/* ID VERIFIED */
+.id-badge{display:inline-flex;align-items:center;gap:0.25rem;font-size:0.68rem;font-weight:600;color:#16a34a}
+.id-badge.pending{color:#ca8a04}
+/* LIVE PULSE */
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(0,210,106,0.4)}70%{box-shadow:0 0 0 8px rgba(0,210,106,0)}}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse-green 2s infinite;margin-right:0.4rem}
+/* STAT ROW */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid #f9fafb;font-size:0.82rem}
+.stat-row:last-child{border-bottom:none}
+.stat-row-label{color:var(--gray);font-size:0.75rem}
+.stat-row-value{font-weight:700}
+/* LEASE CARD */
+.lease-card{background:var(--white);border-radius:12px;padding:1.2rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);border-left:4px solid var(--green)}
+.lease-card.expiring{border-left-color:#f59e0b}
+.lease-card.expired{border-left-color:#ef4444}
+/* UTILITY ROW */
+.util-row{display:grid;grid-template-columns:1fr 80px 80px 80px 80px;gap:0.5rem;align-items:center;padding:0.6rem 1rem;font-size:0.82rem;border-bottom:1px solid #f9fafb}
+.util-row:hover{background:rgba(0,210,106,0.02)}
+/* REPORT CARD */
+.report-card{background:var(--white);border-radius:12px;padding:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);display:flex;align-items:flex-start;gap:1rem;cursor:pointer;transition:all 0.2s}
+.report-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.report-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.report-icon.green{background:#dcfce7}
+.report-icon.blue{background:#dbeafe}
+.report-icon.amber{background:#fef9c3}
+.report-icon.red{background:#fee2e2}
+/* TIMELINE */
+.timeline-item{display:flex;gap:1rem;padding:0.6rem 0;position:relative}
+.timeline-dot{width:10px;height:10px;border-radius:50%;background:var(--green);margin-top:4px;flex-shrink:0;position:relative;z-index:1}
+.timeline-dot.amber{background:#f59e0b}
+.timeline-dot.blue{background:#3b82f6}
+.timeline-dot.gray{background:#9ca3af}
+.timeline-item:not(:last-child)::before{content:'';position:absolute;left:4px;top:18px;bottom:-4px;width:2px;background:#f3f4f6}
+/* GRID HELPERS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+@media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -159,6 +227,9 @@ tr:hover td{background:rgba(0,210,106,0.02)}
       <li data-tab="units"><svg viewBox="0 0 20 20" fill="none"><path d="M3 3h5v5H3zM12 3h5v5h-5zM3 12h5v5H3zM12 12h5v5h-5z" stroke="currentColor" stroke-width="1.5"/></svg>Units</li>
       <li data-tab="tenants"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="currentColor" stroke-width="1.5"/></svg>Tenants</li>
       <li data-tab="maintenance"><svg viewBox="0 0 20 20" fill="none"><path d="M11.5 2.5l6 6-9 9H2.5v-6l9-9z" stroke="currentColor" stroke-width="1.5"/></svg>Maintenance</li>
+      <li data-tab="leases"><svg viewBox="0 0 20 20" fill="none"><path d="M5 2h7l4 4v11a1 1 0 01-1 1H5a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5"/><path d="M12 2v4h4M7 10h6M7 13h4" stroke="currentColor" stroke-width="1.5"/></svg>Leases</li>
+      <li data-tab="utilities"><svg viewBox="0 0 20 20" fill="none"><path d="M10 2v4M6 4l2 3M14 4l-2 3" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="8" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 12h4" stroke="currentColor" stroke-width="1.5"/></svg>Utilities</li>
+      <li data-tab="reports"><svg viewBox="0 0 20 20" fill="none"><path d="M4 17V6l3-3h6l3 3v11" stroke="currentColor" stroke-width="1.5"/><path d="M4 17h12" stroke="currentColor" stroke-width="1.5"/><path d="M8 17v-5h4v5M7 9h6" stroke="currentColor" stroke-width="1.5"/></svg>Reports</li>
     </ul>
     <div class="sidebar-user">
       <div class="sidebar-user-name" id="userName">-</div>
@@ -266,6 +337,62 @@ const DEMO = {
     p2: [
       { id: 'm4', unit: { unit_number: '201', property_id: 'p2' }, category: 'SECURITY', description: 'Front door lock jammed, needs replacement', status: 'ASSIGNED', created_at: '2026-04-25T09:00:00Z' }
     ]
+  },
+  tenantScores: {
+    ten1: { score: 92, level: 'excellent' }, ten2: { score: 85, level: 'good' }, ten3: { score: 68, level: 'fair' },
+    ten5: { score: 95, level: 'excellent' }, ten6: { score: 74, level: 'good' }, ten8: { score: 88, level: 'good' },
+    ten9: { score: 91, level: 'excellent' }, ten11: { score: 55, level: 'fair' }, ten12: { score: 82, level: 'good' }
+  },
+  leases: {
+    p1: [
+      { id: 'l1', tenant: 'Alice Wanjiku', unit: 'A1', start: '2025-03-01', end: '2026-03-01', status: 'expired', signed: true, doc: 'lease_A1.pdf' },
+      { id: 'l2', tenant: 'Brian Otieno', unit: 'A2', start: '2025-06-01', end: '2026-06-01', status: 'active', signed: true, doc: 'lease_A2.pdf' },
+      { id: 'l3', tenant: 'Carol Njeri', unit: 'B1', start: '2025-01-15', end: '2026-01-15', status: 'expired', signed: true, doc: 'lease_B1.pdf' },
+      { id: 'l5', tenant: 'Edward Kamau', unit: 'C1', start: '2024-11-01', end: '2025-11-01', status: 'expired', signed: true, doc: null },
+      { id: 'l6', tenant: 'Faith Akinyi', unit: 'C2', start: '2025-02-01', end: '2026-05-15', status: 'expiring', signed: true, doc: 'lease_C2.pdf' },
+      { id: 'l8', tenant: 'George Mutua', unit: 'D2', start: '2025-04-01', end: '2027-04-01', status: 'active', signed: false, doc: null }
+    ],
+    p2: [
+      { id: 'l9', tenant: 'Hannah Wambui', unit: '101', start: '2025-05-01', end: '2026-05-01', status: 'expiring', signed: true, doc: 'lease_101.pdf' },
+      { id: 'l11', tenant: 'Ivan Kiprop', unit: '201', start: '2025-07-01', end: '2026-07-01', status: 'active', signed: true, doc: 'lease_201.pdf' },
+      { id: 'l12', tenant: 'Jane Chebet', unit: '202', start: '2025-08-01', end: '2026-08-01', status: 'active', signed: true, doc: 'lease_202.pdf' }
+    ]
+  },
+  utilities: {
+    p1: [
+      { unit: 'A1', water: 1200, garbage: 500, electricity: 2800, total: 4500 },
+      { unit: 'A2', water: 950, garbage: 500, electricity: 3100, total: 4550 },
+      { unit: 'B1', water: 1800, garbage: 500, electricity: 4200, total: 6500 },
+      { unit: 'C1', water: 2100, garbage: 500, electricity: 5500, total: 8100 },
+      { unit: 'C2', water: 1600, garbage: 500, electricity: 4800, total: 6900 },
+      { unit: 'D2', water: 1400, garbage: 500, electricity: 3900, total: 5800 }
+    ],
+    p2: [
+      { unit: '101', water: 800, garbage: 400, electricity: 2200, total: 3400 },
+      { unit: '201', water: 900, garbage: 400, electricity: 2500, total: 3800 },
+      { unit: '202', water: 1100, garbage: 400, electricity: 3200, total: 4700 }
+    ]
+  },
+  arrears: {
+    p1: [
+      { tenant: 'Faith Akinyi', unit: 'C2', owed: 15000, rent: 35000, paid: 20000 },
+      { tenant: 'Carol Njeri', unit: 'B1', owed: 25000, rent: 25000, paid: 0 }
+    ],
+    p2: []
+  },
+  activityLog: [
+    { action: 'Payment received', detail: 'KES 15,000 from Alice Wanjiku — Unit A1', time: '2 hours ago', type: 'payment' },
+    { action: 'Maintenance assigned', detail: 'Plumbing — Unit D1 assigned to John Fundi', time: '5 hours ago', type: 'maintenance' },
+    { action: 'Tenant notice', detail: 'Faith Akinyi gave notice — Unit C2', time: '1 day ago', type: 'tenant' },
+    { action: 'Payment received', detail: 'KES 28,000 from George Mutua — Unit D2', time: '1 day ago', type: 'payment' },
+    { action: 'Lease signed', detail: 'Brian Otieno e-signed lease for Unit A2', time: '2 days ago', type: 'lease' },
+    { action: 'KRA invoice generated', detail: 'April 2026 rental income — KES 138,000', time: '3 days ago', type: 'tax' },
+    { action: 'Maintenance completed', detail: 'Painting — Unit C1 ceiling repaired', time: '4 days ago', type: 'maintenance' },
+    { action: 'Unmatched payment', detail: 'KES 14,500 from unknown sender', time: '5 days ago', type: 'alert' }
+  ],
+  kraStatus: {
+    p1: { filed: 5, pending: 1, totalTax: 22080, lastFiled: '2026-04-28', pin: 'A012345678Z', etims: true },
+    p2: { filed: 3, pending: 0, totalTax: 7360, lastFiled: '2026-04-27', pin: 'A012345678Z', etims: true }
   }
 };
 
@@ -341,7 +468,23 @@ function renderTab() {
     case 'units': renderUnits(); break;
     case 'tenants': renderTenants(); break;
     case 'maintenance': renderMaintenance(); break;
+    case 'leases': renderLeases(); break;
+    case 'utilities': renderUtilities(); break;
+    case 'reports': renderReports(); break;
   }
+}
+
+function donut(pct, size, color) {
+  const r = (size - 8) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (pct / 100) * circ;
+  const cls = color === 'amber' ? ' donut-fill-amber' : color === 'red' ? ' donut-fill-red' : '';
+  return '<div class="donut" style="width:' + size + 'px;height:' + size + 'px">' +
+    '<svg width="' + size + '" height="' + size + '">' +
+      '<circle class="donut-bg" cx="' + size/2 + '" cy="' + size/2 + '" r="' + r + '"/>' +
+      '<circle class="donut-fill' + cls + '" cx="' + size/2 + '" cy="' + size/2 + '" r="' + r + '" stroke-dasharray="' + circ + '" stroke-dashoffset="' + offset + '"/>' +
+    '</svg>' +
+    '<div class="donut-pct">' + pct + '%</div></div>';
 }
 
 // ═══════ OVERVIEW ═══════
@@ -351,19 +494,51 @@ function renderOverview() {
   const pid = state.activeProperty.id;
   const o = DEMO.stats[pid] || DEMO.stats.p1;
   const collections = DEMO.monthlyCollections[pid] || [];
-  const recentPayments = (DEMO.payments[pid] || []).slice(0, 8);
+  const recentPayments = (DEMO.payments[pid] || []).slice(0, 6);
+  const arrears = DEMO.arrears[pid] || [];
+  const totalArrears = arrears.reduce((s, a) => s + a.owed, 0);
+  const collColor = o.collectionRate >= 80 ? '' : o.collectionRate >= 50 ? 'amber' : 'red';
+  const occColor = o.occupancyRate >= 70 ? '' : o.occupancyRate >= 40 ? 'amber' : 'red';
+
   c.innerHTML = '<div class="tab-content">' +
+    // Row 1: KPI cards with donut charts
     '<div class="kpi-row">' +
-      kpiCard('Collected', 'KES ' + (o.collectedRent || 0).toLocaleString(), o.collectionRate + '% of target') +
-      kpiCard('Occupancy', o.occupancyRate + '%', o.occupiedUnits + '/' + o.totalUnits + ' units') +
-      kpiCard('Vacant', o.vacantUnits, 'units available') +
-      kpiCard('Unmatched', o.unmatchedPayments, 'payments to resolve') +
+      '<div class="kpi-card"><div class="donut-wrap">' +
+        donut(o.collectionRate, 80, collColor) +
+        '<div class="donut-label"><strong>KES ' + (o.collectedRent || 0).toLocaleString() + '</strong><span>of KES ' + (o.expectedRent || 0).toLocaleString() + ' expected</span></div>' +
+      '</div><div class="kpi-label" style="margin-top:0.8rem">Collection Rate</div></div>' +
+      '<div class="kpi-card"><div class="donut-wrap">' +
+        donut(o.occupancyRate, 80, occColor) +
+        '<div class="donut-label"><strong>' + o.occupiedUnits + ' / ' + o.totalUnits + '</strong><span>units occupied</span></div>' +
+      '</div><div class="kpi-label" style="margin-top:0.8rem">Occupancy</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:var(--green)">' + o.vacantUnits + '</div><div class="kpi-label" style="margin-top:0.3rem">Vacant Units</div>' +
+        '<div style="margin-top:0.8rem;font-size:0.72rem;color:var(--gray)">' + (o.totalUnits - o.occupiedUnits - o.vacantUnits > 0 ? '+ ' + (o.totalUnits - o.occupiedUnits - o.vacantUnits) + ' maintenance/notice' : 'Ready to lease') + '</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:' + (o.unmatchedPayments > 0 ? '#ef4444' : 'var(--green)') + '">' + o.unmatchedPayments + '</div><div class="kpi-label" style="margin-top:0.3rem">Unmatched Payments</div>' +
+        '<div style="margin-top:0.8rem;font-size:0.72rem;color:var(--gray)">' + (o.unmatchedPayments > 0 ? 'Needs manual matching' : 'All payments matched') + '</div></div>' +
     '</div>' +
+    // Row 2: Chart + Arrears
     '<div class="content-grid">' +
-      '<div class="card"><div class="card-title">Monthly Collection (KES)</div><div class="chart-bars" id="chartBars"></div></div>' +
-      '<div class="card"><div class="card-title">Recent Payments</div><div id="feedList"></div></div>' +
+      '<div class="card"><div class="card-title">Monthly Collections (KES)</div><div class="chart-bars" id="chartBars"></div></div>' +
+      '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Arrears<span style="color:#ef4444;font-size:0.85rem;font-weight:700;text-transform:none;letter-spacing:0">KES ' + totalArrears.toLocaleString() + '</span></div>' +
+        (arrears.length === 0 ? '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:0.82rem">No outstanding arrears</div>' :
+        arrears.map(a => '<div class="arrear-row">' +
+          '<div class="feed-avatar" style="width:32px;height:32px;font-size:0.6rem">' + a.tenant.split(' ').map(w=>w[0]).join('') + '</div>' +
+          '<div class="arrear-name">' + a.tenant + '</div>' +
+          '<div class="arrear-unit">' + a.unit + '</div>' +
+          '<div class="arrear-amt">KES ' + a.owed.toLocaleString() + '</div>' +
+        '</div>').join('') +
+        '<div style="margin-top:0.8rem"><div class="progress-bar"><div class="progress-bar-fill red" style="width:' + Math.round(((o.expectedRent - totalArrears) / o.expectedRent) * 100) + '%"></div></div>' +
+        '<div style="font-size:0.68rem;color:var(--gray);margin-top:0.3rem">' + Math.round(((o.expectedRent - totalArrears) / o.expectedRent) * 100) + '% of rent secured</div></div>') +
+      '</div>' +
+    '</div>' +
+    // Row 3: Live Feed + Activity Log
+    '<div class="content-grid">' +
+      '<div class="card"><div class="card-title"><span class="live-dot"></span>M-Pesa Live Feed</div><div id="feedList"></div></div>' +
+      '<div class="card"><div class="card-title">Recent Activity</div><div id="activityLog"></div></div>' +
     '</div>' +
   '</div>';
+
+  // Chart
   const bars = document.getElementById('chartBars');
   const maxVal = Math.max(...collections.map(m => m.total), 1);
   bars.innerHTML = collections.map(m => {
@@ -372,9 +547,18 @@ function renderOverview() {
     const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return '<div class="chart-bar"><div class="chart-bar-fill" style="height:' + pct + '%"></div><div class="chart-bar-lbl">' + months[parseInt(label)] + '</div></div>';
   }).join('');
+
+  // Feed
   const feed = document.getElementById('feedList');
   if (recentPayments.length === 0) { feed.innerHTML = '<div class="empty"><p>No payments yet</p></div>'; }
   else { feed.innerHTML = recentPayments.map(p => feedItem(p)).join(''); }
+
+  // Activity log
+  const log = document.getElementById('activityLog');
+  const icons = { payment: 'green', maintenance: 'amber', tenant: 'blue', lease: 'blue', tax: 'green', alert: 'red' };
+  log.innerHTML = DEMO.activityLog.slice(0, 6).map(a =>
+    '<div class="timeline-item"><div class="timeline-dot ' + (icons[a.type] || '') + '"></div><div><div style="font-size:0.82rem;font-weight:600">' + a.action + '</div><div style="font-size:0.72rem;color:var(--gray)">' + a.detail + '</div><div style="font-size:0.65rem;color:var(--gray);margin-top:0.2rem">' + a.time + '</div></div></div>'
+  ).join('');
 }
 
 function kpiCard(label, value, change) {
@@ -384,7 +568,10 @@ function feedItem(p) {
   const name = p.tenancy?.tenant?.name || p.mpesa_name || 'Unknown';
   const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   const unit = p.unit?.unit_number || '?';
-  return '<div class="feed-item"><div class="feed-avatar">' + initials + '</div><div class="feed-info"><div class="feed-name">' + name + '</div><div class="feed-sub">Unit ' + unit + '</div></div><div class="feed-amount">KES ' + (p.amount||0).toLocaleString() + '</div></div>';
+  const time = new Date(p.paid_at).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' });
+  const date = new Date(p.paid_at).toLocaleDateString('en-KE', { day: 'numeric', month: 'short' });
+  const badge = statusBadge(p.status);
+  return '<div class="feed-item"><div class="feed-avatar">' + initials + '</div><div class="feed-info"><div class="feed-name">' + name + ' ' + badge + '</div><div class="feed-sub">Unit ' + unit + ' · ' + p.mpesa_ref + ' · ' + date + ' ' + time + '</div></div><div class="feed-amount">KES ' + (p.amount||0).toLocaleString() + '</div></div>';
 }
 // ═══════ PROPERTIES ═══════
 function renderProperties() {
@@ -601,21 +788,26 @@ function renderTenants() {
       '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showAssignTenant()">+ Assign Tenant</button>' +
     '</div>' +
     '<div class="card"><div class="table-wrap"><table><thead><tr>' +
-      '<th>Tenant</th><th>Phone</th><th>Unit</th><th>Rent</th><th>Status</th><th>Since</th><th>Actions</th>' +
+      '<th>Tenant</th><th>Phone</th><th>Unit</th><th>Rent</th><th>Base Score</th><th>ID</th><th>Status</th><th>Actions</th>' +
     '</tr></thead><tbody>' +
-    tenants.map(t => '<tr>' +
-      '<td><strong>' + (t.tenant?.name || '-') + '</strong></td>' +
-      '<td>' + (t.tenant?.phone || '-') + '</td>' +
-      '<td>' + (t.unit?.unit_number || '-') + '</td>' +
-      '<td>KES ' + t.rent_amount.toLocaleString() + '</td>' +
-      '<td>' + statusBadge(t.status) + '</td>' +
-      '<td>' + new Date(t.start_date).toLocaleDateString() + '</td>' +
-      '<td>' + (t.status === 'ACTIVE'
-        ? '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;margin-right:0.3rem" onclick="handleGiveNotice(\'' + t.id + '\')">Notice</button>' +
-          '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;color:#ef4444" onclick="handleMoveOut(\'' + t.id + '\')">Move Out</button>'
-        : '-') +
-      '</td>' +
-    '</tr>').join('') +
+    tenants.map(t => {
+      const sc = DEMO.tenantScores[t.tenant_id] || { score: 0, level: 'fair' };
+      const verified = t.tenant?.id_verified;
+      return '<tr>' +
+        '<td><strong>' + (t.tenant?.name || '-') + '</strong></td>' +
+        '<td>' + (t.tenant?.phone || '-') + '</td>' +
+        '<td>' + (t.unit?.unit_number || '-') + '</td>' +
+        '<td>KES ' + t.rent_amount.toLocaleString() + '</td>' +
+        '<td><span class="base-score ' + sc.level + '">' + sc.score + '</span></td>' +
+        '<td>' + (verified ? '<span class="id-badge">&#10003; Verified</span>' : '<span class="id-badge pending">&#9679; Pending</span>') + '</td>' +
+        '<td>' + statusBadge(t.status) + '</td>' +
+        '<td>' + (t.status === 'ACTIVE'
+          ? '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;margin-right:0.3rem" onclick="handleGiveNotice(\'' + t.id + '\')">Notice</button>' +
+            '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.75rem;color:#ef4444" onclick="handleMoveOut(\'' + t.id + '\')">Move Out</button>'
+          : '-') +
+        '</td>' +
+      '</tr>';
+    }).join('') +
     '</tbody></table></div></div></div>';
 }
 
@@ -715,7 +907,132 @@ function handleUpdateMaintenance(id, status) {
   toast('Status updated'); renderMaintenance();
 }
 
-// ═══════ UTILITIES ═══════
+// ═══════ LEASES TAB ═══════
+function renderLeases() {
+  const c = document.getElementById('tabContent');
+  if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
+  const leases = DEMO.leases[state.activeProperty.id] || [];
+  const active = leases.filter(l => l.status === 'active').length;
+  const expiring = leases.filter(l => l.status === 'expiring').length;
+  const expired = leases.filter(l => l.status === 'expired').length;
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="grid-3" style="margin-bottom:1.5rem">' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:var(--green)">' + active + '</div><div class="kpi-label">Active Leases</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:#f59e0b">' + expiring + '</div><div class="kpi-label">Expiring Soon</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:#ef4444">' + expired + '</div><div class="kpi-label">Expired / Needs Renewal</div></div>' +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">' +
+      '<div style="font-size:0.85rem;color:var(--gray)">' + leases.length + ' leases</div>' +
+      '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="toast(\'Lease template generator coming soon\')">+ Generate Lease</button>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem">' +
+    leases.map(l => {
+      const statusLabel = l.status === 'active' ? 'Active' : l.status === 'expiring' ? 'Expiring Soon' : 'Expired';
+      const statusCls = l.status === 'active' ? 'badge-green' : l.status === 'expiring' ? 'badge-yellow' : 'badge-red';
+      return '<div class="lease-card ' + l.status + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.8rem">' +
+          '<div><div style="font-weight:700;font-size:0.95rem">' + l.tenant + '</div>' +
+          '<div style="font-size:0.75rem;color:var(--gray)">Unit ' + l.unit + '</div></div>' +
+          '<span class="badge ' + statusCls + '">' + statusLabel + '</span>' +
+        '</div>' +
+        '<div class="stat-row"><span class="stat-row-label">Start</span><span class="stat-row-value">' + new Date(l.start).toLocaleDateString('en-KE', {day:'numeric',month:'short',year:'numeric'}) + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">End</span><span class="stat-row-value">' + new Date(l.end).toLocaleDateString('en-KE', {day:'numeric',month:'short',year:'numeric'}) + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">E-Signed</span><span class="stat-row-value">' + (l.signed ? '<span style="color:var(--green)">&#10003; Yes</span>' : '<span style="color:#f59e0b">Pending</span>') + '</span></div>' +
+        '<div style="margin-top:0.8rem;display:flex;gap:0.5rem">' +
+          (l.doc ? '<button class="btn btn-outline" style="width:auto;padding:0.3rem 0.8rem;font-size:0.72rem" onclick="toast(\'Download: ' + l.doc + '\')">Download</button>' : '') +
+          (l.status === 'expired' ? '<button class="btn btn-green" style="width:auto;padding:0.3rem 0.8rem;font-size:0.72rem" onclick="toast(\'Renewal flow coming soon\')">Renew</button>' : '') +
+          (!l.signed ? '<button class="btn btn-green" style="width:auto;padding:0.3rem 0.8rem;font-size:0.72rem" onclick="toast(\'E-sign request sent\')">Request Signature</button>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('') +
+    '</div></div>';
+}
+
+// ═══════ UTILITIES TAB ═══════
+function renderUtilities() {
+  const c = document.getElementById('tabContent');
+  if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
+  const utils = DEMO.utilities[state.activeProperty.id] || [];
+  const totalWater = utils.reduce((s, u) => s + u.water, 0);
+  const totalGarbage = utils.reduce((s, u) => s + u.garbage, 0);
+  const totalElec = utils.reduce((s, u) => s + u.electricity, 0);
+  const totalAll = utils.reduce((s, u) => s + u.total, 0);
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="grid-4" style="margin-bottom:1.5rem">' +
+      '<div class="kpi-card"><div class="kpi-value">KES ' + totalAll.toLocaleString() + '</div><div class="kpi-label">Total Utilities</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:#3b82f6">KES ' + totalWater.toLocaleString() + '</div><div class="kpi-label">Water</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:#f59e0b">KES ' + totalGarbage.toLocaleString() + '</div><div class="kpi-label">Garbage</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:#8b5cf6">KES ' + totalElec.toLocaleString() + '</div><div class="kpi-label">Electricity</div></div>' +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">' +
+      '<div style="font-size:0.85rem;color:var(--gray)">April 2026 billing — ' + utils.length + ' units</div>' +
+      '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="toast(\'Invoices generated for all units\')">Generate Invoices</button>' +
+    '</div>' +
+    '<div class="card"><div class="table-wrap">' +
+      '<div class="util-row" style="font-weight:600;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray);border-bottom:2px solid #f3f4f6"><div>Unit</div><div>Water</div><div>Garbage</div><div>Electric</div><div>Total</div></div>' +
+      utils.map(u => '<div class="util-row">' +
+        '<div><strong>' + u.unit + '</strong></div>' +
+        '<div>' + u.water.toLocaleString() + '</div>' +
+        '<div>' + u.garbage.toLocaleString() + '</div>' +
+        '<div>' + u.electricity.toLocaleString() + '</div>' +
+        '<div style="font-weight:700">KES ' + u.total.toLocaleString() + '</div>' +
+      '</div>').join('') +
+      '<div class="util-row" style="font-weight:700;border-top:2px solid #e5e7eb;margin-top:0.3rem;padding-top:0.8rem"><div>Total</div><div>' + totalWater.toLocaleString() + '</div><div>' + totalGarbage.toLocaleString() + '</div><div>' + totalElec.toLocaleString() + '</div><div style="color:var(--green)">KES ' + totalAll.toLocaleString() + '</div></div>' +
+    '</div></div></div>';
+}
+
+// ═══════ REPORTS TAB ═══════
+function renderReports() {
+  const c = document.getElementById('tabContent');
+  if (!state.activeProperty) { c.innerHTML = '<div class="empty"><p>Select a property first</p></div>'; return; }
+  const pid = state.activeProperty.id;
+  const kra = DEMO.kraStatus[pid] || DEMO.kraStatus.p1;
+  const o = DEMO.stats[pid] || DEMO.stats.p1;
+
+  c.innerHTML = '<div class="tab-content">' +
+    // KRA Compliance card
+    '<div class="card" style="margin-bottom:1.5rem;border-left:4px solid var(--green)">' +
+      '<div class="card-title">KRA / eTIMS Compliance</div>' +
+      '<div class="grid-4" style="margin-bottom:1rem">' +
+        '<div><div style="font-size:1.4rem;font-weight:700;color:var(--green)">' + kra.filed + '</div><div style="font-size:0.72rem;color:var(--gray)">Invoices Filed</div></div>' +
+        '<div><div style="font-size:1.4rem;font-weight:700;color:' + (kra.pending > 0 ? '#f59e0b' : 'var(--green)') + '">' + kra.pending + '</div><div style="font-size:0.72rem;color:var(--gray)">Pending</div></div>' +
+        '<div><div style="font-size:1.4rem;font-weight:700">KES ' + kra.totalTax.toLocaleString() + '</div><div style="font-size:0.72rem;color:var(--gray)">Tax This Month</div></div>' +
+        '<div><div style="font-size:1.4rem;font-weight:700;color:var(--green)">&#10003;</div><div style="font-size:0.72rem;color:var(--gray)">eTIMS Connected</div></div>' +
+      '</div>' +
+      '<div class="stat-row"><span class="stat-row-label">KRA PIN</span><span class="stat-row-value">' + kra.pin + '</span></div>' +
+      '<div class="stat-row"><span class="stat-row-label">Last Filed</span><span class="stat-row-value">' + new Date(kra.lastFiled).toLocaleDateString('en-KE', {day:'numeric',month:'short',year:'numeric'}) + '</span></div>' +
+      '<div style="margin-top:1rem"><button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="toast(\'KRA tax invoice generated for April 2026\')">Generate Tax Invoice</button></div>' +
+    '</div>' +
+    // Report cards grid
+    '<div class="card-title">Reports & Exports</div>' +
+    '<div class="grid-3" style="margin-bottom:1.5rem">' +
+      reportCard('green', '&#128200;', 'Revenue Report', 'Monthly income breakdown, collection trends, and projections', 'Download PDF') +
+      reportCard('blue', '&#128203;', 'Tenant Ledger', 'Per-tenant payment history with running balances', 'Download CSV') +
+      reportCard('amber', '&#128176;', 'Arrears Report', 'Outstanding rent with aging analysis', 'Download PDF') +
+      reportCard('red', '&#128209;', 'Tax Summary', 'KRA-ready rental income declaration', 'Download PDF') +
+      reportCard('green', '&#128202;', 'Occupancy Report', 'Unit status history and vacancy trends', 'Download CSV') +
+      reportCard('blue', '&#128221;', 'Audit Trail', 'Complete activity log — every action timestamped', 'Export Log') +
+    '</div>' +
+    // Audit trail preview
+    '<div class="card"><div class="card-title">Recent Audit Trail</div>' +
+      DEMO.activityLog.map(a => {
+        const icons = { payment: 'green', maintenance: 'amber', tenant: 'blue', lease: 'blue', tax: 'green', alert: 'red' };
+        return '<div class="timeline-item"><div class="timeline-dot ' + (icons[a.type] || '') + '"></div><div style="flex:1"><div style="display:flex;justify-content:space-between"><div style="font-size:0.82rem;font-weight:600">' + a.action + '</div><div style="font-size:0.68rem;color:var(--gray)">' + a.time + '</div></div><div style="font-size:0.72rem;color:var(--gray)">' + a.detail + '</div></div></div>';
+      }).join('') +
+    '</div></div>';
+}
+
+function reportCard(color, icon, title, desc, btnLabel) {
+  return '<div class="report-card" onclick="toast(\'' + title + ' export started\')">' +
+    '<div class="report-icon ' + color + '">' + icon + '</div>' +
+    '<div><div style="font-weight:700;font-size:0.9rem;margin-bottom:0.3rem">' + title + '</div>' +
+    '<div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.5rem">' + desc + '</div>' +
+    '<div style="font-size:0.72rem;font-weight:600;color:var(--green)">' + btnLabel + ' &rarr;</div></div></div>';
+}
+
+// ═══════ UI UTILITIES ═══════
 function showModal(html) {
   document.getElementById('modalBody').innerHTML = html;
   document.getElementById('modalOverlay').classList.add('active');
