@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base — Admin &amp; Roles</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#00D26A;--green-dark:#0F4C2E;--green-tint:#E8F0EC;--black:#0a0b0d;--white:#fff;--gray:#6b7280;--gray-light:#f3f4f6;--sidebar-w:230px}
+body{font-family:'Outfit',sans-serif;background:var(--gray-light);color:var(--black);min-height:100vh}
+/* LOGIN */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--gray-light)}
+.login-card{background:var(--white);border-radius:16px;padding:3rem;width:380px;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+.login-card h1{font-size:1.6rem;font-weight:700;margin-bottom:0.3rem}
+.login-card h1 span{color:var(--green)}
+.login-card p{color:var(--gray);font-size:0.85rem;margin-bottom:2rem}
+.form-group{margin-bottom:1.2rem}
+.form-group label{display:block;font-size:0.75rem;font-weight:600;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray)}
+.form-group input,.form-group select{width:100%;padding:0.75rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:0.9rem;transition:border-color 0.2s}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--green)}
+.btn{width:100%;padding:0.8rem;border:none;border-radius:10px;font-family:inherit;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-green{background:var(--green);color:var(--white)}
+.btn-green:hover{background:#00b85c;transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid #e5e7eb;color:var(--black);margin-top:0.6rem}
+.btn-outline:hover{border-color:var(--black)}
+.btn-red{background:#ef4444;color:var(--white)}
+.btn-red:hover{background:#dc2626}
+.login-error{color:#ef4444;font-size:0.8rem;margin-top:0.5rem;display:none}
+/* LAYOUT */
+.app{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--black);color:var(--white);padding:1.5rem 0;display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:0 1.5rem 0.5rem;font-size:1.2rem;font-weight:700}
+.sidebar-logo span{color:var(--green)}
+.sidebar-badge{display:inline-block;font-size:0.55rem;font-weight:700;background:var(--green);color:var(--white);padding:0.1rem 0.4rem;border-radius:4px;margin-left:0.4rem;vertical-align:middle;text-transform:uppercase;letter-spacing:0.04em}
+.sidebar-label{padding:0 1.5rem;font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.25);margin-top:1rem;margin-bottom:0.4rem}
+.sidebar-nav{list-style:none;flex:1}
+.sidebar-nav li{padding:0.65rem 1.5rem;font-size:0.82rem;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;display:flex;align-items:center;gap:0.65rem;transition:all 0.2s;border-left:3px solid transparent}
+.sidebar-nav li:hover{color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.03)}
+.sidebar-nav li.active{color:var(--white);background:rgba(255,255,255,0.05);border-left-color:var(--green)}
+.sidebar-nav li svg{width:17px;height:17px;flex-shrink:0}
+.sidebar-user{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,0.08);font-size:0.8rem}
+.sidebar-user-name{font-weight:600;color:var(--white)}
+.sidebar-user-role{color:rgba(255,255,255,0.4);font-size:0.72rem}
+.sidebar-logout{margin-top:0.5rem;font-size:0.72rem;color:rgba(255,255,255,0.3);cursor:pointer;transition:color 0.2s}
+.sidebar-logout:hover{color:#ef4444}
+.main{margin-left:var(--sidebar-w);padding:2rem;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
+.topbar-title{font-size:1.4rem;font-weight:700}
+.topbar-sub{font-size:0.82rem;color:var(--gray)}
+/* CARDS */
+.card{background:var(--white);border-radius:12px;padding:1.4rem;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.card-title{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray);margin-bottom:1rem}
+.kpi-card{background:var(--white);border-radius:12px;padding:1.2rem 1.4rem;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.kpi-value{font-size:1.8rem;font-weight:700;margin-top:0.3rem;line-height:1}
+.kpi-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray)}
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.82rem}
+th{text-align:left;padding:0.7rem 1rem;font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray);border-bottom:2px solid #f3f4f6}
+td{padding:0.7rem 1rem;border-bottom:1px solid #f9fafb}
+tr:hover td{background:rgba(0,210,106,0.02)}
+/* BADGE */
+.badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:100px;font-size:0.65rem;font-weight:600}
+.badge-green{background:#dcfce7;color:#16a34a}
+.badge-yellow{background:#fef9c3;color:#ca8a04}
+.badge-red{background:#fee2e2;color:#dc2626}
+.badge-blue{background:#dbeafe;color:#2563eb}
+.badge-gray{background:#f3f4f6;color:#6b7280}
+.badge-purple{background:#f3e8ff;color:#7c3aed}
+/* ROLE BADGE */
+.role-badge{display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.68rem;font-weight:700}
+.role-owner{background:#0F4C2E;color:#00D26A}
+.role-manager{background:#dbeafe;color:#1d4ed8}
+.role-caretaker{background:#fef9c3;color:#92400e}
+.role-tenant{background:#f3f4f6;color:#6b7280}
+/* PERM TOGGLE */
+.perm-toggle{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.78rem;cursor:pointer;padding:0.3rem 0}
+.perm-toggle input[type=checkbox]{width:16px;height:16px;accent-color:var(--green);cursor:pointer}
+/* STAT ROW */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0;border-bottom:1px solid #f9fafb;font-size:0.82rem}
+.stat-row:last-child{border-bottom:none}
+.stat-row-label{color:var(--gray);font-size:0.75rem}
+.stat-row-value{font-weight:700}
+/* USER CARD */
+.user-card{background:var(--white);border-radius:12px;padding:1.2rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);display:flex;align-items:center;gap:1rem;transition:all 0.2s}
+.user-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.user-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--white);flex-shrink:0}
+.user-avatar.owner{background:var(--green-dark)}
+.user-avatar.manager{background:#1d4ed8}
+.user-avatar.caretaker{background:#92400e}
+/* TIMELINE */
+.timeline-item{display:flex;gap:1rem;padding:0.6rem 0;position:relative}
+.timeline-dot{width:10px;height:10px;border-radius:50%;background:var(--green);margin-top:4px;flex-shrink:0;position:relative;z-index:1}
+.timeline-dot.amber{background:#f59e0b}
+.timeline-dot.blue{background:#3b82f6}
+.timeline-dot.red{background:#ef4444}
+.timeline-dot.gray{background:#9ca3af}
+.timeline-item:not(:last-child)::before{content:'';position:absolute;left:4px;top:18px;bottom:-4px;width:2px;background:#f3f4f6}
+/* PERM MATRIX */
+.perm-matrix{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+.perm-matrix-header{display:grid;grid-template-columns:160px repeat(3,1fr);background:#f9fafb;padding:0.6rem 1rem;font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray);border-bottom:1px solid #e5e7eb}
+.perm-matrix-row{display:grid;grid-template-columns:160px repeat(3,1fr);padding:0.7rem 1rem;align-items:center;border-bottom:1px solid #f3f4f6;font-size:0.82rem}
+.perm-matrix-row:last-child{border-bottom:none}
+.perm-matrix-row:hover{background:rgba(0,210,106,0.02)}
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:2rem;width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal h3{font-size:1.1rem;font-weight:700;margin-bottom:1.2rem}
+.modal .form-group input,.modal .form-group select{width:100%;padding:0.65rem 0.8rem;border:1.5px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:0.85rem}
+.modal-actions{display:flex;gap:0.8rem;margin-top:1.5rem}
+.modal-actions .btn{flex:1}
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;padding:0.8rem 1.4rem;border-radius:10px;font-size:0.82rem;font-weight:600;color:var(--white);z-index:300;transform:translateY(20px);opacity:0;transition:all 0.3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-success{background:var(--green)}
+.toast-error{background:#ef4444}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.tab-content{animation:fadeIn 0.3s ease}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.perm-matrix-header,.perm-matrix-row{grid-template-columns:120px repeat(3,1fr);font-size:0.72rem}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginScreen">
+  <div class="login-card">
+    <h1>Ba<span>se</span></h1>
+    <p>Admin console — role-based access control</p>
+    <div id="phoneStep">
+      <div class="form-group">
+        <label>Phone number</label>
+        <input type="tel" id="phoneInput" placeholder="0712 345 678">
+      </div>
+      <button class="btn btn-green" onclick="handleRequestOtp()">Send verification code</button>
+    </div>
+    <div id="otpStep" style="display:none">
+      <div class="form-group">
+        <label>Verification code</label>
+        <input type="text" id="otpInput" placeholder="123456" maxlength="6">
+      </div>
+      <button class="btn btn-green" onclick="handleVerifyOtp()">Verify & sign in</button>
+      <button class="btn btn-outline" onclick="document.getElementById('otpStep').style.display='none';document.getElementById('phoneStep').style.display='block'">Back</button>
+    </div>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">Ba<span>se</span> <span class="sidebar-badge">Admin</span></div>
+    <div class="sidebar-label">Access Control</div>
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li class="active" data-tab="overview"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>Overview</li>
+      <li data-tab="users"><svg viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="7" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1 18c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5"/><path d="M13 18c0-2.5 1.5-4.5 3.5-5.3" stroke="currentColor" stroke-width="1.5"/></svg>Users &amp; Staff</li>
+      <li data-tab="roles"><svg viewBox="0 0 20 20" fill="none"><path d="M10 2l2 2-6 6-4 1 1-4 6-6 1 1z" stroke="currentColor" stroke-width="1.5"/><path d="M4 14h12M4 17h8" stroke="currentColor" stroke-width="1.5"/></svg>Roles &amp; Permissions</li>
+      <li data-tab="properties"><svg viewBox="0 0 20 20" fill="none"><path d="M3 15V8l7-5 7 5v7a1 1 0 01-1 1H4a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.5"/></svg>Property Access</li>
+      <li data-tab="audit"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.5"/></svg>Audit Log</li>
+    </ul>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name" id="userName">-</div>
+      <div class="sidebar-user-role" id="userRole">-</div>
+      <div class="sidebar-logout" onclick="handleLogout()">Sign out</div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="pageTitle">Overview</div>
+        <div class="topbar-sub" id="pageSub"></div>
+      </div>
+    </div>
+    <div id="tabContent"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════ DEMO DATA ═══════
+const D = {
+  currentUser: { id: 'u1', name: 'James Mwangi', phone: '0712345678', role: 'OWNER' },
+  users: [
+    { id: 'u1', name: 'James Mwangi', phone: '0712345678', role: 'OWNER', email: 'james@base.ke', lastActive: '2026-04-30T10:00:00Z', status: 'active' },
+    { id: 'u2', name: 'Mary Njoroge', phone: '0723456789', role: 'MANAGER', email: 'mary@base.ke', lastActive: '2026-04-30T08:30:00Z', status: 'active' },
+    { id: 'u3', name: 'Peter Ochieng', phone: '0734567890', role: 'CARETAKER', email: null, lastActive: '2026-04-29T17:00:00Z', status: 'active' },
+    { id: 'u4', name: 'Sarah Kimani', phone: '0745678901', role: 'MANAGER', email: 'sarah@gmail.com', lastActive: '2026-04-28T14:00:00Z', status: 'active' },
+    { id: 'u5', name: 'David Kipchoge', phone: '0756789012', role: 'CARETAKER', email: null, lastActive: '2026-04-25T09:00:00Z', status: 'inactive' }
+  ],
+  properties: [
+    { id: 'p1', name: 'Sunrise Apartments', units: 24, county: 'Nairobi' },
+    { id: 'p2', name: 'Green Valley Courts', units: 16, county: 'Nairobi' },
+    { id: 'p3', name: 'Lakeview Residences', units: 12, county: 'Nakuru' }
+  ],
+  assignments: [
+    { userId: 'u2', propertyId: 'p1', canViewPayments: true, canManageTenants: true, canManageUnits: false },
+    { userId: 'u2', propertyId: 'p2', canViewPayments: true, canManageTenants: true, canManageUnits: true },
+    { userId: 'u3', propertyId: 'p1', canViewPayments: false, canManageTenants: false, canManageUnits: false },
+    { userId: 'u4', propertyId: 'p3', canViewPayments: true, canManageTenants: true, canManageUnits: true },
+    { userId: 'u5', propertyId: 'p2', canViewPayments: false, canManageTenants: false, canManageUnits: false }
+  ],
+  roleDefinitions: [
+    { role: 'OWNER', label: 'Owner', desc: 'Full access to all properties, users, billing, and settings', permissions: ['View all properties','Manage units','Manage tenants','View payments','Match payments','Manage staff','View reports','KRA/eTIMS','Billing settings'] },
+    { role: 'MANAGER', label: 'Manager', desc: 'Manage assigned properties — tenants, units, and payments', permissions: ['View assigned properties','Manage units (if granted)','Manage tenants (if granted)','View payments (if granted)','Match payments','View reports'] },
+    { role: 'CARETAKER', label: 'Caretaker', desc: 'On-site support — maintenance, viewings, basic reporting', permissions: ['View assigned properties','View unit status','Log maintenance','Confirm viewings','Basic reports'] },
+    { role: 'TENANT', label: 'Tenant', desc: 'Self-service portal — pay rent, request maintenance, view lease', permissions: ['View own unit','Pay rent','Submit maintenance','View lease','View receipts','View utilities'] }
+  ],
+  auditLog: [
+    { user: 'James Mwangi', action: 'Changed role', detail: 'Mary Njoroge: CARETAKER → MANAGER', time: '2026-04-30T09:45:00Z', type: 'role' },
+    { user: 'James Mwangi', action: 'Granted permission', detail: 'Mary Njoroge: can_manage_units on Green Valley Courts', time: '2026-04-30T09:46:00Z', type: 'permission' },
+    { user: 'Mary Njoroge', action: 'Added tenant', detail: 'Brian Otieno assigned to Unit A2, Sunrise Apartments', time: '2026-04-29T14:20:00Z', type: 'tenant' },
+    { user: 'James Mwangi', action: 'Invited user', detail: 'Sarah Kimani invited as MANAGER', time: '2026-04-28T11:00:00Z', type: 'user' },
+    { user: 'Peter Ochieng', action: 'Logged maintenance', detail: 'Plumbing issue — Unit D1, Sunrise Apartments', time: '2026-04-27T16:30:00Z', type: 'maintenance' },
+    { user: 'James Mwangi', action: 'Assigned property', detail: 'Sarah Kimani → Lakeview Residences (full access)', time: '2026-04-28T11:05:00Z', type: 'property' },
+    { user: 'Mary Njoroge', action: 'Matched payment', detail: 'KES 25,000 → Carol Njeri, Unit B1', time: '2026-04-26T10:15:00Z', type: 'payment' },
+    { user: 'James Mwangi', action: 'Deactivated user', detail: 'David Kipchoge — no longer on-site', time: '2026-04-25T08:00:00Z', type: 'user' },
+    { user: 'Peter Ochieng', action: 'Confirmed viewing', detail: 'Unit B2, Sunrise Apartments — prospective tenant', time: '2026-04-24T11:00:00Z', type: 'property' },
+    { user: 'James Mwangi', action: 'Updated permissions', detail: 'Peter Ochieng: removed payment access on Sunrise', time: '2026-04-23T09:30:00Z', type: 'permission' }
+  ]
+};
+
+let state = { user: null, activeTab: 'overview' };
+
+// ═══════ AUTH ═══════
+function handleRequestOtp() {
+  const phone = document.getElementById('phoneInput').value.trim();
+  if (!phone) return showError('Enter any phone number');
+  document.getElementById('phoneStep').style.display = 'none';
+  document.getElementById('otpStep').style.display = 'block';
+  hideError();
+}
+function handleVerifyOtp() {
+  const code = document.getElementById('otpInput').value.trim();
+  if (!code) return showError('Enter any code');
+  state.user = D.currentUser;
+  initApp();
+}
+function handleLogout() {
+  state.user = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+function showError(msg) { document.getElementById('loginError').textContent = msg; document.getElementById('loginError').style.display = 'block'; }
+function hideError() { document.getElementById('loginError').style.display = 'none'; }
+
+function initApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('userName').textContent = state.user.name;
+  document.getElementById('userRole').textContent = state.user.role;
+  renderTab();
+}
+
+// ═══════ NAVIGATION ═══════
+document.getElementById('sidebarNav').addEventListener('click', function(e) {
+  const li = e.target.closest('li');
+  if (!li) return;
+  document.querySelectorAll('.sidebar-nav li').forEach(l => l.classList.remove('active'));
+  li.classList.add('active');
+  state.activeTab = li.dataset.tab;
+  document.getElementById('pageTitle').textContent = li.textContent.trim();
+  renderTab();
+});
+
+function renderTab() {
+  const c = document.getElementById('tabContent');
+  c.innerHTML = '';
+  switch (state.activeTab) {
+    case 'overview': renderOverview(); break;
+    case 'users': renderUsers(); break;
+    case 'roles': renderRoles(); break;
+    case 'properties': renderPropertyAccess(); break;
+    case 'audit': renderAudit(); break;
+  }
+}
+
+// ═══════ HELPERS ═══════
+function roleBadge(role) {
+  const cls = { OWNER:'role-owner', MANAGER:'role-manager', CARETAKER:'role-caretaker', TENANT:'role-tenant' };
+  return '<span class="role-badge ' + (cls[role]||'role-tenant') + '">' + role + '</span>';
+}
+function showModal(html) { document.getElementById('modalBody').innerHTML = html; document.getElementById('modalOverlay').classList.add('active'); }
+function hideModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+function toast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast ' + (type||'success'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) hideModal(); });
+function getUserName(id) { const u = D.users.find(x => x.id === id); return u ? u.name : '—'; }
+function getPropertyName(id) { const p = D.properties.find(x => x.id === id); return p ? p.name : '—'; }
+
+// ═══════ OVERVIEW ═══════
+function renderOverview() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = 'Role-based access control for your properties';
+  const owners = D.users.filter(u => u.role === 'OWNER').length;
+  const managers = D.users.filter(u => u.role === 'MANAGER').length;
+  const caretakers = D.users.filter(u => u.role === 'CARETAKER').length;
+  const active = D.users.filter(u => u.status === 'active').length;
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="grid-4" style="margin-bottom:1.5rem">' +
+      '<div class="kpi-card"><div class="kpi-value">' + D.users.length + '</div><div class="kpi-label">Total Users</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:var(--green)">' + active + '</div><div class="kpi-label">Active</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value">' + D.properties.length + '</div><div class="kpi-label">Properties</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value">' + D.assignments.length + '</div><div class="kpi-label">Assignments</div></div>' +
+    '</div>' +
+    '<div class="grid-2">' +
+      // Users by role
+      '<div class="card">' +
+        '<div class="card-title">Users by Role</div>' +
+        '<div class="stat-row"><span class="stat-row-label">' + roleBadge('OWNER') + '</span><span class="stat-row-value">' + owners + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">' + roleBadge('MANAGER') + '</span><span class="stat-row-value">' + managers + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">' + roleBadge('CARETAKER') + '</span><span class="stat-row-value">' + caretakers + '</span></div>' +
+        '<div style="margin-top:1rem">' +
+          D.users.slice(0, 4).map(u =>
+            '<div class="user-card" style="margin-bottom:0.5rem">' +
+              '<div class="user-avatar ' + u.role.toLowerCase() + '">' + u.name.split(' ').map(w=>w[0]).join('') + '</div>' +
+              '<div style="flex:1"><div style="font-weight:600;font-size:0.85rem">' + u.name + '</div><div style="font-size:0.72rem;color:var(--gray)">' + u.phone + '</div></div>' +
+              roleBadge(u.role) +
+            '</div>'
+          ).join('') +
+        '</div>' +
+      '</div>' +
+      // Recent activity
+      '<div class="card">' +
+        '<div class="card-title">Recent Access Changes</div>' +
+        D.auditLog.slice(0, 6).map(a => {
+          const colors = { role:'blue', permission:'amber', user:'', tenant:'', maintenance:'gray', property:'blue', payment:'' };
+          return '<div class="timeline-item"><div class="timeline-dot ' + (colors[a.type]||'') + '"></div><div style="flex:1"><div style="display:flex;justify-content:space-between"><div style="font-size:0.82rem;font-weight:600">' + a.action + '</div><div style="font-size:0.65rem;color:var(--gray)">' + new Date(a.time).toLocaleDateString('en-KE',{day:'numeric',month:'short'}) + '</div></div><div style="font-size:0.72rem;color:var(--gray)">' + a.detail + '</div><div style="font-size:0.65rem;color:var(--gray)">by ' + a.user + '</div></div></div>';
+        }).join('') +
+      '</div>' +
+    '</div></div>';
+}
+
+// ═══════ USERS & STAFF ═══════
+function renderUsers() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = D.users.length + ' users across ' + D.properties.length + ' properties';
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
+      '<div style="font-size:0.85rem;color:var(--gray)">' + D.users.length + ' users</div>' +
+      '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showInviteUser()">+ Invite User</button>' +
+    '</div>' +
+    '<div class="card"><div class="table-wrap"><table><thead><tr>' +
+      '<th>User</th><th>Phone</th><th>Role</th><th>Properties</th><th>Last Active</th><th>Status</th><th>Actions</th>' +
+    '</tr></thead><tbody>' +
+    D.users.map(u => {
+      const props = D.assignments.filter(a => a.userId === u.id).map(a => getPropertyName(a.propertyId));
+      const propStr = u.role === 'OWNER' ? '<span style="color:var(--green)">All</span>' : (props.length > 0 ? props.join(', ') : '<span style="color:var(--gray)">None</span>');
+      const statusBadge = u.status === 'active' ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>';
+      const ago = Math.round((Date.now() - new Date(u.lastActive).getTime()) / 3600000);
+      const lastStr = ago < 24 ? ago + 'h ago' : Math.round(ago/24) + 'd ago';
+      return '<tr>' +
+        '<td><div style="display:flex;align-items:center;gap:0.6rem"><div class="user-avatar ' + u.role.toLowerCase() + '" style="width:32px;height:32px;font-size:0.6rem">' + u.name.split(' ').map(w=>w[0]).join('') + '</div><strong>' + u.name + '</strong></div></td>' +
+        '<td>' + u.phone + '</td>' +
+        '<td>' + roleBadge(u.role) + '</td>' +
+        '<td style="font-size:0.78rem">' + propStr + '</td>' +
+        '<td style="font-size:0.75rem;color:var(--gray)">' + lastStr + '</td>' +
+        '<td>' + statusBadge + '</td>' +
+        '<td>' + (u.role !== 'OWNER' ? '<button class="btn btn-outline" style="width:auto;padding:0.25rem 0.6rem;font-size:0.7rem" onclick="showEditUser(\'' + u.id + '\')">Edit</button>' : '<span style="font-size:0.72rem;color:var(--gray)">Owner</span>') + '</td>' +
+      '</tr>';
+    }).join('') +
+    '</tbody></table></div></div></div>';
+}
+
+function showInviteUser() {
+  showModal('<h3>Invite User</h3>' +
+    '<div class="form-group"><label>Name</label><input id="invName" placeholder="Full name"></div>' +
+    '<div class="form-group"><label>Phone</label><input id="invPhone" placeholder="0712345678"></div>' +
+    '<div class="form-group"><label>Email (optional)</label><input id="invEmail" placeholder="email@example.com"></div>' +
+    '<div class="form-group"><label>Role</label><select id="invRole"><option value="MANAGER">Manager</option><option value="CARETAKER">Caretaker</option></select></div>' +
+    '<div class="form-group"><label>Assign to Property</label><select id="invProp">' +
+      D.properties.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('') +
+    '</select></div>' +
+    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="inviteUser()">Send Invite</button></div>');
+}
+
+function inviteUser() {
+  const name = document.getElementById('invName').value.trim();
+  const phone = document.getElementById('invPhone').value.trim();
+  const role = document.getElementById('invRole').value;
+  const propId = document.getElementById('invProp').value;
+  if (!name || !phone) { toast('Name and phone required', 'error'); return; }
+  const newUser = { id: 'u' + Date.now(), name: name, phone: phone, email: document.getElementById('invEmail').value || null, role: role, lastActive: new Date().toISOString(), status: 'active' };
+  D.users.push(newUser);
+  D.assignments.push({ userId: newUser.id, propertyId: propId, canViewPayments: true, canManageTenants: role === 'MANAGER', canManageUnits: false });
+  D.auditLog.unshift({ user: state.user.name, action: 'Invited user', detail: name + ' invited as ' + role, time: new Date().toISOString(), type: 'user' });
+  hideModal(); toast(name + ' invited as ' + role); renderUsers();
+}
+
+function showEditUser(id) {
+  const u = D.users.find(x => x.id === id);
+  if (!u) return;
+  showModal('<h3>Edit User — ' + u.name + '</h3>' +
+    '<div class="form-group"><label>Role</label><select id="editRole">' +
+      '<option value="MANAGER"' + (u.role==='MANAGER'?' selected':'') + '>Manager</option>' +
+      '<option value="CARETAKER"' + (u.role==='CARETAKER'?' selected':'') + '>Caretaker</option>' +
+    '</select></div>' +
+    '<div class="form-group"><label>Status</label><select id="editStatus">' +
+      '<option value="active"' + (u.status==='active'?' selected':'') + '>Active</option>' +
+      '<option value="inactive"' + (u.status==='inactive'?' selected':'') + '>Inactive</option>' +
+    '</select></div>' +
+    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="saveUser(\'' + id + '\')">Save</button></div>');
+}
+
+function saveUser(id) {
+  const u = D.users.find(x => x.id === id);
+  if (!u) return;
+  const oldRole = u.role;
+  u.role = document.getElementById('editRole').value;
+  u.status = document.getElementById('editStatus').value;
+  if (oldRole !== u.role) {
+    D.auditLog.unshift({ user: state.user.name, action: 'Changed role', detail: u.name + ': ' + oldRole + ' → ' + u.role, time: new Date().toISOString(), type: 'role' });
+  }
+  hideModal(); toast(u.name + ' updated'); renderUsers();
+}
+
+// ═══════ ROLES & PERMISSIONS ═══════
+function renderRoles() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = D.roleDefinitions.length + ' roles defined';
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="grid-2" style="margin-bottom:1.5rem">' +
+    D.roleDefinitions.map(r => {
+      const cls = { OWNER:'role-owner', MANAGER:'role-manager', CARETAKER:'role-caretaker', TENANT:'role-tenant' };
+      const count = D.users.filter(u => u.role === r.role).length;
+      return '<div class="card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.8rem">' +
+          '<div>' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem"><span class="role-badge ' + (cls[r.role]||'') + '">' + r.role + '</span><span style="font-size:0.72rem;color:var(--gray)">' + count + ' user' + (count!==1?'s':'') + '</span></div>' +
+            '<div style="font-size:0.82rem;color:var(--gray);max-width:280px">' + r.desc + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="border-top:1px solid #f3f4f6;padding-top:0.8rem">' +
+          '<div style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray);margin-bottom:0.5rem">Permissions</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:0.3rem">' +
+            r.permissions.map(p => '<span class="badge badge-green" style="font-size:0.62rem">' + p + '</span>').join('') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('') +
+    '</div>' +
+
+    // Permission comparison matrix
+    '<div class="card">' +
+      '<div class="card-title">Permission Comparison Matrix</div>' +
+      '<div class="perm-matrix">' +
+        '<div class="perm-matrix-header"><div>Permission</div><div style="text-align:center">Manager</div><div style="text-align:center">Caretaker</div><div style="text-align:center">Tenant</div></div>' +
+        permMatrixRows() +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function permMatrixRows() {
+  const perms = [
+    { label: 'View assigned properties', manager: true, caretaker: true, tenant: false },
+    { label: 'Manage units', manager: 'granted', caretaker: false, tenant: false },
+    { label: 'Manage tenants', manager: 'granted', caretaker: false, tenant: false },
+    { label: 'View payments', manager: 'granted', caretaker: false, tenant: false },
+    { label: 'Match M-Pesa payments', manager: true, caretaker: false, tenant: false },
+    { label: 'Log maintenance', manager: true, caretaker: true, tenant: true },
+    { label: 'View reports', manager: true, caretaker: true, tenant: false },
+    { label: 'Pay rent (M-Pesa)', manager: false, caretaker: false, tenant: true },
+    { label: 'View own lease', manager: false, caretaker: false, tenant: true },
+    { label: 'KRA / eTIMS access', manager: false, caretaker: false, tenant: false }
+  ];
+  function icon(v) {
+    if (v === true) return '<span style="color:#16a34a;font-weight:700">✓</span>';
+    if (v === 'granted') return '<span class="badge badge-yellow" style="font-size:0.6rem">If granted</span>';
+    return '<span style="color:#d1d5db">—</span>';
+  }
+  return perms.map(p =>
+    '<div class="perm-matrix-row">' +
+      '<div style="font-weight:500">' + p.label + '</div>' +
+      '<div style="text-align:center">' + icon(p.manager) + '</div>' +
+      '<div style="text-align:center">' + icon(p.caretaker) + '</div>' +
+      '<div style="text-align:center">' + icon(p.tenant) + '</div>' +
+    '</div>'
+  ).join('');
+}
+
+// ═══════ PROPERTY ACCESS ═══════
+function renderPropertyAccess() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = 'Manage who can access each property';
+
+  let html = '<div class="tab-content">';
+
+  D.properties.forEach(prop => {
+    const assigns = D.assignments.filter(a => a.propertyId === prop.id);
+    html += '<div class="card" style="margin-bottom:1.5rem">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">' +
+        '<div>' +
+          '<div style="font-size:1rem;font-weight:700">' + prop.name + '</div>' +
+          '<div style="font-size:0.72rem;color:var(--gray)">' + prop.units + ' units · ' + prop.county + ' · ' + assigns.length + ' staff assigned</div>' +
+        '</div>' +
+        '<button class="btn btn-outline" style="width:auto;padding:0.4rem 1rem;font-size:0.75rem" onclick="showAssignUser(\'' + prop.id + '\')">+ Assign Staff</button>' +
+      '</div>';
+
+    if (assigns.length === 0) {
+      html += '<div style="text-align:center;padding:1.5rem;color:var(--gray);font-size:0.82rem">No staff assigned to this property</div>';
+    } else {
+      html += '<div class="perm-matrix">' +
+        '<div class="perm-matrix-header"><div>Staff Member</div><div style="text-align:center">View Payments</div><div style="text-align:center">Manage Tenants</div><div style="text-align:center">Manage Units</div></div>';
+      assigns.forEach(a => {
+        const u = D.users.find(x => x.id === a.userId);
+        if (!u) return;
+        html += '<div class="perm-matrix-row">' +
+          '<div style="display:flex;align-items:center;gap:0.6rem">' +
+            '<div class="user-avatar ' + u.role.toLowerCase() + '" style="width:28px;height:28px;font-size:0.55rem">' + u.name.split(' ').map(w=>w[0]).join('') + '</div>' +
+            '<div><div style="font-weight:600;font-size:0.82rem">' + u.name + '</div><div style="font-size:0.65rem;color:var(--gray)">' + u.role + '</div></div>' +
+          '</div>' +
+          '<div style="text-align:center"><label class="perm-toggle"><input type="checkbox" ' + (a.canViewPayments?'checked':'') + ' onchange="togglePerm(\'' + a.userId + '\',\'' + prop.id + '\',\'canViewPayments\',this.checked)"></label></div>' +
+          '<div style="text-align:center"><label class="perm-toggle"><input type="checkbox" ' + (a.canManageTenants?'checked':'') + ' onchange="togglePerm(\'' + a.userId + '\',\'' + prop.id + '\',\'canManageTenants\',this.checked)"></label></div>' +
+          '<div style="text-align:center"><label class="perm-toggle"><input type="checkbox" ' + (a.canManageUnits?'checked':'') + ' onchange="togglePerm(\'' + a.userId + '\',\'' + prop.id + '\',\'canManageUnits\',this.checked)"></label></div>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+  });
+
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+function togglePerm(userId, propId, perm, val) {
+  const a = D.assignments.find(x => x.userId === userId && x.propertyId === propId);
+  if (!a) return;
+  a[perm] = val;
+  const permLabel = { canViewPayments:'view payments', canManageTenants:'manage tenants', canManageUnits:'manage units' };
+  D.auditLog.unshift({ user: state.user.name, action: val ? 'Granted permission' : 'Revoked permission', detail: getUserName(userId) + ': ' + permLabel[perm] + ' on ' + getPropertyName(propId), time: new Date().toISOString(), type: 'permission' });
+  toast((val ? 'Granted' : 'Revoked') + ' ' + permLabel[perm] + ' for ' + getUserName(userId));
+}
+
+function showAssignUser(propId) {
+  const assigned = D.assignments.filter(a => a.propertyId === propId).map(a => a.userId);
+  const available = D.users.filter(u => u.role !== 'OWNER' && !assigned.includes(u.id) && u.status === 'active');
+  if (available.length === 0) {
+    showModal('<h3>Assign Staff to ' + getPropertyName(propId) + '</h3><p style="color:var(--gray);font-size:0.85rem;margin-bottom:1rem">No available staff to assign. Invite new users first.</p><div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Close</button></div>');
+    return;
+  }
+  showModal('<h3>Assign Staff to ' + getPropertyName(propId) + '</h3>' +
+    '<div class="form-group"><label>Staff Member</label><select id="assignUser">' +
+      available.map(u => '<option value="' + u.id + '">' + u.name + ' (' + u.role + ')</option>').join('') +
+    '</select></div>' +
+    '<div style="margin-bottom:1rem">' +
+      '<div style="font-size:0.72rem;font-weight:600;color:var(--gray);margin-bottom:0.4rem">PERMISSIONS</div>' +
+      '<label class="perm-toggle" style="display:flex"><input type="checkbox" id="aViewPay" checked> View Payments</label>' +
+      '<label class="perm-toggle" style="display:flex"><input type="checkbox" id="aManTen"> Manage Tenants</label>' +
+      '<label class="perm-toggle" style="display:flex"><input type="checkbox" id="aManUnit"> Manage Units</label>' +
+    '</div>' +
+    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="assignUser(\'' + propId + '\')">Assign</button></div>');
+}
+
+function assignUser(propId) {
+  const userId = document.getElementById('assignUser').value;
+  D.assignments.push({
+    userId: userId,
+    propertyId: propId,
+    canViewPayments: document.getElementById('aViewPay').checked,
+    canManageTenants: document.getElementById('aManTen').checked,
+    canManageUnits: document.getElementById('aManUnit').checked
+  });
+  D.auditLog.unshift({ user: state.user.name, action: 'Assigned property', detail: getUserName(userId) + ' → ' + getPropertyName(propId), time: new Date().toISOString(), type: 'property' });
+  hideModal(); toast(getUserName(userId) + ' assigned to ' + getPropertyName(propId)); renderPropertyAccess();
+}
+
+// ═══════ AUDIT LOG ═══════
+function renderAudit() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = D.auditLog.length + ' events recorded';
+
+  const types = [...new Set(D.auditLog.map(a => a.type))];
+  const users = [...new Set(D.auditLog.map(a => a.user))];
+
+  c.innerHTML = '<div class="tab-content">' +
+    // Filters
+    '<div class="card" style="margin-bottom:1.5rem">' +
+      '<div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:end">' +
+        '<div class="form-group" style="margin-bottom:0;flex:1;min-width:150px"><label>Filter by Type</label><select id="auditTypeFilter" onchange="filterAudit()"><option value="">All types</option>' + types.map(t => '<option value="' + t + '">' + t.charAt(0).toUpperCase() + t.slice(1) + '</option>').join('') + '</select></div>' +
+        '<div class="form-group" style="margin-bottom:0;flex:1;min-width:150px"><label>Filter by User</label><select id="auditUserFilter" onchange="filterAudit()"><option value="">All users</option>' + users.map(u => '<option value="' + u + '">' + u + '</option>').join('') + '</select></div>' +
+        '<button class="btn btn-outline" style="width:auto;padding:0.5rem 1rem;font-size:0.78rem;margin-bottom:0" onclick="document.getElementById(\'auditTypeFilter\').value=\'\';document.getElementById(\'auditUserFilter\').value=\'\';filterAudit()">Clear</button>' +
+      '</div>' +
+    '</div>' +
+
+    // Log entries
+    '<div class="card" id="auditEntries">' +
+      renderAuditEntries(D.auditLog) +
+    '</div>' +
+  '</div>';
+}
+
+function filterAudit() {
+  const type = document.getElementById('auditTypeFilter').value;
+  const user = document.getElementById('auditUserFilter').value;
+  let filtered = D.auditLog;
+  if (type) filtered = filtered.filter(a => a.type === type);
+  if (user) filtered = filtered.filter(a => a.user === user);
+  document.getElementById('auditEntries').innerHTML = renderAuditEntries(filtered);
+}
+
+function renderAuditEntries(entries) {
+  if (entries.length === 0) return '<div style="text-align:center;padding:2rem;color:var(--gray);font-size:0.85rem">No matching events</div>';
+
+  const typeColors = { role:'blue', permission:'amber', user:'', tenant:'', maintenance:'gray', property:'blue', payment:'' };
+  const typeBadge = { role:'badge-blue', permission:'badge-yellow', user:'badge-purple', tenant:'badge-green', maintenance:'badge-gray', property:'badge-blue', payment:'badge-green' };
+
+  return '<div class="card-title">Activity Timeline (' + entries.length + ' events)</div>' +
+    entries.map(a => {
+      const dt = new Date(a.time);
+      const dateStr = dt.toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' });
+      const timeStr = dt.toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' });
+      return '<div class="timeline-item">' +
+        '<div class="timeline-dot ' + (typeColors[a.type]||'') + '"></div>' +
+        '<div style="flex:1">' +
+          '<div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.3rem">' +
+            '<div><span style="font-weight:600;font-size:0.85rem">' + a.action + '</span> <span class="badge ' + (typeBadge[a.type]||'badge-gray') + '" style="font-size:0.58rem">' + a.type + '</span></div>' +
+            '<div style="font-size:0.68rem;color:var(--gray);white-space:nowrap">' + dateStr + ' · ' + timeStr + '</div>' +
+          '</div>' +
+          '<div style="font-size:0.78rem;color:var(--gray);margin-top:0.15rem">' + a.detail + '</div>' +
+          '<div style="font-size:0.68rem;color:var(--gray);margin-top:0.1rem">by <strong>' + a.user + '</strong></div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+}
+</script>
+</body>
+</html>
