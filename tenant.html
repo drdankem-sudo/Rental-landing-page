@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base — Tenant Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#00D26A;--green-dark:#0F4C2E;--green-tint:#E8F0EC;--black:#0a0b0d;--white:#fff;--gray:#6b7280;--gray-light:#f3f4f6;--sidebar-w:220px}
+body{font-family:'Outfit',sans-serif;background:var(--gray-light);color:var(--black);min-height:100vh}
+/* LOGIN */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--gray-light)}
+.login-card{background:var(--white);border-radius:16px;padding:3rem;width:380px;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+.login-card h1{font-size:1.6rem;font-weight:700;margin-bottom:0.3rem}
+.login-card h1 span{color:var(--green)}
+.login-card p{color:var(--gray);font-size:0.85rem;margin-bottom:2rem}
+.form-group{margin-bottom:1.2rem}
+.form-group label{display:block;font-size:0.75rem;font-weight:600;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray)}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.75rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:0.9rem;transition:border-color 0.2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--green)}
+.form-group textarea{resize:vertical;min-height:80px}
+.btn{width:100%;padding:0.8rem;border:none;border-radius:10px;font-family:inherit;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-green{background:var(--green);color:var(--white)}
+.btn-green:hover{background:#00b85c;transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid #e5e7eb;color:var(--black);margin-top:0.6rem}
+.btn-outline:hover{border-color:var(--black)}
+.login-error{color:#ef4444;font-size:0.8rem;margin-top:0.5rem;display:none}
+/* LAYOUT */
+.app{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--black);color:var(--white);padding:1.5rem 0;display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:0 1.5rem 0.5rem;font-size:1.2rem;font-weight:700}
+.sidebar-logo span{color:var(--green)}
+.sidebar-label{padding:0 1.5rem;font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.25);margin-top:1rem;margin-bottom:0.4rem}
+.sidebar-nav{list-style:none;flex:1}
+.sidebar-nav li{padding:0.65rem 1.5rem;font-size:0.82rem;font-weight:500;color:rgba(255,255,255,0.5);cursor:pointer;display:flex;align-items:center;gap:0.65rem;transition:all 0.2s;border-left:3px solid transparent}
+.sidebar-nav li:hover{color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.03)}
+.sidebar-nav li.active{color:var(--white);background:rgba(255,255,255,0.05);border-left-color:var(--green)}
+.sidebar-nav li svg{width:17px;height:17px;flex-shrink:0}
+.sidebar-user{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,0.08);font-size:0.8rem}
+.sidebar-user-name{font-weight:600;color:var(--white)}
+.sidebar-user-unit{color:rgba(255,255,255,0.4);font-size:0.72rem}
+.sidebar-logout{margin-top:0.5rem;font-size:0.72rem;color:rgba(255,255,255,0.3);cursor:pointer;transition:color 0.2s}
+.sidebar-logout:hover{color:#ef4444}
+.main{margin-left:var(--sidebar-w);padding:2rem;min-height:100vh}
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
+.topbar-title{font-size:1.4rem;font-weight:700}
+.topbar-sub{font-size:0.82rem;color:var(--gray)}
+/* CARDS */
+.card{background:var(--white);border-radius:12px;padding:1.4rem;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.card-title{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray);margin-bottom:1rem}
+.kpi-card{background:var(--white);border-radius:12px;padding:1.2rem 1.4rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);transition:all 0.2s}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.kpi-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray)}
+.kpi-value{font-size:1.8rem;font-weight:700;margin-top:0.3rem;line-height:1}
+/* BADGE */
+.badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:100px;font-size:0.65rem;font-weight:600}
+.badge-green{background:#dcfce7;color:#16a34a}
+.badge-yellow{background:#fef9c3;color:#ca8a04}
+.badge-red{background:#fee2e2;color:#dc2626}
+.badge-blue{background:#dbeafe;color:#2563eb}
+.badge-gray{background:#f3f4f6;color:#6b7280}
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.82rem}
+th{text-align:left;padding:0.7rem 1rem;font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--gray);border-bottom:2px solid #f3f4f6}
+td{padding:0.7rem 1rem;border-bottom:1px solid #f9fafb}
+tr:hover td{background:rgba(0,210,106,0.02)}
+/* BALANCE HERO */
+.balance-hero{background:linear-gradient(135deg,var(--green-dark),#0a2b1a);border-radius:16px;padding:2rem;color:var(--white);margin-bottom:1.5rem;position:relative;overflow:hidden}
+.balance-hero::after{content:'';position:absolute;top:-40%;right:-10%;width:200px;height:200px;border-radius:50%;background:rgba(0,210,106,0.1)}
+.balance-hero-label{font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;opacity:0.6}
+.balance-hero-amt{font-size:2.8rem;font-weight:800;margin:0.4rem 0;line-height:1}
+.balance-hero-sub{font-size:0.82rem;opacity:0.7}
+.balance-hero-actions{display:flex;gap:0.8rem;margin-top:1.5rem}
+.balance-hero-actions .btn{width:auto;padding:0.6rem 1.5rem;font-size:0.82rem}
+/* STAT ROW */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0;border-bottom:1px solid #f9fafb;font-size:0.82rem}
+.stat-row:last-child{border-bottom:none}
+.stat-row-label{color:var(--gray);font-size:0.75rem}
+.stat-row-value{font-weight:700}
+/* PROGRESS */
+.progress-bar{height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden;margin-top:0.4rem}
+.progress-bar-fill{height:100%;border-radius:3px;background:var(--green);transition:width 0.8s ease}
+.progress-bar-fill.amber{background:#f59e0b}
+.progress-bar-fill.red{background:#ef4444}
+/* MAINTENANCE CARD */
+.maint-card{background:var(--white);border-radius:12px;padding:1.2rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);border-left:4px solid var(--green);margin-bottom:0.8rem}
+.maint-card.pending{border-left-color:#f59e0b}
+.maint-card.urgent{border-left-color:#ef4444}
+/* TIMELINE */
+.timeline-item{display:flex;gap:1rem;padding:0.6rem 0;position:relative}
+.timeline-dot{width:10px;height:10px;border-radius:50%;background:var(--green);margin-top:4px;flex-shrink:0;position:relative;z-index:1}
+.timeline-dot.amber{background:#f59e0b}
+.timeline-dot.blue{background:#3b82f6}
+.timeline-dot.gray{background:#9ca3af}
+.timeline-item:not(:last-child)::before{content:'';position:absolute;left:4px;top:18px;bottom:-4px;width:2px;background:#f3f4f6}
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:1.2rem}
+.donut{position:relative;width:90px;height:90px;flex-shrink:0}
+.donut svg{transform:rotate(-90deg);width:90px;height:90px}
+.donut circle{fill:none;stroke-width:8}
+.donut .donut-bg{stroke:#f3f4f6}
+.donut .donut-fill{stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.donut-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700}
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:2rem;width:440px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal h3{font-size:1.1rem;font-weight:700;margin-bottom:1.2rem}
+.modal .form-group input,.modal .form-group select,.modal .form-group textarea{width:100%;padding:0.65rem 0.8rem;border:1.5px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:0.85rem}
+.modal-actions{display:flex;gap:0.8rem;margin-top:1.5rem}
+.modal-actions .btn{flex:1}
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;padding:0.8rem 1.4rem;border-radius:10px;font-size:0.82rem;font-weight:600;color:var(--white);z-index:300;transform:translateY(20px);opacity:0;transition:all 0.3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-success{background:var(--green)}
+.toast-error{background:#ef4444}
+/* ANNOUNCE */
+.announce-card{background:var(--white);border-radius:12px;padding:1.2rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);border-left:4px solid var(--green);margin-bottom:0.8rem}
+.announce-card.warning{border-left-color:#f59e0b}
+/* ANIMATION */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.tab-content{animation:fadeIn 0.3s ease}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(0,210,106,0.4)}70%{box-shadow:0 0 0 8px rgba(0,210,106,0)}}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse-green 2s infinite;margin-right:0.4rem}
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .balance-hero-amt{font-size:2rem}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginScreen">
+  <div class="login-card">
+    <h1>Ba<span>se</span></h1>
+    <p>Tenant portal — sign in to view your account</p>
+    <div id="phoneStep">
+      <div class="form-group">
+        <label>Phone number</label>
+        <input type="tel" id="phoneInput" placeholder="0722 111 222">
+      </div>
+      <button class="btn btn-green" onclick="handleRequestOtp()">Send verification code</button>
+    </div>
+    <div id="otpStep" style="display:none">
+      <div class="form-group">
+        <label>Verification code</label>
+        <input type="text" id="otpInput" placeholder="123456" maxlength="6">
+      </div>
+      <button class="btn btn-green" onclick="handleVerifyOtp()">Verify & sign in</button>
+      <button class="btn btn-outline" onclick="document.getElementById('otpStep').style.display='none';document.getElementById('phoneStep').style.display='block'">Back</button>
+    </div>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">Ba<span>se</span></div>
+    <div class="sidebar-label">My Account</div>
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li class="active" data-tab="home"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>Home</li>
+      <li data-tab="pay"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 9h16" stroke="currentColor" stroke-width="1.5"/></svg>Pay Rent</li>
+      <li data-tab="history"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.5"/></svg>Payment History</li>
+      <li data-tab="maintenance"><svg viewBox="0 0 20 20" fill="none"><path d="M11.5 2.5l6 6-9 9H2.5v-6l9-9z" stroke="currentColor" stroke-width="1.5"/></svg>Maintenance</li>
+      <li data-tab="lease"><svg viewBox="0 0 20 20" fill="none"><path d="M5 2h7l4 4v11a1 1 0 01-1 1H5a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5"/><path d="M12 2v4h4M7 10h6M7 13h4" stroke="currentColor" stroke-width="1.5"/></svg>My Lease</li>
+      <li data-tab="utilities"><svg viewBox="0 0 20 20" fill="none"><path d="M10 2v4M6 4l2 3M14 4l-2 3" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="8" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>Utilities</li>
+      <li data-tab="notices"><svg viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 016 6v3l2 2H2l2-2V8a6 6 0 016-6z" stroke="currentColor" stroke-width="1.5"/><path d="M8 17a2 2 0 004 0" stroke="currentColor" stroke-width="1.5"/></svg>Notices</li>
+      <li data-tab="profile"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="currentColor" stroke-width="1.5"/></svg>Profile</li>
+    </ul>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name" id="userName">-</div>
+      <div class="sidebar-user-unit" id="userUnit">-</div>
+      <div class="sidebar-logout" onclick="handleLogout()">Sign out</div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="pageTitle">Home</div>
+        <div class="topbar-sub" id="pageSub"></div>
+      </div>
+    </div>
+    <div id="tabContent"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════ DEMO TENANT DATA ═══════
+const T = {
+  tenant: { id: 'ten1', name: 'Alice Wanjiku', phone: '0722111222', email: 'alice@gmail.com', id_number: '32456789', id_verified: true, avatar: null, score: 92, scoreLevel: 'excellent' },
+  property: { name: 'Sunrise Apartments', address: 'Ngong Road, Kilimani', landlord: 'James Mwangi', landlordPhone: '0712345678' },
+  unit: { id: 'un1', number: 'A1', floor: 0, bedrooms: 1, rent: 15000, deposit: 15000, status: 'OCCUPIED' },
+  lease: { start: '2025-03-01', end: '2026-03-01', status: 'expired', signed: true, doc: 'lease_A1.pdf', renewalAvailable: true },
+  balance: { rent: 15000, utilities: 4500, totalDue: 19500, dueDate: '2026-05-05', lastPaid: '2026-04-28', overpayment: 0 },
+  payments: [
+    { id: 'p1', amount: 15000, ref: 'SLK3A7B9XQ', date: '2026-04-28T10:23:00Z', month: 'April 2026', status: 'MATCHED', receipt: 'BK-2026-00012' },
+    { id: 'p2', amount: 15000, ref: 'MVS4L8W6YB', date: '2026-03-29T10:10:00Z', month: 'March 2026', status: 'MATCHED', receipt: 'BK-2026-00008' },
+    { id: 'p3', amount: 15000, ref: 'JKL2M5N8QP', date: '2026-02-27T09:15:00Z', month: 'February 2026', status: 'MATCHED', receipt: 'BK-2026-00004' },
+    { id: 'p4', amount: 15000, ref: 'ABC1D4E7FG', date: '2026-01-30T11:40:00Z', month: 'January 2026', status: 'MATCHED', receipt: 'BK-2026-00001' },
+    { id: 'p5', amount: 15000, ref: 'XYZ9W6V3TU', date: '2025-12-28T08:20:00Z', month: 'December 2025', status: 'MATCHED', receipt: 'BK-2025-00045' },
+    { id: 'p6', amount: 15000, ref: 'HIJ5K8L1MN', date: '2025-11-29T14:55:00Z', month: 'November 2025', status: 'MATCHED', receipt: 'BK-2025-00038' },
+    { id: 'p7', amount: 10000, ref: 'OPQ2R5S8TU', date: '2025-10-31T10:00:00Z', month: 'October 2025', status: 'PARTIAL', receipt: null },
+    { id: 'p8', amount: 15000, ref: 'VWX3Y6Z9AB', date: '2025-09-28T09:30:00Z', month: 'September 2025', status: 'MATCHED', receipt: 'BK-2025-00025' }
+  ],
+  maintenance: [
+    { id: 'mr1', category: 'PLUMBING', description: 'Kitchen tap dripping constantly, wasting water', status: 'COMPLETED', created: '2026-03-15T08:00:00Z', updated: '2026-03-18T16:00:00Z', assignedTo: 'John Fundi', notes: 'Replaced washer and tightened valve' },
+    { id: 'mr2', category: 'ELECTRICAL', description: 'Living room socket sparking when plugging in appliances', status: 'IN_PROGRESS', created: '2026-04-25T14:00:00Z', updated: '2026-04-27T09:00:00Z', assignedTo: 'Peter Electrician', notes: 'Parts ordered, scheduled for Thursday' },
+    { id: 'mr3', category: 'GENERAL', description: 'Window handle broken, cannot close bedroom window properly', status: 'SUBMITTED', created: '2026-04-29T10:00:00Z', updated: null, assignedTo: null, notes: null }
+  ],
+  utilities: {
+    current: { month: 'April 2026', water: 1200, garbage: 500, electricity: 2800, total: 4500 },
+    history: [
+      { month: 'March 2026', water: 1100, garbage: 500, electricity: 2600, total: 4200 },
+      { month: 'February 2026', water: 1300, garbage: 500, electricity: 3100, total: 4900 },
+      { month: 'January 2026', water: 1050, garbage: 500, electricity: 2400, total: 3950 }
+    ]
+  },
+  notices: [
+    { id: 'n1', title: 'Water tank cleaning', message: 'Water supply will be interrupted on Saturday 3rd May from 8am-2pm for routine tank cleaning.', date: '2026-04-28', type: 'warning' },
+    { id: 'n2', title: 'Rent reminder', message: 'May 2026 rent of KES 15,000 is due by 5th May. Pay to Paybill 123456, Account: A1.', date: '2026-04-30', type: 'info' },
+    { id: 'n3', title: 'Security update', message: 'New CCTV cameras have been installed in the parking area and main entrance.', date: '2026-04-20', type: 'info' },
+    { id: 'n4', title: 'Lease renewal', message: 'Your lease expired on 1st March 2026. Please visit the management office to renew.', date: '2026-03-05', type: 'warning' }
+  ],
+  paymentMonths: [
+    { month: 'Nov', paid: 15000, due: 15000 }, { month: 'Dec', paid: 15000, due: 15000 },
+    { month: 'Jan', paid: 15000, due: 15000 }, { month: 'Feb', paid: 15000, due: 15000 },
+    { month: 'Mar', paid: 15000, due: 15000 }, { month: 'Apr', paid: 15000, due: 15000 }
+  ]
+};
+
+let state = { user: null, activeTab: 'home' };
+
+// ═══════ AUTH ═══════
+function handleRequestOtp() {
+  const phone = document.getElementById('phoneInput').value.trim();
+  if (!phone) return showError('Enter any phone number');
+  document.getElementById('phoneStep').style.display = 'none';
+  document.getElementById('otpStep').style.display = 'block';
+  hideError();
+}
+function handleVerifyOtp() {
+  const code = document.getElementById('otpInput').value.trim();
+  if (!code) return showError('Enter any code');
+  state.user = T.tenant;
+  initApp();
+}
+function handleLogout() {
+  state.user = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+function showError(msg) { const el = document.getElementById('loginError'); el.textContent = msg; el.style.display = 'block'; }
+function hideError() { document.getElementById('loginError').style.display = 'none'; }
+
+// ═══════ INIT ═══════
+function initApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('userName').textContent = state.user.name;
+  document.getElementById('userUnit').textContent = 'Unit ' + T.unit.number + ' · ' + T.property.name;
+  renderTab();
+}
+
+// ═══════ NAVIGATION ═══════
+document.getElementById('sidebarNav').addEventListener('click', function(e) {
+  const li = e.target.closest('li');
+  if (!li) return;
+  document.querySelectorAll('.sidebar-nav li').forEach(l => l.classList.remove('active'));
+  li.classList.add('active');
+  state.activeTab = li.dataset.tab;
+  document.getElementById('pageTitle').textContent = li.textContent.trim();
+  renderTab();
+});
+
+function renderTab() {
+  const c = document.getElementById('tabContent');
+  c.innerHTML = '';
+  switch (state.activeTab) {
+    case 'home': renderHome(); break;
+    case 'pay': renderPay(); break;
+    case 'history': renderHistory(); break;
+    case 'maintenance': renderMaintenance(); break;
+    case 'lease': renderLease(); break;
+    case 'utilities': renderUtilities(); break;
+    case 'notices': renderNotices(); break;
+    case 'profile': renderProfile(); break;
+  }
+}
+
+// ═══════ HELPERS ═══════
+function statusBadge(s) {
+  const map = { MATCHED:'badge-green', UNMATCHED:'badge-red', PARTIAL:'badge-yellow', OVERPAYMENT:'badge-blue', MANUALLY_MATCHED:'badge-gray', COMPLETED:'badge-green', IN_PROGRESS:'badge-blue', SUBMITTED:'badge-yellow', ASSIGNED:'badge-blue', CANCELLED:'badge-gray', ACTIVE:'badge-green', NOTICE_GIVEN:'badge-yellow', ENDED:'badge-red' };
+  return '<span class="badge ' + (map[s]||'badge-gray') + '">' + (s||'').replace(/_/g,' ') + '</span>';
+}
+function showModal(html) { document.getElementById('modalBody').innerHTML = html; document.getElementById('modalOverlay').classList.add('active'); }
+function hideModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+function toast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast ' + (type||'success'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) hideModal(); });
+
+// ═══════ HOME ═══════
+function renderHome() {
+  const c = document.getElementById('tabContent');
+  const b = T.balance;
+  document.getElementById('pageSub').textContent = T.property.name + ' · Unit ' + T.unit.number;
+
+  c.innerHTML = '<div class="tab-content">' +
+    // Balance hero
+    '<div class="balance-hero">' +
+      '<div class="balance-hero-label">Amount Due — ' + new Date(b.dueDate).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}) + '</div>' +
+      '<div class="balance-hero-amt">KES ' + b.totalDue.toLocaleString() + '</div>' +
+      '<div class="balance-hero-sub">Rent KES ' + b.rent.toLocaleString() + ' + Utilities KES ' + b.utilities.toLocaleString() + '</div>' +
+      '<div class="balance-hero-actions">' +
+        '<button class="btn btn-green" onclick="state.activeTab=\'pay\';document.querySelectorAll(\'.sidebar-nav li\').forEach(l=>l.classList.remove(\'active\'));document.querySelector(\'[data-tab=pay]\').classList.add(\'active\');document.getElementById(\'pageTitle\').textContent=\'Pay Rent\';renderTab()">Pay Now</button>' +
+        '<button class="btn" style="background:rgba(255,255,255,0.15);color:white" onclick="state.activeTab=\'history\';document.querySelectorAll(\'.sidebar-nav li\').forEach(l=>l.classList.remove(\'active\'));document.querySelector(\'[data-tab=history]\').classList.add(\'active\');document.getElementById(\'pageTitle\').textContent=\'Payment History\';renderTab()">View History</button>' +
+      '</div>' +
+    '</div>' +
+    // KPI row
+    '<div class="grid-3" style="margin-bottom:1.5rem">' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:var(--green)">&#10003;</div><div class="kpi-label">April Rent</div><div style="font-size:0.72rem;color:var(--gray);margin-top:0.3rem">Paid ' + new Date(b.lastPaid).toLocaleDateString('en-KE',{day:'numeric',month:'short'}) + '</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="font-size:1.4rem">' + T.maintenance.filter(m=>m.status!=='COMPLETED').length + '</div><div class="kpi-label">Open Requests</div><div style="font-size:0.72rem;color:var(--gray);margin-top:0.3rem">Maintenance</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="font-size:1.4rem;color:' + (T.lease.status==='expired'?'#ef4444':T.lease.status==='expiring'?'#f59e0b':'var(--green)') + '">' +
+        (T.lease.status==='active'?'Active':T.lease.status==='expiring'?'Expiring':'Expired') +
+      '</div><div class="kpi-label">Lease Status</div><div style="font-size:0.72rem;color:var(--gray);margin-top:0.3rem">Ends ' + new Date(T.lease.end).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}) + '</div></div>' +
+    '</div>' +
+    // Payment history chart + recent
+    '<div class="grid-2">' +
+      '<div class="card"><div class="card-title">Payment History (6 months)</div><div style="display:flex;align-items:flex-end;gap:8px;height:120px" id="homeChart"></div></div>' +
+      '<div class="card"><div class="card-title">Recent Activity</div>' +
+        '<div class="timeline-item"><div class="timeline-dot"></div><div><div style="font-size:0.82rem;font-weight:600">Rent payment confirmed</div><div style="font-size:0.72rem;color:var(--gray)">KES 15,000 — ' + T.payments[0].ref + '</div><div style="font-size:0.65rem;color:var(--gray)">28 Apr</div></div></div>' +
+        '<div class="timeline-item"><div class="timeline-dot blue"></div><div><div style="font-size:0.82rem;font-weight:600">Maintenance update</div><div style="font-size:0.72rem;color:var(--gray)">Socket repair — parts ordered</div><div style="font-size:0.65rem;color:var(--gray)">27 Apr</div></div></div>' +
+        '<div class="timeline-item"><div class="timeline-dot amber"></div><div><div style="font-size:0.82rem;font-weight:600">Notice from management</div><div style="font-size:0.72rem;color:var(--gray)">Water tank cleaning scheduled</div><div style="font-size:0.65rem;color:var(--gray)">28 Apr</div></div></div>' +
+        '<div class="timeline-item"><div class="timeline-dot"></div><div><div style="font-size:0.82rem;font-weight:600">Utility bill ready</div><div style="font-size:0.72rem;color:var(--gray)">April utilities — KES 4,500</div><div style="font-size:0.65rem;color:var(--gray)">25 Apr</div></div></div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  // Mini chart
+  const chart = document.getElementById('homeChart');
+  const maxV = Math.max(...T.paymentMonths.map(m => m.due), 1);
+  chart.innerHTML = T.paymentMonths.map(m => {
+    const pct = Math.round((m.paid / maxV) * 100);
+    const full = m.paid >= m.due;
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">' +
+      '<div style="width:100%;border-radius:6px 6px 2px 2px;background:' + (full ? 'var(--green)' : '#f59e0b') + ';height:' + pct + '%;min-height:4px;transition:height 0.8s"></div>' +
+      '<div style="font-size:0.6rem;color:var(--gray)">' + m.month + '</div></div>';
+  }).join('');
+}
+
+// ═══════ PAY RENT ═══════
+function renderPay() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = 'Send via M-Pesa to complete your payment';
+  const b = T.balance;
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="grid-2">' +
+      // Payment instructions
+      '<div class="card">' +
+        '<div class="card-title">M-Pesa Payment Instructions</div>' +
+        '<div style="background:var(--green-tint);border-radius:12px;padding:1.5rem;margin-bottom:1.2rem">' +
+          '<div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.3rem">Step 1</div>' +
+          '<div style="font-size:0.9rem;font-weight:600;margin-bottom:1rem">Go to M-Pesa &gt; Lipa na M-Pesa &gt; Pay Bill</div>' +
+          '<div class="stat-row"><span class="stat-row-label">Business Number</span><span class="stat-row-value" style="font-size:1.1rem">123456</span></div>' +
+          '<div class="stat-row"><span class="stat-row-label">Account Number</span><span class="stat-row-value" style="font-size:1.1rem;color:var(--green)">' + T.unit.number + '</span></div>' +
+          '<div class="stat-row"><span class="stat-row-label">Amount</span><span class="stat-row-value" style="font-size:1.1rem">KES ' + b.totalDue.toLocaleString() + '</span></div>' +
+        '</div>' +
+        '<div style="font-size:0.78rem;color:var(--gray);line-height:1.5">' +
+          '<strong>Important:</strong> Use your unit number <strong>' + T.unit.number + '</strong> as the account reference. ' +
+          'Your payment will be automatically matched and a receipt sent via SMS within minutes.' +
+        '</div>' +
+      '</div>' +
+      // Balance summary
+      '<div>' +
+        '<div class="card" style="margin-bottom:1rem">' +
+          '<div class="card-title">Balance Breakdown</div>' +
+          '<div class="stat-row"><span class="stat-row-label">Monthly Rent</span><span class="stat-row-value">KES ' + b.rent.toLocaleString() + '</span></div>' +
+          '<div class="stat-row"><span class="stat-row-label">Utilities (April)</span><span class="stat-row-value">KES ' + b.utilities.toLocaleString() + '</span></div>' +
+          '<div class="stat-row" style="border-top:2px solid #e5e7eb;padding-top:0.8rem;margin-top:0.3rem"><span class="stat-row-label" style="font-weight:700;color:var(--black)">Total Due</span><span class="stat-row-value" style="font-size:1.2rem;color:var(--green)">KES ' + b.totalDue.toLocaleString() + '</span></div>' +
+          '<div style="font-size:0.72rem;color:var(--gray);margin-top:0.5rem">Due by ' + new Date(b.dueDate).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}) + '</div>' +
+        '</div>' +
+        '<div class="card">' +
+          '<div class="card-title">Payment Confirmation</div>' +
+          '<div style="font-size:0.82rem;color:var(--gray);line-height:1.5">' +
+            '<span class="live-dot"></span>Payments are tracked in real time. Once you send via M-Pesa, it will appear in your history within 1-2 minutes. ' +
+            'An SMS receipt will be sent to <strong>' + T.tenant.phone + '</strong>.' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+// ═══════ PAYMENT HISTORY ═══════
+function renderHistory() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = T.payments.length + ' payments on record';
+  const totalPaid = T.payments.reduce((s, p) => s + p.amount, 0);
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="grid-3" style="margin-bottom:1.5rem">' +
+      '<div class="kpi-card"><div class="kpi-value">KES ' + totalPaid.toLocaleString() + '</div><div class="kpi-label">Total Paid</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value" style="color:var(--green)">' + T.payments.filter(p=>p.status==='MATCHED').length + '</div><div class="kpi-label">Confirmed Payments</div></div>' +
+      '<div class="kpi-card"><div class="kpi-value">' + T.payments.length + '</div><div class="kpi-label">Transactions</div></div>' +
+    '</div>' +
+    '<div class="card"><div class="table-wrap"><table><thead><tr>' +
+      '<th>Month</th><th>Date</th><th>Amount</th><th>M-Pesa Ref</th><th>Status</th><th>Receipt</th>' +
+    '</tr></thead><tbody>' +
+    T.payments.map(p =>
+      '<tr>' +
+        '<td><strong>' + p.month + '</strong></td>' +
+        '<td>' + new Date(p.date).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}) + '</td>' +
+        '<td style="font-weight:600">KES ' + p.amount.toLocaleString() + '</td>' +
+        '<td style="font-size:0.75rem;color:var(--gray)">' + p.ref + '</td>' +
+        '<td>' + statusBadge(p.status) + '</td>' +
+        '<td>' + (p.receipt ? '<button class="btn btn-outline" style="width:auto;padding:0.2rem 0.6rem;font-size:0.7rem" onclick="toast(\'Downloading ' + p.receipt + '\')">' + p.receipt + '</button>' : '<span style="font-size:0.72rem;color:var(--gray)">—</span>') + '</td>' +
+      '</tr>'
+    ).join('') +
+    '</tbody></table></div></div></div>';
+}
+
+// ═══════ MAINTENANCE ═══════
+function renderMaintenance() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = 'Submit and track repair requests';
+  const reqs = T.maintenance;
+  const open = reqs.filter(r => r.status !== 'COMPLETED' && r.status !== 'CANCELLED').length;
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">' +
+      '<div style="font-size:0.85rem;color:var(--gray)">' + open + ' open request' + (open !== 1 ? 's' : '') + '</div>' +
+      '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="showNewRequest()">+ New Request</button>' +
+    '</div>' +
+    reqs.map(r => {
+      const cls = r.status === 'SUBMITTED' || r.status === 'IN_PROGRESS' ? 'pending' : '';
+      return '<div class="maint-card ' + cls + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.6rem">' +
+          '<div><span class="badge badge-gray" style="margin-right:0.4rem">' + r.category + '</span>' + statusBadge(r.status) + '</div>' +
+          '<div style="font-size:0.68rem;color:var(--gray)">' + new Date(r.created).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}) + '</div>' +
+        '</div>' +
+        '<div style="font-size:0.9rem;font-weight:600;margin-bottom:0.4rem">' + r.description + '</div>' +
+        (r.assignedTo ? '<div style="font-size:0.75rem;color:var(--gray);margin-bottom:0.3rem">Assigned to: <strong>' + r.assignedTo + '</strong></div>' : '') +
+        (r.notes ? '<div style="font-size:0.75rem;color:var(--gray);background:var(--gray-light);border-radius:6px;padding:0.5rem 0.8rem;margin-top:0.5rem">' + r.notes + '</div>' : '') +
+        (r.updated && r.status !== 'SUBMITTED' ? '<div style="font-size:0.68rem;color:var(--gray);margin-top:0.4rem">Last updated: ' + new Date(r.updated).toLocaleDateString('en-KE',{day:'numeric',month:'short'}) + '</div>' : '') +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+
+function showNewRequest() {
+  showModal('<h3>New Maintenance Request</h3>' +
+    '<div class="form-group"><label>Category</label><select id="reqCat">' +
+      '<option value="PLUMBING">Plumbing</option><option value="ELECTRICAL">Electrical</option>' +
+      '<option value="PAINTING">Painting</option><option value="CARPENTRY">Carpentry</option>' +
+      '<option value="SECURITY">Security</option><option value="CLEANING">Cleaning</option>' +
+      '<option value="GENERAL">General</option><option value="OTHER">Other</option>' +
+    '</select></div>' +
+    '<div class="form-group"><label>Description</label><textarea id="reqDesc" placeholder="Describe the issue in detail..."></textarea></div>' +
+    '<div class="modal-actions"><button class="btn btn-outline" onclick="hideModal()">Cancel</button><button class="btn btn-green" onclick="submitRequest()">Submit Request</button></div>');
+}
+
+function submitRequest() {
+  const cat = document.getElementById('reqCat').value;
+  const desc = document.getElementById('reqDesc').value.trim();
+  if (!desc) { toast('Please describe the issue', 'error'); return; }
+  T.maintenance.unshift({
+    id: 'mr' + Date.now(), category: cat, description: desc, status: 'SUBMITTED',
+    created: new Date().toISOString(), updated: null, assignedTo: null, notes: null
+  });
+  hideModal(); toast('Request submitted! Management will respond shortly.'); renderMaintenance();
+}
+
+// ═══════ MY LEASE ═══════
+function renderLease() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = T.property.name + ' · Unit ' + T.unit.number;
+  const l = T.lease;
+  const statusLabel = l.status === 'active' ? 'Active' : l.status === 'expiring' ? 'Expiring Soon' : 'Expired';
+  const statusCls = l.status === 'active' ? 'badge-green' : l.status === 'expiring' ? 'badge-yellow' : 'badge-red';
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="grid-2">' +
+      '<div class="card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem"><div class="card-title" style="margin:0">Lease Details</div><span class="badge ' + statusCls + '">' + statusLabel + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">Property</span><span class="stat-row-value">' + T.property.name + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">Unit</span><span class="stat-row-value">' + T.unit.number + ' (Floor ' + T.unit.floor + ', ' + T.unit.bedrooms + ' bed)</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">Monthly Rent</span><span class="stat-row-value">KES ' + T.unit.rent.toLocaleString() + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">Deposit Paid</span><span class="stat-row-value">KES ' + T.unit.deposit.toLocaleString() + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">Lease Start</span><span class="stat-row-value">' + new Date(l.start).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}) + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">Lease End</span><span class="stat-row-value" style="color:' + (l.status==='expired'?'#ef4444':'inherit') + '">' + new Date(l.end).toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'}) + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">E-Signed</span><span class="stat-row-value">' + (l.signed ? '<span style="color:var(--green)">&#10003; Signed</span>' : '<span style="color:#f59e0b">Pending</span>') + '</span></div>' +
+        '<div style="display:flex;gap:0.5rem;margin-top:1.2rem">' +
+          (l.doc ? '<button class="btn btn-outline" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="toast(\'Downloading ' + l.doc + '\')">Download Lease</button>' : '') +
+          (l.renewalAvailable ? '<button class="btn btn-green" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="toast(\'Renewal request sent to management\')">Request Renewal</button>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div>' +
+        '<div class="card" style="margin-bottom:1rem">' +
+          '<div class="card-title">Landlord / Management</div>' +
+          '<div class="stat-row"><span class="stat-row-label">Name</span><span class="stat-row-value">' + T.property.landlord + '</span></div>' +
+          '<div class="stat-row"><span class="stat-row-label">Phone</span><span class="stat-row-value">' + T.property.landlordPhone + '</span></div>' +
+          '<div class="stat-row"><span class="stat-row-label">Property</span><span class="stat-row-value">' + T.property.address + '</span></div>' +
+        '</div>' +
+        '<div class="card">' +
+          '<div class="card-title">Lease Terms</div>' +
+          '<div style="font-size:0.82rem;color:var(--gray);line-height:1.6">' +
+            '<div style="margin-bottom:0.5rem">&#8226; Rent due by 5th of each month</div>' +
+            '<div style="margin-bottom:0.5rem">&#8226; 1 month notice required for termination</div>' +
+            '<div style="margin-bottom:0.5rem">&#8226; No subletting without written consent</div>' +
+            '<div style="margin-bottom:0.5rem">&#8226; Deposit refundable on move-out inspection</div>' +
+            '<div>&#8226; Tenant responsible for unit utility costs</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div></div>';
+}
+
+// ═══════ UTILITIES ═══════
+function renderUtilities() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = 'Water, garbage & electricity charges';
+  const cur = T.utilities.current;
+  const hist = T.utilities.history;
+
+  c.innerHTML = '<div class="tab-content">' +
+    '<div class="card" style="margin-bottom:1.5rem;border-left:4px solid var(--green)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><div class="card-title" style="margin:0">' + cur.month + ' Utilities</div><span class="badge badge-yellow">Unpaid</span></div>' +
+      '<div class="grid-3" style="margin-bottom:1rem">' +
+        '<div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:#3b82f6">KES ' + cur.water.toLocaleString() + '</div><div style="font-size:0.72rem;color:var(--gray)">Water</div></div>' +
+        '<div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:#f59e0b">KES ' + cur.garbage.toLocaleString() + '</div><div style="font-size:0.72rem;color:var(--gray)">Garbage</div></div>' +
+        '<div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:#8b5cf6">KES ' + cur.electricity.toLocaleString() + '</div><div style="font-size:0.72rem;color:var(--gray)">Electricity</div></div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.8rem;border-top:2px solid #f3f4f6">' +
+        '<div style="font-size:1.1rem;font-weight:700">Total: KES ' + cur.total.toLocaleString() + '</div>' +
+        '<button class="btn btn-outline" style="width:auto;padding:0.4rem 1rem;font-size:0.78rem" onclick="toast(\'Invoice downloaded\')">Download Invoice</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card"><div class="card-title">Previous Months</div><div class="table-wrap"><table><thead><tr><th>Month</th><th>Water</th><th>Garbage</th><th>Electricity</th><th>Total</th></tr></thead><tbody>' +
+    hist.map(h => '<tr><td><strong>' + h.month + '</strong></td><td>' + h.water.toLocaleString() + '</td><td>' + h.garbage.toLocaleString() + '</td><td>' + h.electricity.toLocaleString() + '</td><td style="font-weight:700">KES ' + h.total.toLocaleString() + '</td></tr>').join('') +
+    '</tbody></table></div></div></div>';
+}
+
+// ═══════ NOTICES ═══════
+function renderNotices() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = 'Announcements from management';
+
+  c.innerHTML = '<div class="tab-content">' +
+    T.notices.map(n =>
+      '<div class="announce-card ' + (n.type === 'warning' ? 'warning' : '') + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.4rem">' +
+          '<div style="font-weight:700;font-size:0.95rem">' + n.title + '</div>' +
+          '<div style="font-size:0.68rem;color:var(--gray);white-space:nowrap;margin-left:1rem">' + new Date(n.date).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}) + '</div>' +
+        '</div>' +
+        '<div style="font-size:0.82rem;color:var(--gray);line-height:1.5">' + n.message + '</div>' +
+      '</div>'
+    ).join('') +
+  '</div>';
+}
+
+// ═══════ PROFILE ═══════
+function renderProfile() {
+  const c = document.getElementById('tabContent');
+  document.getElementById('pageSub').textContent = 'Your account details';
+  const t = T.tenant;
+
+  c.innerHTML = '<div class="tab-content"><div class="grid-2">' +
+    '<div class="card">' +
+      '<div class="card-title">Personal Information</div>' +
+      '<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">' +
+        '<div style="width:60px;height:60px;border-radius:50%;background:var(--green-dark);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700">' + t.name.split(' ').map(w=>w[0]).join('') + '</div>' +
+        '<div><div style="font-size:1.1rem;font-weight:700">' + t.name + '</div><div style="font-size:0.78rem;color:var(--gray)">' + T.property.name + ' · Unit ' + T.unit.number + '</div></div>' +
+      '</div>' +
+      '<div class="stat-row"><span class="stat-row-label">Phone</span><span class="stat-row-value">' + t.phone + '</span></div>' +
+      '<div class="stat-row"><span class="stat-row-label">Email</span><span class="stat-row-value">' + (t.email || '—') + '</span></div>' +
+      '<div class="stat-row"><span class="stat-row-label">ID Number</span><span class="stat-row-value">' + (t.id_number || '—') + '</span></div>' +
+      '<div class="stat-row"><span class="stat-row-label">ID Verified</span><span class="stat-row-value">' + (t.id_verified ? '<span style="color:var(--green)">&#10003; Verified</span>' : '<span style="color:#f59e0b">Pending</span>') + '</span></div>' +
+      '<div style="margin-top:1.2rem"><button class="btn btn-outline" style="width:auto;padding:0.5rem 1.2rem;font-size:0.8rem" onclick="toast(\'Profile edit coming soon\')">Edit Profile</button></div>' +
+    '</div>' +
+    '<div>' +
+      '<div class="card" style="margin-bottom:1rem">' +
+        '<div class="card-title">Base Score</div>' +
+        '<div style="display:flex;align-items:center;gap:1.2rem;margin-bottom:1rem">' +
+          '<div style="width:70px;height:70px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;color:var(--green)">' + t.score + '</div>' +
+          '<div><div style="font-weight:700;font-size:1rem;text-transform:capitalize;color:var(--green)">' + t.scoreLevel + '</div><div style="font-size:0.75rem;color:var(--gray)">Based on payment history, ID verification, and tenure</div></div>' +
+        '</div>' +
+        '<div style="font-size:0.78rem;color:var(--gray);line-height:1.5">Your Base Score helps you get approved faster for new rentals. Keep paying on time to maintain your excellent rating.</div>' +
+      '</div>' +
+      '<div class="card">' +
+        '<div class="card-title">Account</div>' +
+        '<div class="stat-row"><span class="stat-row-label">Member Since</span><span class="stat-row-value">' + new Date(T.lease.start).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}) + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">Payments Made</span><span class="stat-row-value">' + T.payments.length + '</span></div>' +
+        '<div class="stat-row"><span class="stat-row-label">On-Time Rate</span><span class="stat-row-value" style="color:var(--green)">95%</span></div>' +
+      '</div>' +
+    '</div>' +
+  '</div></div>';
+}
+</script>
+</body>
+</html>
