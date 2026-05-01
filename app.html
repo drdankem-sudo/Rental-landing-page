@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base — Property Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginScreen">
+  <div class="login-card">
+    <h1>Ba<span>se</span></h1>
+    <p>Sign in to manage your properties or view your account</p>
+    <div id="phoneStep">
+      <div class="form-group">
+        <label>Phone number</label>
+        <input type="tel" id="phoneInput" placeholder="0712 345 678">
+      </div>
+      <div class="form-group">
+        <label>Sign in as</label>
+        <select id="roleSelect">
+          <option value="OWNER">Landlord / Owner</option>
+          <option value="MANAGER">Property Manager</option>
+          <option value="TENANT">Tenant</option>
+        </select>
+      </div>
+      <button class="btn btn-green" onclick="handleRequestOtp()">Send verification code</button>
+    </div>
+    <div id="otpStep" style="display:none">
+      <div class="form-group">
+        <label>Verification code</label>
+        <input type="text" id="otpInput" placeholder="123456" maxlength="6">
+      </div>
+      <button class="btn btn-green" onclick="handleVerifyOtp()">Verify & sign in</button>
+      <button class="btn btn-outline" onclick="document.getElementById('otpStep').style.display='none';document.getElementById('phoneStep').style.display='block'">Back</button>
+    </div>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div class="app" id="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">Ba<span>se</span> <span class="sidebar-badge" id="portalBadge"></span></div>
+    <div class="sidebar-label" id="sidebarLabel"></div>
+    <ul class="sidebar-nav" id="sidebarNav"></ul>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name" id="userName">-</div>
+      <div class="sidebar-user-sub" id="userSub">-</div>
+      <div class="sidebar-switch" id="portalSwitch" onclick="switchPortal()"></div>
+      <div class="sidebar-logout" onclick="handleLogout()">Sign out</div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="pageTitle">Overview</div>
+        <div class="topbar-sub" id="pageSub"></div>
+      </div>
+      <div class="topbar-right" id="topbarRight">
+        <select class="property-select" id="propertySelect" onchange="switchProperty()" style="display:none"></select>
+      </div>
+    </div>
+    <div id="tabContent"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
